@@ -2,6 +2,7 @@ package com.cmpe275.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 
 @SuppressWarnings("serial")
@@ -17,6 +18,27 @@ public class User implements Serializable {
 	private String signupType;
 	private String password;
 	
+	@OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
+	private List<Offer> offers;
+
+	@OneToMany
+	private List<CounterOffer> counterOffers;
+	
+	public List<Offer> getOffers() {
+		return offers;
+	}
+
+	public void setOffers(List<Offer> offers) {
+		this.offers = offers;
+	}
+
+	public List<CounterOffer> getCounterOffers() {
+		return counterOffers;
+	}
+
+	public void setCounterOffers(List<CounterOffer> counterOffers) {
+		this.counterOffers = counterOffers;
+	}
 
 	public long getId() {
 		return id;
