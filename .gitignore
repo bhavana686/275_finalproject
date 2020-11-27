@@ -5,3 +5,4 @@
 .settings/
 .DS_Store
 /src/.DS_Store
+.project
