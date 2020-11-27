@@ -1,11 +1,14 @@
 package com.cmpe275.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import com.cmpe275.entity.Enum;
 
 @Entity
 public class CounterOffer {
@@ -20,12 +23,9 @@ public class CounterOffer {
 
 	private double originalAmount;
 	private double counterAmount;
-
-	private enum OfferStatuses {
-		open, accepted, declined
-	}
-
-	private OfferStatuses status;
+	
+	@Enumerated(EnumType.STRING)
+	private Enum.CounterOfferStatuses status;
 	private long counteredBy;
 
 	public long getId() {
@@ -60,11 +60,11 @@ public class CounterOffer {
 		this.counterAmount = counterAmount;
 	}
 
-	public OfferStatuses getStatus() {
+	public Enum.CounterOfferStatuses getStatus() {
 		return status;
 	}
 
-	public void setStatus(OfferStatuses status) {
+	public void setStatus(Enum.CounterOfferStatuses status) {
 		this.status = status;
 	}
 

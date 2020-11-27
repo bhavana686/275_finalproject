@@ -2,11 +2,16 @@ package com.cmpe275.entity;
 
 import java.sql.Date;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import com.cmpe275.entity.Enum;
+
+import lombok.Builder.Default;
 
 @Entity
 public class Offer {
@@ -14,23 +19,22 @@ public class Offer {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	private enum Countries {
-		Europe, UK, India, China, US
-	}
+	@Enumerated(EnumType.STRING)
+	private Enum.Countries sourceCountry;
 
-	private enum Currency {
-		EUR, GBP, INR, RMB, USD
-	}
+	@Enumerated(EnumType.STRING)
+	private Enum.Currency sourceCurrency;
 
-	private enum OfferStatuses {
-		open, fulfilled, expired
-	}
-
-	private Countries sourceCountry;
-	private Currency sourceCurrency;
 	private double amount;
-	private Countries destinationCountry;
-	private Currency destinationCurrency;
+	@Enumerated(EnumType.STRING)
+	private Enum.Countries destinationCountry;
+
+	@Enumerated(EnumType.STRING)
+	private Enum.Currency destinationCurrency;
+
+	@Enumerated(EnumType.STRING)
+	private Enum.OfferStatuses status;
+
 	private double exchangeRate;
 	private boolean usePrevailingRate;
 	private Date expiry;
@@ -40,8 +44,6 @@ public class Offer {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User postedBy;
 
-	private OfferStatuses status;
-
 	public long getId() {
 		return id;
 	}
@@ -50,20 +52,44 @@ public class Offer {
 		this.id = id;
 	}
 
-	public Countries getSourceCountry() {
+	public Enum.Countries getSourceCountry() {
 		return sourceCountry;
 	}
 
-	public void setSourceCountry(Countries sourceCountry) {
+	public void setSourceCountry(Enum.Countries sourceCountry) {
 		this.sourceCountry = sourceCountry;
 	}
 
-	public Currency getSourceCurrency() {
+	public Enum.Currency getSourceCurrency() {
 		return sourceCurrency;
 	}
 
-	public void setSourceCurrency(Currency sourceCurrency) {
+	public void setSourceCurrency(Enum.Currency sourceCurrency) {
 		this.sourceCurrency = sourceCurrency;
+	}
+	
+	public Enum.OfferStatuses getStatus() {
+		return status;
+	}
+
+	public void setStatus(Enum.OfferStatuses status) {
+		this.status = status;
+	}
+
+	public Enum.Currency getDestinationCurrency() {
+		return destinationCurrency;
+	}
+
+	public void setDestinationCurrency(Enum.Currency destinationCurrency) {
+		this.destinationCurrency = destinationCurrency;
+	}
+
+	public Enum.Countries getDestinationCountry() {
+		return destinationCountry;
+	}
+
+	public void setDestinationCountry(Enum.Countries destinationCountry) {
+		this.destinationCountry = destinationCountry;
 	}
 
 	public double getAmount() {
@@ -120,30 +146,6 @@ public class Offer {
 
 	public void setPostedBy(User postedBy) {
 		this.postedBy = postedBy;
-	}
-
-	public OfferStatuses getStatus() {
-		return status;
-	}
-
-	public void setStatus(OfferStatuses status) {
-		this.status = status;
-	}
-
-	public Currency getDestinationCurrency() {
-		return destinationCurrency;
-	}
-
-	public void setDestinationCurrency(Currency destinationCurrency) {
-		this.destinationCurrency = destinationCurrency;
-	}
-
-	public Countries getDestinationCountry() {
-		return destinationCountry;
-	}
-
-	public void setDestinationCountry(Countries destinationCountry) {
-		this.destinationCountry = destinationCountry;
 	}
 
 }
