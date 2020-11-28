@@ -1,7 +1,6 @@
 package com.cmpe275.entity;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,10 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
-import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.Enum.OfferStatuses;
-
-import lombok.Builder.Default;
 
 @Entity
 public class Offer {
@@ -40,7 +36,7 @@ public class Offer {
 	private Enum.OfferStatuses status = OfferStatuses.open;
 
 	private double exchangeRate;
-	private boolean usePrevailingRate;
+	private boolean usePrevailingRate = false;
 	private Timestamp expiry;
 	private boolean allowCounterOffers = true;
 	private boolean allowSplitExchanges = true;
@@ -50,9 +46,13 @@ public class Offer {
 
 	@OneToOne(fetch = FetchType.LAZY)
 	private Transaction fulfilledBy;
-	
-	private boolean isCounter;
 
+	private boolean isCounter = false;
+
+	private double transactedAmount;
+	
+	private boolean fullyFulfilled;
+	
 	public long getId() {
 		return id;
 	}
@@ -171,6 +171,22 @@ public class Offer {
 
 	public void setCounter(boolean isCounter) {
 		this.isCounter = isCounter;
+	}
+
+	public double getTransactedAmount() {
+		return transactedAmount;
+	}
+
+	public void setTransactedAmount(double transactedAmount) {
+		this.transactedAmount = transactedAmount;
+	}
+
+	public boolean isFullyFulfilled() {
+		return fullyFulfilled;
+	}
+
+	public void setFullyFulfilled(boolean fullyFulfilled) {
+		this.fullyFulfilled = fullyFulfilled;
 	}
 
 }

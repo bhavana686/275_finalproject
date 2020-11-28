@@ -25,7 +25,8 @@ public class CounterOffer {
 	private double counterAmount;
 	
 	@Enumerated(EnumType.STRING)
-	private Enum.CounterOfferStatuses status;
+	private Enum.CounterOfferStatuses status = Enum.CounterOfferStatuses.open;
+	
 	private long counteredBy;
 
 	public long getId() {

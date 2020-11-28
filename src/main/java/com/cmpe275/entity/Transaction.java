@@ -1,6 +1,8 @@
 package com.cmpe275.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -17,7 +19,7 @@ public class Transaction {
 
 	@OneToMany
 	private List<Offer> offers;
-	private Date date;
+	private Timestamp date;
 
 	public List<Offer> getOffers() {
 		return offers;
@@ -25,5 +27,13 @@ public class Transaction {
 
 	public void setOffers(List<Offer> offers) {
 		this.offers = offers;
+	}
+
+	public Timestamp getDate() {
+		return date;
+	}
+
+	public void setDate(Timestamp date) {
+		this.date = date;
 	}
 }
