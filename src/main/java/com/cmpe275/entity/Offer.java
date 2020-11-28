@@ -1,6 +1,7 @@
 package com.cmpe275.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+
 import com.cmpe275.entity.Enum;
 
 import lombok.Builder.Default;
@@ -37,12 +40,17 @@ public class Offer {
 
 	private double exchangeRate;
 	private boolean usePrevailingRate;
-	private Date expiry;
+	private Timestamp expiry;
 	private boolean allowCounterOffers = true;
 	private boolean allowSplitExchanges = true;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User postedBy;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	private Transaction fulfilledBy;
+	
+	private boolean isCounter;
 
 	public long getId() {
 		return id;
@@ -67,7 +75,7 @@ public class Offer {
 	public void setSourceCurrency(Enum.Currency sourceCurrency) {
 		this.sourceCurrency = sourceCurrency;
 	}
-	
+
 	public Enum.OfferStatuses getStatus() {
 		return status;
 	}
@@ -116,11 +124,11 @@ public class Offer {
 		this.usePrevailingRate = usePrevailingRate;
 	}
 
-	public Date getExpiry() {
+	public Timestamp getExpiry() {
 		return expiry;
 	}
 
-	public void setExpiry(Date expiry) {
+	public void setExpiry(Timestamp expiry) {
 		this.expiry = expiry;
 	}
 
@@ -146,6 +154,22 @@ public class Offer {
 
 	public void setPostedBy(User postedBy) {
 		this.postedBy = postedBy;
+	}
+
+	public Transaction getFulfilledBy() {
+		return fulfilledBy;
+	}
+
+	public void setFulfilledBy(Transaction fulfilledBy) {
+		this.fulfilledBy = fulfilledBy;
+	}
+
+	public boolean isCounter() {
+		return isCounter;
+	}
+
+	public void setCounter(boolean isCounter) {
+		this.isCounter = isCounter;
 	}
 
 }
