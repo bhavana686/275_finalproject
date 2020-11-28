@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.Offer;
 import com.cmpe275.service.ExchangeRateService;
 import com.cmpe275.service.UserService;
@@ -20,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
-@RequestMapping(value = "/exchange_rate")
+@RequestMapping(value = "/offer")
 public class ExchangeRateController {
 
 	@Autowired
@@ -32,19 +33,20 @@ public class ExchangeRateController {
 //	}
 //	
 	
-	   @ResponseStatus(value = HttpStatus.OK)
-	    @PostMapping(value="/create",consumes = MediaType.APPLICATION_JSON_VALUE)
-	    public ResponseEntity<Object> createOffer(@RequestBody Offer offer) {
+   @ResponseStatus(value = HttpStatus.OK)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> createOffer(@RequestBody Offer offer) {
 
-	      System.out.println("User: {}"+ offer.getAmount());
-	      System.out.println("User: {}"+ offer.getExchangeRate());
-	      return exchangeRateService.createOffer(offer);
-	    }
+      System.out.println("User: {}"+ offer.getAmount());
+      System.out.println("User: {}"+ offer.getExchangeRate());
+      return exchangeRateService.createOffer(offer);
+    }
 	   
-//	@PutMapping("/{id}")
-//	public ResponseEntity<Object> updateExchangeRate(HttpServletRequest req, @PathVariable("id") long id) {
-//		return exchangeRateService.updateExchangeRate(req, (long) id);
-//	}
+	@PutMapping("/{id}")
+	public ResponseEntity<String> updateOffer(@RequestBody Offer offer, @PathVariable("id") long id) {
+		
+		return exchangeRateService.updateOffer(offer,id);
+	}
 	
 
  
