@@ -1,6 +1,6 @@
 package com.cmpe275.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,10 +9,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import com.cmpe275.entity.Enum;
-import com.cmpe275.entity.Enum.OfferStatuses;
+import javax.persistence.OneToOne;
 
-import lombok.Builder.Default;
+import com.cmpe275.entity.Enum.OfferStatuses;
 
 @Entity
 public class Offer {
@@ -37,14 +36,23 @@ public class Offer {
 	private Enum.OfferStatuses status = OfferStatuses.open;
 
 	private double exchangeRate;
-	private boolean usePrevailingRate;
-	private Date expiry;
+	private boolean usePrevailingRate = false;
+	private Timestamp expiry;
 	private boolean allowCounterOffers = true;
 	private boolean allowSplitExchanges = true;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User postedBy;
 
+	@OneToOne(fetch = FetchType.LAZY)
+	private Transaction fulfilledBy;
+
+	private boolean isCounter = false;
+
+	private double transactedAmount;
+	
+	private boolean fullyFulfilled;
+	
 	public long getId() {
 		return id;
 	}
@@ -68,7 +76,7 @@ public class Offer {
 	public void setSourceCurrency(Enum.Currency sourceCurrency) {
 		this.sourceCurrency = sourceCurrency;
 	}
-	
+
 	public Enum.OfferStatuses getStatus() {
 		return status;
 	}
@@ -117,11 +125,11 @@ public class Offer {
 		this.usePrevailingRate = usePrevailingRate;
 	}
 
-	public Date getExpiry() {
+	public Timestamp getExpiry() {
 		return expiry;
 	}
 
-	public void setExpiry(Date expiry) {
+	public void setExpiry(Timestamp expiry) {
 		this.expiry = expiry;
 	}
 
@@ -147,6 +155,38 @@ public class Offer {
 
 	public void setPostedBy(User postedBy) {
 		this.postedBy = postedBy;
+	}
+
+	public Transaction getFulfilledBy() {
+		return fulfilledBy;
+	}
+
+	public void setFulfilledBy(Transaction fulfilledBy) {
+		this.fulfilledBy = fulfilledBy;
+	}
+
+	public boolean isCounter() {
+		return isCounter;
+	}
+
+	public void setCounter(boolean isCounter) {
+		this.isCounter = isCounter;
+	}
+
+	public double getTransactedAmount() {
+		return transactedAmount;
+	}
+
+	public void setTransactedAmount(double transactedAmount) {
+		this.transactedAmount = transactedAmount;
+	}
+
+	public boolean isFullyFulfilled() {
+		return fullyFulfilled;
+	}
+
+	public void setFullyFulfilled(boolean fullyFulfilled) {
+		this.fullyFulfilled = fullyFulfilled;
 	}
 
 }
