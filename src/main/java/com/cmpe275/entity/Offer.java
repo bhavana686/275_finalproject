@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import com.cmpe275.entity.Enum;
+import com.cmpe275.entity.Enum.OfferStatuses;
 
 import lombok.Builder.Default;
 
@@ -33,7 +34,7 @@ public class Offer {
 	private Enum.Currency destinationCurrency;
 
 	@Enumerated(EnumType.STRING)
-	private Enum.OfferStatuses status;
+	private Enum.OfferStatuses status = OfferStatuses.open;
 
 	private double exchangeRate;
 	private boolean usePrevailingRate;
