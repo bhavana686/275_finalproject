@@ -8,8 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.cmpe275.service.UserService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
+@CrossOrigin(origins="http://localhost:3000", allowedHeaders = "*",allowCredentials="true")
 @RequestMapping(value = "/user")
 public class UserController {
 
@@ -17,8 +19,9 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping
-	public ResponseEntity<Object> userSignup(HttpServletRequest request) {
-		return userService.signUp(request);
+	public ResponseEntity<Object> userSignup(HttpServletRequest request, @RequestBody JsonNode body) {
+		System.out.print(body);
+		return userService.signUp(request,body);
 	}
 	
 

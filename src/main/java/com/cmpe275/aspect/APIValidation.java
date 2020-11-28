@@ -19,17 +19,17 @@ import com.cmpe275.entity.Offer;
 public class APIValidation {
 	
 //    checking the required parameters for createPlayer
-	@Before("execution(public * com.cmpe275.controller.UserController.userSignup(..)) && args(request)")
-	public void ValidateCreatePlayerAPI(JoinPoint joinPoint, HttpServletRequest request) {
-		if (request.getParameter("username") == null || request.getParameter("username") == "") {
-			throw new ValidationException("Email is missing which is required parameter.");
-		}
-		if (request.getParameter("nickname") == null || request.getParameter("nickname") == "") {
-			throw new ValidationException("nickname is missing which is required parameter.");
-		}
-		
-	}
 	
+//	public void ValidateCreatePlayerAPI(JoinPoint joinPoint, HttpServletRequest request) {
+//		if (request.getParameter("username") == null || request.getParameter("username") == "") {
+//			throw new ValidationException("Email is missing which is required parameter.");
+//		}
+//		if (request.getParameter("nickname") == null || request.getParameter("nickname") == "") {
+//			throw new ValidationException("nickname is missing which is required parameter.");
+//		}
+//		
+//	}
+//	
 	
 	@Before("execution(public * com.cmpe275.controller.ExchangeRateController.createOffer(..))")
 	public void ValidateExchangeOffer(JoinPoint joinPoint) throws CustomException {

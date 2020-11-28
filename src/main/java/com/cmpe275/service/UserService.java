@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.User;
 import com.cmpe275.repo.UserRepo;
+import com.fasterxml.jackson.databind.JsonNode;
 
 
 
@@ -21,10 +22,10 @@ public class UserService {
 	@Autowired
 	private UserRepo userRepo;
 
-	public  ResponseEntity<Object> signUp(HttpServletRequest req) {
+	public  ResponseEntity<Object> signUp(HttpServletRequest req, JsonNode body) {
 		User user;
 		try {
-			user = buildUserFromData(req);
+			user = buildUserFromData(body);
 			User u = userRepo.save(user);
 			return new ResponseEntity<>(u, HttpStatus.OK);
 		} catch (CustomException e) {
@@ -33,25 +34,25 @@ public class UserService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
-	public  User buildUserFromData(HttpServletRequest req) throws CustomException {
+	public  User buildUserFromData(JsonNode body) throws CustomException {
 		User user = new User();
 		try {
-			if (userRepo.findByUsername(req.getParameter("username")).isPresent()) {
+			if (userRepo.findByUsername(body.get("username").asText()).isPresent()) {
 				throw new CustomException("user Already exists with given Email", HttpStatus.CONFLICT);
 			}
-			if (userRepo.findByNickname(req.getParameter("nickname")).isPresent()) {
+			if (userRepo.findByNickname(body.get("nickname").asText()).isPresent()) {
 				throw new CustomException("user Already exists with given Nick name", HttpStatus.CONFLICT);
 			}
-			String username = req.getParameter("username");
+			String username = body.get("username").asText();
 			if (username != null)
 	            user.setUsername(username);
-			String nickname = req.getParameter("nickname");
+			String nickname = body.get("nickname").asText();
 			if (nickname != null)
 				user.setNickname(nickname);
-			String password = req.getParameter("password");
+			String password = body.get("password").asText();
 			if (password != null)
 				user.setPassword(password);
-			String signupType = req.getParameter("signupType");
+			String signupType = body.get("signupType").asText();
 			if (signupType != null)
 				user.setSignupType(signupType);
 			

@@ -1,5 +1,6 @@
 package com.cmpe275.service;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -113,7 +114,7 @@ public class ExchangeRateService {
 			{
 				exchangeOffer.setAllowSplitExchanges(false);
 			}
-		    Date expiry = offer.getExpiry();
+		    Timestamp expiry = offer.getExpiry();
 		    if(expiry != null)
 		    {
 		    	exchangeOffer.setExpiry(expiry);
