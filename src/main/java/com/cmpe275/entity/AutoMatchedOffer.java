@@ -1,5 +1,7 @@
 package com.cmpe275.entity;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,10 +13,10 @@ public class AutoMatchedOffer {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	private long originalOffer;
-	private long[] splittedOffers;
-	private long counteredOffer;
-	private long counterId;
+	private Offer originalOffer;
+	private List<Offer> fullyFulfilledOffers;
+	private Offer counteredOffer;
+	private CounterOffer counter;
 
 	public long getId() {
 		return id;
@@ -24,36 +26,36 @@ public class AutoMatchedOffer {
 		this.id = id;
 	}
 
-	public long getOriginalOffer() {
+	public Offer getOriginalOffer() {
 		return originalOffer;
 	}
 
-	public void setOriginalOffer(long originalOffer) {
+	public void setOriginalOffer(Offer originalOffer) {
 		this.originalOffer = originalOffer;
 	}
 
-	public long[] getSplittedOffers() {
-		return splittedOffers;
+	public List<Offer> getFullyFulfilledOffers() {
+		return fullyFulfilledOffers;
 	}
 
-	public void setSplittedOffers(long[] splittedOffers) {
-		this.splittedOffers = splittedOffers;
+	public void setFullyFulfilledOffers(List<Offer> fullyFulfilledOffers) {
+		this.fullyFulfilledOffers = fullyFulfilledOffers;
 	}
 
-	public long getCounteredOffer() {
+	public Offer getCounteredOffer() {
 		return counteredOffer;
 	}
 
-	public void setCounteredOffer(long counteredOffer) {
+	public void setCounteredOffer(Offer counteredOffer) {
 		this.counteredOffer = counteredOffer;
 	}
 
-	public long getCounterId() {
-		return counterId;
+	public CounterOffer getCounter() {
+		return counter;
 	}
 
-	public void setCounterId(long counterId) {
-		this.counterId = counterId;
+	public void setCounter(CounterOffer counter) {
+		this.counter = counter;
 	}
 
 }

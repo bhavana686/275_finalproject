@@ -43,10 +43,16 @@ public class TransactionController {
 		return transactionService.counterAOffer(request, body, (long) offerId);
 	}
 
-	@PostMapping("/automatch/{id}/accept")
+	@PostMapping("/automatch/{id}/process")
 	public ResponseEntity<Object> counterAutoMatchOffer(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("id") long offerId) {
 		return transactionService.processAutoMatchOffer(request, body, (long) offerId);
+	}
+	
+	@PostMapping("/counter/{id}/accept")
+	public ResponseEntity<Object> acceptCounterOffer(HttpServletRequest request, @RequestBody JsonNode body,
+			@PathVariable("id") long counterId) {
+		return transactionService.acceptCounterOffer(request, body, (long) counterId);
 	}
 
 	@GetMapping("/create")
