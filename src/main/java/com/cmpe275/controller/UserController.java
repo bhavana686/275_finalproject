@@ -23,10 +23,9 @@ public class UserController {
 		return userService.signUp(request,body);
 	}
 	
-	@GetMapping("/{username}")
-	public ResponseEntity<Object> userSignin(HttpServletRequest request, @PathVariable("username") String username) {
-		System.out.print(username);
-		return userService.signIn(request,username);
+	@GetMapping
+	public ResponseEntity<Object> userSignin(HttpServletRequest request) {
+		return userService.signIn(request);
 	}
 	
 
