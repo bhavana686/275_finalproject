@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,8 +18,9 @@ public class Transaction {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	@OneToMany
+	@OneToMany(fetch = FetchType.LAZY)
 	private List<Offer> offers;
+	
 	private Timestamp date;
 
 	public List<Offer> getOffers() {

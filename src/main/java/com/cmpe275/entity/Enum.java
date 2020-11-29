@@ -14,6 +14,6 @@ public class Enum {
 	}
 	
 	public static enum CounterOfferStatuses {
-		open, accepted, declined
+		open, accepted, declined, expired
 	}
 }

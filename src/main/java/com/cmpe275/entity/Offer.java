@@ -26,6 +26,7 @@ public class Offer {
 	private Enum.Currency sourceCurrency;
 
 	private double amount;
+	
 	@Enumerated(EnumType.STRING)
 	private Enum.Countries destinationCountry;
 
@@ -52,6 +53,10 @@ public class Offer {
 	private double transactedAmount;
 	
 	private boolean fullyFulfilled;
+	
+	private boolean isEditable = true;
+	
+	private boolean display = true;
 	
 	public long getId() {
 		return id;
@@ -187,6 +192,22 @@ public class Offer {
 
 	public void setFullyFulfilled(boolean fullyFulfilled) {
 		this.fullyFulfilled = fullyFulfilled;
+	}
+
+	public boolean isEditable() {
+		return isEditable;
+	}
+
+	public void setEditable(boolean isEditable) {
+		this.isEditable = isEditable;
+	}
+
+	public boolean isDisplay() {
+		return display;
+	}
+
+	public void setDisplay(boolean display) {
+		this.display = display;
 	}
 
 }
