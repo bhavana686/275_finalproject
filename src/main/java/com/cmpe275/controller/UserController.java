@@ -18,10 +18,15 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping
+	@PostMapping()
 	public ResponseEntity<Object> userSignup(HttpServletRequest request, @RequestBody JsonNode body) {
-		System.out.print(body);
 		return userService.signUp(request,body);
+	}
+	
+	@GetMapping("/{username}")
+	public ResponseEntity<Object> userSignin(HttpServletRequest request, @PathVariable("username") String username) {
+		System.out.print(username);
+		return userService.signIn(request,username);
 	}
 	
 
