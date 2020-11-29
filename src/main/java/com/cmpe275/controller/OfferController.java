@@ -19,4 +19,10 @@ public class OfferController {
 	public ResponseEntity<Object> getOffers(HttpServletRequest request) {
 		return offerService.getOffers(request);
 	}
+	
+	@GetMapping("/filter")
+	public ResponseEntity<Object> getFilteredOffers(HttpServletRequest request) {
+		return offerService.getFilteredOffers(request);
+	}
+	
 }
