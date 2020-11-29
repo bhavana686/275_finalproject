@@ -24,12 +24,14 @@ class SignIn extends Component {
 
   authenticateUser = (event) => {
     event.preventDefault();
-    let url = process.env.REACT_APP_BACKEND_URL +'/user?username=' + this.state.email;
+    console.log(this.state.email);
+    let url = process.env.REACT_APP_BACKEND_URL +'/user?username='+ this.state.email;
     console.log(url)
     axios.defaults.withCredentials = true;
     axios.get(url)
       .then(response => {
-        if (response.data.username!=null) {
+        console.log(response);
+        if (response.data.username!=null && response.data.signupType=="general") {
           if (bcrypt.compareSync(this.state.password, response.data.password)) {
             sessionStorage.setItem("username", this.state.email);
             sessionStorage.setItem("id", response.data.id);

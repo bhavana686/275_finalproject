@@ -63,15 +63,16 @@ public class UserService {
 		return user;
 	}
 	
-	public  ResponseEntity<Object> signIn(HttpServletRequest req, String username) {
+	public  ResponseEntity<Object> signIn(HttpServletRequest req) {
 		try {
-			if (userRepo.findByUsername("username").isPresent()){
-				Optional<User> us = userRepo.findByUsername("username");
+			 String name = req.getParameter("username");
+			if(userRepo.findByUsername(name).isPresent()){
+				Optional<User> us = userRepo.findByUsername(name);
 				return new ResponseEntity<>(us, HttpStatus.OK);
 			}
 			else
 			{
-				return new ResponseEntity<>("no sunch username exists", HttpStatus.OK);
+				return new ResponseEntity<>("no such username exists", HttpStatus.OK);
 			}
 		} catch (Exception e) {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
