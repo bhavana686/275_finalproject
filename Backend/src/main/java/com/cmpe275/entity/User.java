@@ -1,11 +1,10 @@
 package com.cmpe275.entity;
 
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-
-@SuppressWarnings("serial")
 @Entity
 public class User implements Serializable {
 
@@ -17,12 +16,21 @@ public class User implements Serializable {
 	private String nickname;
 	private String signupType;
 	private String password;
+	private Boolean isVerified;
+	
+	@Embedded
+	private List<BankAccount>  bankAccounts;
+	
+	
+	
 	
 	@OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
 	private List<Offer> offers;
 
 	@OneToMany
 	private List<CounterOffer> counterOffers;
+	
+	
 	
 	public List<Offer> getOffers() {
 		return offers;
@@ -76,6 +84,23 @@ public class User implements Serializable {
 	public void setPassword(String type) {
 		this.password = type;
 	}
+	public Boolean getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(Boolean type) {
+		this.isVerified =type ;
+	}
+	
+	public List<BankAccount> getBankAccounts() {
+		return bankAccounts;
+	}
+
+	public void setBankAccounts(List<BankAccount>  bankAccounts) {
+		this.bankAccounts=  bankAccounts;
+	}
+
+
 
 	
 

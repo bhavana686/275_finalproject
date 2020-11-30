@@ -13,11 +13,13 @@ import java.util.Optional;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 	
-    public Optional<User> getById(long id);
+    
     
     public Optional<User> findByUsername(String parameter);
 
 	public Optional<User> findByNickname(String parameter);
+
+	public Optional<User> getById(long id);
 
     
 	

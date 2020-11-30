@@ -108,6 +108,8 @@ public class ExchangeCurrencyService {
 		} catch (CustomException e) {
 			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
+			System.out.println(e);
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}

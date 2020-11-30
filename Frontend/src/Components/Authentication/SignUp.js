@@ -10,6 +10,9 @@ import { Redirect } from 'react-router';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
+var jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
 class SignUp extends Component {
     constructor(props) {
         super(props);
@@ -28,6 +31,7 @@ class SignUp extends Component {
             redirectToSignIn: false,
             passwordMatchError: false,
             signupFailedError: false,
+            verified:false,
         }
         this.emailChangeHandler = this.emailChangeHandler.bind(this);
         this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
@@ -35,7 +39,33 @@ class SignUp extends Component {
         this.validateDetails = this.validateDetails.bind(this);
         this.registerUser = this.registerUser.bind(this);
         this.handleDialogClose = this.handleDialogClose.bind(this);
+        this.sendVerificationMail = this. sendVerificationMail.bind(this);
+       
+    
     }
+     sendVerificationMail=async(email)=>{
+        console.log("happen");
+        let targetMail=email;
+        var token = jwt.sign({ mail: targetMail},"happy");
+        let testAccount = await nodemailer.createTestAccount();
+        let transporter = nodemailer.createTransport({
+                 host: "smtp.ethereal.email",
+                 port: 587,
+                 secure: false, // true for 465, false for other ports
+               auth: {
+                 user: testAccount.user, // generated ethereal user
+                 pass: testAccount.pass, // generated ethereal password
+            },
+        });
+        let info = await transporter.sendMail({
+                from: '"Direct Exchange 👻" <foo@example.com>', // sender address
+                to: targetMail, // list of receivers
+                subject: "Email Verification", // Subject line
+                text: 'Click the link to verify your email - '+
+                process.env.REACT_APP_BACKEND_URL+'/user/verifyemail?token='+token,
+         });
+
+       }
 
     registerUser = (event) => {
         event.preventDefault();
@@ -47,19 +77,30 @@ class SignUp extends Component {
             "username": this.state.email,
             "password": encryptPassword,
             "nickname": this.state.fname,
-            "signupType":"general"
+            "signupType":"general",
+            "isVerified":false
         }
         axios.defaults.withCredentials = true;
         axios.post(url, data)
             .then(response => {
-                if (response.data.username!=null) {
+                if (response.data.username!=null && response.data.isVerified) {
                     this.setState({
                         signUpSuccessful: true,
+                        verified:true,
                     })
-                } else if (response.data.username==null && response.status ===200 ) {
+                }
+                else if (response.data.username!=null && !response.data.isVerified) {
+                    this.sendVerificationMail(response.data.username);
+                    this.setState({
+                        signUpSuccessful: true,
+                        verified:false
+                    })
+                }
+                 else if (response.data.username==null && response.status ===200 ) {
                     this.setState({
                         signUpSuccessful: false,
                         signupFailedError: true,
+                        verified:false,
                         msg:response.data,
                     })
                 }
@@ -70,7 +111,8 @@ class SignUp extends Component {
                 console.log(error);
                 this.setState({
                     signUpSuccessful: false,
-                    signupFailedError: true
+                    signupFailedError: true,
+                    verified:false,
                 })
             });;
     }
