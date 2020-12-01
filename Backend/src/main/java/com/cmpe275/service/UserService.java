@@ -25,12 +25,11 @@ public class UserService {
 	public  ResponseEntity<Object> signUp(HttpServletRequest req, JsonNode body) {
 		User user;
 		try {
-			if ((userRepo.findByUsername(body.get("username").asText()).isPresent()) && (body.get("signupType").asText().equals("general"))) {
+			if ((userRepo.findByUsername(body.get("username").asText()).isPresent())) {
 				return new ResponseEntity<>("user Already exists with given Email", HttpStatus.OK);
 			}
-			if (userRepo.findByUsername(body.get("username").asText()).isPresent()){
-				Optional<User> us = userRepo.findByUsername(body.get("username").asText());
-				return new ResponseEntity<>(us, HttpStatus.OK);
+			if ((userRepo.findByUsername(body.get("nickname").asText()).isPresent())) {
+				return new ResponseEntity<>("nickname Already exists", HttpStatus.OK);
 			}
 			user = buildUserFromData(body);
 			User u = userRepo.save(user);
@@ -69,11 +68,15 @@ public class UserService {
 	
 	public  ResponseEntity<Object> signIn(HttpServletRequest req) {
 		try {
-			 String name = req.getParameter("username");
-			if(userRepo.findByUsername(name).isPresent()){
-				Optional<User> us = userRepo.findByUsername(name);
-				return new ResponseEntity<>(us, HttpStatus.OK);
-			}
+			  String name = req.getParameter("username");
+			  String type = req.getParameter("signupType");
+			  Optional<User> u=userRepo.findByUsername(name);
+			  if(u.isPresent() && u.get().getSignupType().equals(type))
+			  {
+				  Optional<User> us = userRepo.findByUsername(name);
+				  return new ResponseEntity<>(us, HttpStatus.OK);
+				  
+			  }
 			else
 			{
 				return new ResponseEntity<>("no such username exists", HttpStatus.OK);
@@ -82,6 +85,25 @@ public class UserService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
-
+	public  ResponseEntity<Object> verifyMail(HttpServletRequest req,String username) {
+		try {
+			   System.out.println("username"+ username);
+			   Optional<User> us = userRepo.getByUsername(username);
+			   
+			if(userRepo.findByUsername(username).isPresent()){
+				Optional<User> u = userRepo.findByUsername(username);
+				us.get().setIsVerified(true);
+				User m=userRepo.save(us.get());
+				return new ResponseEntity<>(m, HttpStatus.OK);
+			}
+			else
+			{
+				return new ResponseEntity<>("no such username exists", HttpStatus.BAD_REQUEST);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 }
