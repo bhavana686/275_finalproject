@@ -1,5 +1,7 @@
 package com.cmpe275.entity;
 
+import java.sql.Timestamp;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -8,7 +10,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+
 import com.cmpe275.entity.Enum;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class CounterOffer {
@@ -23,11 +28,18 @@ public class CounterOffer {
 
 	private double originalAmount;
 	private double counterAmount;
-	
+
 	@Enumerated(EnumType.STRING)
 	private Enum.CounterOfferStatuses status = Enum.CounterOfferStatuses.open;
-	
-	private long counteredBy;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	private Timestamp createdAt;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	private Timestamp expiry;
+
+	@OneToOne
+	private User counteredBy;
 
 	public long getId() {
 		return id;
@@ -69,12 +81,28 @@ public class CounterOffer {
 		this.status = status;
 	}
 
-	public long getCounteredBy() {
+	public User getCounteredBy() {
 		return counteredBy;
 	}
 
-	public void setCounteredBy(long counteredBy) {
+	public void setCounteredBy(User counteredBy) {
 		this.counteredBy = counteredBy;
+	}
+
+	public Timestamp getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Timestamp createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Timestamp getExpiry() {
+		return expiry;
+	}
+
+	public void setExpiry(Timestamp expiry) {
+		this.expiry = expiry;
 	}
 
 }

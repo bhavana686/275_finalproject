@@ -4,11 +4,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-
 @SuppressWarnings("serial")
 @Entity
 public class User implements Serializable {
-
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,13 +15,64 @@ public class User implements Serializable {
 	private String nickname;
 	private String signupType;
 	private String password;
-	
+
 	@OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
 	private List<Offer> offers;
 
 	@OneToMany
 	private List<CounterOffer> counterOffers;
-	
+
+	@OneToMany
+	private List<TransferRequest> transferRequests;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname.trim();
+	}
+
+	public String getSignupType() {
+		return signupType;
+	}
+
+	public void setSignupType(String type) {
+		this.signupType = type;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String type) {
+		this.password = type;
+	}
+
+	public List<TransferRequest> getTransferRequests() {
+		return transferRequests;
+	}
+
+	public void setTransferRequests(List<TransferRequest> transferRequests) {
+		this.transferRequests = transferRequests;
+	}
+
 	public List<Offer> getOffers() {
 		return offers;
 	}
@@ -39,44 +88,5 @@ public class User implements Serializable {
 	public void setCounterOffers(List<CounterOffer> counterOffers) {
 		this.counterOffers = counterOffers;
 	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getUsername() {
-		return username;
-	}
-	
-	public void setUsername(String username) {
-		this.username =  username;
-	}
-
-	public String getNickname() {
-		return nickname;
-	}
-
-	public void setNickname(String nickname) {
-		this.nickname = nickname.trim();
-	}
-	public String getSignupType() {
-		return signupType;
-	}
-
-	public void setSignupType(String type) {
-		this.signupType = type;
-	}
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String type) {
-		this.password = type;
-	}
-
-	
 
 }
