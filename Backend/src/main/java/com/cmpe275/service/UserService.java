@@ -38,6 +38,7 @@ public class UserService {
 		} catch (CustomException e) {
 			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
+			System.out.print(e);
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -56,6 +57,9 @@ public class UserService {
 			String signupType = body.get("signupType").asText();
 			if (signupType != null)
 				user.setSignupType(signupType);	
+		    Boolean isVerified = body.get("isVerified").asBoolean();
+			if (isVerified != null)
+				user.setIsVerified(isVerified);	
 		 } 
 		catch (Exception e) {
 			throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
