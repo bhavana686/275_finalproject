@@ -3,12 +3,15 @@ package com.cmpe275.service;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,6 +29,8 @@ import com.cmpe275.entity.Offer;
 import com.cmpe275.entity.Transaction;
 import com.cmpe275.entity.TransferRequest;
 import com.cmpe275.entity.User;
+import com.cmpe275.helper.AutoMatchEntity;
+import com.cmpe275.helper.AutoMatchRecommendationOffer;
 import com.cmpe275.repo.AutoMatchedOfferRepo;
 import com.cmpe275.repo.CounterOfferRepo;
 import com.cmpe275.repo.ExchangeCurrencyRepo;
@@ -512,24 +517,64 @@ public class TransactionService {
 			} else {
 				amount = amount * offer.getExchangeRate();
 			}
-			Optional<List<Offer>> offers = offerRepo.getByAmountBetween(Enum.OfferStatuses.open, false, true,
-					amount * 0.9, amount * 1.1);
-			System.out.println(offers.isEmpty());
-			System.out.println(amount);
 
-			List<List<Offer>> matches = new ArrayList<>();
+			// Single Matches
+			Optional<List<Offer>> offers = offerRepo.getByAmountBetween(Enum.OfferStatuses.open, false, true,
+					amount * 0.9, amount * 1.1, offer.getDestinationCurrency(), offer.getSourceCurrency());
+
+			List<AutoMatchEntity> singleMatches = new ArrayList<AutoMatchEntity>();
+
 			if (offers.isEmpty()) {
 				return new ResponseEntity<>("No Matching Offers Found", HttpStatus.NOT_FOUND);
 			} else {
 				List<Offer> matchingOffers = offers.get();
-				System.out.println(matchingOffers.size());
-//				for (Offer o : matchingOffers) {
-//					System.out.println(o.getId());
-//					System.out.println(o.getAmount());
-//				}
+				System.out.println("Single Matches Found " + matchingOffers.size());
+				for (Offer o : matchingOffers) {
+//					System.out.println("Offer Id: "+ o.getId() + " Amount: "+o.getAmount());
+					List<AutoMatchRecommendationOffer> tmp = new ArrayList<>();
+					tmp.add(convertOfferToAutoMatchRecommendationOffer(o));
+					AutoMatchEntity autoMatch = new AutoMatchEntity();
+					autoMatch.setDifference(Math.abs(o.getAmount() - amount));
+					autoMatch.setSum(o.getAmount());
+					autoMatch.setType(Enum.AutoMatchedOffers.aplha);
+					autoMatch.setOffers(tmp);
+					autoMatch.setSupportCounter(o.isAllowCounterOffers());
+					singleMatches.add(autoMatch);
+				}
 			}
-			List<List<Offer>> splitMatch1 = getSplitMatchOffers(offerId, amount);
-			return null;
+
+			Collections.sort(singleMatches, new Comparator<AutoMatchEntity>() {
+				@Override
+				public int compare(AutoMatchEntity u1, AutoMatchEntity u2) {
+					return Double.compare(u1.getDifference(), u2.getDifference());
+				}
+			});
+
+			List<AutoMatchEntity> splitMatch1 = getSplitMatchOffersCase1(offerId, amount, offer);
+			System.out.println("Dual Matched Case 1: " + splitMatch1.size());
+			
+			Collections.sort(splitMatch1, new Comparator<AutoMatchEntity>() {
+				@Override
+				public int compare(AutoMatchEntity u1, AutoMatchEntity u2) {
+					return Double.compare(u1.getDifference(), u2.getDifference());
+				}
+			});
+
+//			List<AutoMatchEntity> splitMatch2 = getSplitMatchOffersCase2(offerId, amount, offer);
+//			System.out.println("Dual Matched Case 2: " + splitMatch2.size());
+
+//			List<AutoMatchEntity> dualMatches = Stream.of(splitMatch1, splitMatch2).flatMap(Collection::stream)
+//					.collect(Collectors.toList());
+//			Collections.sort(dualMatches, new Comparator<AutoMatchEntity>() {
+//				@Override
+//				public int compare(AutoMatchEntity u1, AutoMatchEntity u2) {
+//					return Double.compare(u1.getDifference(), u2.getDifference());
+//				}
+//			});
+
+			return new ResponseEntity<>(
+					Stream.of(singleMatches, splitMatch1).flatMap(Collection::stream).collect(Collectors.toList()),
+					HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
@@ -539,13 +584,43 @@ public class TransactionService {
 		}
 	}
 
-	public List<List<Offer>> getSplitMatchOffers(long offerId, double amount) throws CustomException {
+	public List<AutoMatchEntity> getSplitMatchOffersCase1(long offerId, double amount, Offer originalOffer) throws CustomException {
 		try {
-			List<List<Offer>> offers = new ArrayList<>();
-			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount);
+			List<AutoMatchEntity> offers = new ArrayList<>();
+			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount,
+					true, originalOffer.getDestinationCurrency(), originalOffer.getSourceCurrency());
 			List<Offer> fetchedOffers = fetched.get();
-			
-			
+			Collections.sort(fetchedOffers, new Comparator<Offer>() {
+				@Override
+				public int compare(Offer u1, Offer u2) {
+					return Double.compare(u1.getAmount(), u2.getAmount());
+				}
+			});
+			for (int i = 0; i < fetchedOffers.size() - 1; i++) {
+				Offer first = fetchedOffers.get(i);
+				for (int j = i + 1; j < fetchedOffers.size(); j++) {
+					Offer second = fetchedOffers.get(j);
+					if (((first.getAmount() + second.getAmount()) > (amount * 0.9))
+							&& ((first.getAmount() + second.getAmount()) < (amount * 1.1))) {
+						List<AutoMatchRecommendationOffer> combOffer = new ArrayList<>();
+						combOffer.add(convertOfferToAutoMatchRecommendationOffer(first));
+						combOffer.add(convertOfferToAutoMatchRecommendationOffer(second));
+						AutoMatchEntity autoMatch = new AutoMatchEntity();
+						autoMatch.setDifference(Math.abs((first.getAmount() + second.getAmount()) - amount));
+						autoMatch.setSum(first.getAmount() + second.getAmount());
+						autoMatch.setType(Enum.AutoMatchedOffers.beta);
+						autoMatch.setOffers(combOffer);
+						autoMatch.setSupportCounter(first.isAllowCounterOffers() && second.isAllowCounterOffers());
+						offers.add(autoMatch);
+//						System.out.println("Dual Match-----------------------");
+//						System.out.println("Offer Id: "+ first.getId() + " Amount: "+first.getAmount());
+//						System.out.println("Offer Id: "+ second.getId() + " Amount: "+second.getAmount());
+					}
+					if ((first.getAmount() + second.getAmount()) > (amount * 1.1)) {
+						break;
+					}
+				}
+			}
 			return offers;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -553,4 +628,67 @@ public class TransactionService {
 		}
 	}
 
+	public List<AutoMatchEntity> getSplitMatchOffersCase2(long offerId, double amount, Offer originalOffer) throws CustomException {
+		try {
+			List<AutoMatchEntity> offers = new ArrayList<>();
+			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount,
+					true, originalOffer.getDestinationCurrency(), originalOffer.getSourceCurrency());
+			List<Offer> fetchedOffers = fetched.get();
+			Collections.sort(fetchedOffers, new Comparator<Offer>() {
+				@Override
+				public int compare(Offer u1, Offer u2) {
+					return Double.compare(u2.getAmount(), u1.getAmount());
+				}
+			});
+			for (int i = 0; i < fetchedOffers.size(); i++) {
+				Offer first = fetchedOffers.get(i);
+				for (int j = i + 1; j < fetchedOffers.size(); j++) {
+					Offer second = fetchedOffers.get(j);
+					if (((first.getAmount() - second.getAmount()) > (amount * 0.9))
+							&& ((first.getAmount() - second.getAmount()) < (amount * 1.1))) {
+						List<AutoMatchRecommendationOffer> combOffer = new ArrayList<>();
+						combOffer.add(convertOfferToAutoMatchRecommendationOffer(first));
+						combOffer.add(convertOfferToAutoMatchRecommendationOffer(second));
+						AutoMatchEntity autoMatch = new AutoMatchEntity();
+						autoMatch.setDifference(Math.abs((first.getAmount() - second.getAmount()) - amount));
+						autoMatch.setSum(first.getAmount() + second.getAmount());
+						autoMatch.setType(Enum.AutoMatchedOffers.gamma);
+						autoMatch.setOffers(combOffer);
+						offers.add(autoMatch);
+//						System.out.println("Dual Match Case 2 -----------------------");
+//						System.out.println("Offer Id: "+ first.getId() + " Amount: "+first.getAmount());
+//						System.out.println("Offer Id: "+ second.getId() + " Amount: "+second.getAmount());
+					}
+				}
+			}
+			return offers;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public AutoMatchRecommendationOffer convertOfferToAutoMatchRecommendationOffer(Offer offer) {
+		AutoMatchRecommendationOffer o = new AutoMatchRecommendationOffer();
+		o.setId(offer.getId());
+		o.setUsername(offer.getPostedBy().getUsername());
+		o.setNickname(offer.getPostedBy().getNickname());
+		o.setSourceCountry(offer.getSourceCountry());
+		o.setSourceCurrency(offer.getSourceCurrency());
+		o.setSourceAmount(offer.getAmount());
+		o.setDestinationCountry(offer.getDestinationCountry());
+		o.setDestinationCurrency(offer.getDestinationCurrency());
+		o.setSupportCounter(offer.isAllowCounterOffers());
+		o.setExpiry(offer.getExpiry());
+		if (offer.isUsePrevailingRate()) {
+			Optional<ExchangeCurrency> rate = exchangeCurrencyRepo
+					.findBySourceCurrencyAndTargetCurrency(offer.getSourceCurrency(), offer.getDestinationCurrency());
+			o.setDestinationAmount(offer.getAmount() * rate.get().getExchangeRate());
+			o.setExchangeRate(rate.get().getExchangeRate());
+		} else {
+			o.setDestinationAmount(offer.getAmount() * offer.getExchangeRate());
+			o.setExchangeRate(offer.getExchangeRate());
+		}
+		return o;
+	}
 }

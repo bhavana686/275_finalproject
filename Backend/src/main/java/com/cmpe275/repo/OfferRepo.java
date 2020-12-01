@@ -20,10 +20,12 @@ public interface OfferRepo extends JpaRepository<Offer, Long> {
 
 	public Optional<Offer> getByPostedBy(User user);
 
-	@Query("Select o from Offer o where o.status=?1 and o.isCounter =?2 and o.display=?3 and o.amount between ?4 and ?5")
-	public Optional<List<Offer>> getByAmountBetween(Enum.OfferStatuses status, boolean isCounter, boolean display, double start, double end);
-	
-	@Query("Select o from Offer o where o.status=?1 and o.isCounter =?2 and o.display=?3 and o.amount<?4")
-	public Optional<List<Offer>> getSplitMatches(Enum.OfferStatuses status, boolean isCounter, boolean display, double amount);
+	@Query("Select o from Offer o where o.status=?1 and o.isCounter =?2 and o.display=?3 and o.amount between ?4 and ?5 and sourceCurrency=?6 and destinationCurrency=?7")
+	public Optional<List<Offer>> getByAmountBetween(Enum.OfferStatuses status, boolean isCounter, boolean display,
+			double start, double end, Enum.Currency source, Enum.Currency destination);
+
+	@Query("Select o from Offer o where o.status=?1 and o.isCounter =?2 and o.display=?3 and o.amount<?4 and o.allowSplitExchanges=?5 and sourceCurrency=?6 and destinationCurrency=?7")
+	public Optional<List<Offer>> getSplitMatches(Enum.OfferStatuses status, boolean isCounter, boolean display,
+			double amount, boolean allowSplitExchanges, Enum.Currency source, Enum.Currency destination);
 
 }
