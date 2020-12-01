@@ -39,12 +39,22 @@ public class ExchangeCurrencyService {
 			 {
 				 c.setTargetCurrency(targetCurrency);
 			 }
+			 Optional<ExchangeCurrency> ecobj =exchangeCurrencyRepo.findBySourceCurrencyAndTargetCurrency(sourceCurrency,targetCurrency);
+	    		
+				if (ecobj.isPresent()) {
+					return new ResponseEntity<>("exchnage rate exists", HttpStatus.CONFLICT);
+				}
+				if(source==target)
+				{
+					return new ResponseEntity<>("source and target should not be same", HttpStatus.CONFLICT);
+				}
 			 double exchangeRate=rate;
 			 Double d=new Double(exchangeRate);
 			 if(d!=null)
 			 {
 				 c.setExchangeRate(exchangeRate);
 			 }
+			 
 			 ExchangeCurrency ec = exchangeCurrencyRepo.save(c);
 			 return new ResponseEntity<>(ec, HttpStatus.OK);
 		} catch (Exception e) {

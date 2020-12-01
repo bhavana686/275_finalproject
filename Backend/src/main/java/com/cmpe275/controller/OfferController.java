@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.cmpe275.service.EmailService;
 import com.cmpe275.service.OfferService;
+import com.cmpe275.entity.Enum;
 
 @Controller
 @RequestMapping(value = "/offers")
@@ -24,8 +25,10 @@ public class OfferController {
 	}
 	
 	@GetMapping("/filter")
-	public ResponseEntity<Object> getFilteredOffers(HttpServletRequest request) {
-		return offerService.getFilteredOffers(request);
+	public ResponseEntity<Object> getFilteredOffers(HttpServletRequest request,
+			@RequestParam("sourceCurrency") Enum.Currency sourceCurrency,
+			@RequestParam("destinationCurrency") Enum.Currency destinationCurrency) {
+		return offerService.getFilteredOffers(request,sourceCurrency,destinationCurrency);
 	}
 	
 	@GetMapping("/emailapi")
@@ -33,6 +36,5 @@ public class OfferController {
 		return emailService.sendEmail("prasannareddy699@gmail.com", "Welcome", "Good Morning!!");
 	        
 	}
-	
 	
 }
