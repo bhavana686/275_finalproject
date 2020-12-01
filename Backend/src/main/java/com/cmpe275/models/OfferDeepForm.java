@@ -24,6 +24,7 @@ public class OfferDeepForm {
 	private boolean isCounter;
 	private double transactedAmount;
 	private boolean fullyFulfilled;
+	private boolean isEditable;
 	
 	public long getId() {
 		return id;
@@ -120,6 +121,12 @@ public class OfferDeepForm {
 	}
 	public void setAmount(double amount) {
 		this.amount = amount;
+	}
+	public boolean isEditable() {
+		return isEditable;
+	}
+	public void setEditable(boolean isEditable) {
+		this.isEditable = isEditable;
 	}
 	
 	
