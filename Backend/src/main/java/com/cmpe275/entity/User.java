@@ -5,9 +5,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("serial")
 @Entity
 public class User implements Serializable {
-
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,37 +16,20 @@ public class User implements Serializable {
 	private String nickname;
 	private String signupType;
 	private String password;
+
 	private Boolean isVerified;
 	
 	@Embedded
 	private List<BankAccount>  bankAccounts;
-	
-	
-	
 	
 	@OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
 	private List<Offer> offers;
 
 	@OneToMany
 	private List<CounterOffer> counterOffers;
-	
-	
-	
-	public List<Offer> getOffers() {
-		return offers;
-	}
 
-	public void setOffers(List<Offer> offers) {
-		this.offers = offers;
-	}
-
-	public List<CounterOffer> getCounterOffers() {
-		return counterOffers;
-	}
-
-	public void setCounterOffers(List<CounterOffer> counterOffers) {
-		this.counterOffers = counterOffers;
-	}
+	@OneToMany
+	private List<TransferRequest> transferRequests;
 
 	public long getId() {
 		return id;
@@ -55,12 +38,13 @@ public class User implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
+
 	public String getUsername() {
 		return username;
 	}
-	
+
 	public void setUsername(String username) {
-		this.username =  username;
+		this.username = username;
 	}
 
 	public String getNickname() {
@@ -70,6 +54,7 @@ public class User implements Serializable {
 	public void setNickname(String nickname) {
 		this.nickname = nickname.trim();
 	}
+
 	public String getSignupType() {
 		return signupType;
 	}
@@ -77,6 +62,7 @@ public class User implements Serializable {
 	public void setSignupType(String type) {
 		this.signupType = type;
 	}
+
 	public String getPassword() {
 		return password;
 	}
@@ -102,6 +88,28 @@ public class User implements Serializable {
 
 
 
-	
+	public List<TransferRequest> getTransferRequests() {
+		return transferRequests;
+	}
+
+	public void setTransferRequests(List<TransferRequest> transferRequests) {
+		this.transferRequests = transferRequests;
+	}
+
+	public List<Offer> getOffers() {
+		return offers;
+	}
+
+	public void setOffers(List<Offer> offers) {
+		this.offers = offers;
+	}
+
+	public List<CounterOffer> getCounterOffers() {
+		return counterOffers;
+	}
+
+	public void setCounterOffers(List<CounterOffer> counterOffers) {
+		this.counterOffers = counterOffers;
+	}
 
 }

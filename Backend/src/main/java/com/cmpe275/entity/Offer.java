@@ -1,6 +1,8 @@
 package com.cmpe275.entity;
 
 import java.sql.Timestamp;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,9 +11,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.cmpe275.entity.Enum.OfferStatuses;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class Offer {
@@ -26,7 +30,7 @@ public class Offer {
 	private Enum.Currency sourceCurrency;
 
 	private double amount;
-	
+
 	@Enumerated(EnumType.STRING)
 	private Enum.Countries destinationCountry;
 
@@ -38,7 +42,10 @@ public class Offer {
 
 	private double exchangeRate;
 	private boolean usePrevailingRate = false;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private Timestamp expiry;
+	
 	private boolean allowCounterOffers = true;
 	private boolean allowSplitExchanges = true;
 
@@ -51,13 +58,32 @@ public class Offer {
 	private boolean isCounter = false;
 
 	private double transactedAmount;
-	
+
 	private boolean fullyFulfilled;
-	
+
 	private boolean isEditable = true;
-	
+
 	private boolean display = true;
 	
+	private double exchangedRate;
+
+	@OneToMany
+	private List<CounterOffer> counterOffers;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	private Timestamp lastUpdated;
+	
+	@OneToMany
+	private List<TransferRequest> transferRequests;
+
+	public List<TransferRequest> getTransferRequests() {
+		return transferRequests;
+	}
+
+	public void setTransferRequests(List<TransferRequest> transferRequests) {
+		this.transferRequests = transferRequests;
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -208,6 +234,30 @@ public class Offer {
 
 	public void setDisplay(boolean display) {
 		this.display = display;
+	}
+	
+	public List<CounterOffer> getCounterOffers() {
+		return counterOffers;
+	}
+
+	public void setCounterOffers(List<CounterOffer> counterOffers) {
+		this.counterOffers = counterOffers;
+	}
+	
+	public Timestamp getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Timestamp lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
+
+	public double getExchangedRate() {
+		return exchangedRate;
+	}
+
+	public void setExchangedRate(double exchangedRate) {
+		this.exchangedRate = exchangedRate;
 	}
 
 }
