@@ -10,10 +10,14 @@ public class Enum {
 	}
 
 	public static enum OfferStatuses {
-		open, fulfilled, expired
+		open, fulfilled, expired, pending
 	}
 	
 	public static enum CounterOfferStatuses {
 		open, accepted, declined, expired
+	}
+	
+	public static enum AutoMatchTypes {
+		direct_counter, single, single_counter, dual, dual_counter
 	}
 }

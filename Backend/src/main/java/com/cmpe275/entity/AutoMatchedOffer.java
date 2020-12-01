@@ -20,14 +20,16 @@ public class AutoMatchedOffer {
 	@OneToOne(fetch = FetchType.LAZY)
 	private Offer originalOffer;
 	
-	@OneToMany
-	private List<Offer> fullyFulfilledOffers;
+	@OneToOne(fetch = FetchType.LAZY)
+	private Offer fullyFulfilledOffer;
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	private Offer counteredOffer;
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	private CounterOffer counter;
+	
+	private Enum.AutoMatchTypes type;
 
 	public long getId() {
 		return id;
@@ -45,14 +47,6 @@ public class AutoMatchedOffer {
 		this.originalOffer = originalOffer;
 	}
 
-	public List<Offer> getFullyFulfilledOffers() {
-		return fullyFulfilledOffers;
-	}
-
-	public void setFullyFulfilledOffers(List<Offer> fullyFulfilledOffers) {
-		this.fullyFulfilledOffers = fullyFulfilledOffers;
-	}
-
 	public Offer getCounteredOffer() {
 		return counteredOffer;
 	}
@@ -67,6 +61,22 @@ public class AutoMatchedOffer {
 
 	public void setCounter(CounterOffer counter) {
 		this.counter = counter;
+	}
+	
+	public Offer getFullyFulfilledOffer() {
+		return fullyFulfilledOffer;
+	}
+
+	public void setFullyFulfilledOffer(Offer fullyFulfilledOffer) {
+		this.fullyFulfilledOffer = fullyFulfilledOffer;
+	}
+
+	public Enum.AutoMatchTypes getType() {
+		return type;
+	}
+
+	public void setType(Enum.AutoMatchTypes type) {
+		this.type = type;
 	}
 
 }

@@ -43,36 +43,49 @@ public class TransactionController {
 		return transactionService.counterAOffer(request, body, (long) offerId);
 	}
 
-	@PostMapping("/automatch/{id}/process")
-	public ResponseEntity<Object> counterAutoMatchOffer(HttpServletRequest request, @RequestBody JsonNode body,
+	@PostMapping("/automatch/{id}/equal/process")
+	public ResponseEntity<Object> processAutoMatchOffer(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("id") long offerId) {
+		// Incoming amount in source currency
 		return transactionService.processAutoMatchOffer(request, body, (long) offerId);
 	}
-	
+
+	@PostMapping("/automatch/{id}/unequal/process")
+	public ResponseEntity<Object> processUnEqualAutoMatchOffer(HttpServletRequest request, @RequestBody JsonNode body,
+			@PathVariable("id") long offerId) {
+		// Incoming amount in destination currency
+		return transactionService.processUnEqualAutoMatchOffer(request, body, (long) offerId);
+	}
+
 	@PostMapping("/counter/{id}/accept")
 	public ResponseEntity<Object> acceptCounterOffer(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("id") long counterId) {
 		return transactionService.acceptCounterOffer(request, body, (long) counterId);
 	}
 
-	@GetMapping("/create")
-	public ResponseEntity<Object> createOffer(HttpServletRequest request) {
-		Offer offer = new Offer();
-		offer.setDestinationCountry(Enum.Countries.India);
-		offer.setDestinationCurrency(Enum.Currency.INR);
-		offer.setSourceCountry(Enum.Countries.US);
-		offer.setSourceCurrency(Enum.Currency.USD);
-		offer.setAmount(75000);
-		offer.setStatus(Enum.OfferStatuses.open);
-		offer.setExchangeRate(0.014);
-		long id = 2;
-		Optional<User> user = userRepo.getById(id);
-//		System.out.println("--------------");
-//		System.out.println(user.isEmpty());
-//		System.out.println(user.get());
-		offer.setPostedBy(user.get());
-		offerRepo.save(offer);
-		return new ResponseEntity<>("Success", HttpStatus.OK);
+	@PostMapping("/automatch/{id}")
+	public ResponseEntity<Object> autoMatchOffers(HttpServletRequest request, @PathVariable("id") long offerId) {
+		return transactionService.autoMatchOffers(request, (long) offerId);
 	}
+
+//	@GetMapping("/create")
+//	public ResponseEntity<Object> createOffer(HttpServletRequest request) {
+//		Offer offer = new Offer();
+//		offer.setDestinationCountry(Enum.Countries.India);
+//		offer.setDestinationCurrency(Enum.Currency.INR);
+//		offer.setSourceCountry(Enum.Countries.US);
+//		offer.setSourceCurrency(Enum.Currency.USD);
+//		offer.setAmount(75000);
+//		offer.setStatus(Enum.OfferStatuses.open);
+//		offer.setExchangeRate(0.014);
+//		long id = 2;
+//		Optional<User> user = userRepo.getById(id);
+////		System.out.println("--------------");
+////		System.out.println(user.isEmpty());
+////		System.out.println(user.get());
+//		offer.setPostedBy(user.get());
+//		offerRepo.save(offer);
+//		return new ResponseEntity<>("Success", HttpStatus.OK);
+//	}
 
 }

@@ -13,12 +13,10 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
@@ -42,7 +40,7 @@ public class EmailService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	public  ResponseEntity<Object> sendEmail(HttpServletRequest request, @RequestBody JsonNode body) {
 	    String host = "smtp.gmail.com";
         String port = "587";
@@ -60,6 +58,7 @@ public class EmailService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
+
 	
 	 public void sendplainemail(String host, String port,
 	            final String userName, final String password, String toAddress,
@@ -90,10 +89,9 @@ public class EmailService {
 	        msg.setRecipients(Message.RecipientType.TO, toAddresses);
 	        msg.setSubject(subject);
 	        msg.setSentDate(new Date());
-	        // set plain text message
+	    
 	        msg.setText(message);
 	        msg.setContent("<h1>"+message+"</h1>","text/html");
-	 	        // sends the e-mail 
 	        Transport.send(msg);
 	 
 	    }
