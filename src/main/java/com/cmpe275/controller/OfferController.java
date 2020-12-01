@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import com.cmpe275.entity.Enum;
 import com.cmpe275.service.OfferService;
 
 @Controller
@@ -21,8 +22,10 @@ public class OfferController {
 	}
 	
 	@GetMapping("/filter")
-	public ResponseEntity<Object> getFilteredOffers(HttpServletRequest request) {
-		return offerService.getFilteredOffers(request);
+	public ResponseEntity<Object> getFilteredOffers(HttpServletRequest request,
+			@RequestParam("sourceCurrency") Enum.Currency sourceCurrency,
+			@RequestParam("destinationCurrency") Enum.Currency destinationCurrency) {
+		return offerService.getFilteredOffers(request,sourceCurrency,destinationCurrency);
 	}
 	
 }
