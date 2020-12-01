@@ -18,7 +18,7 @@ public class User implements Serializable {
 	private String password;
 	private Boolean isVerified;
 	
-	@Embedded
+	@ElementCollection
 	private List<BankAccount>  bankAccounts;
 	
 	

@@ -10,6 +10,8 @@ import AddBankAccount from '../Components/Bank/AddBankAccount';
 import ExchangeCurrency from '../Components/ExchangeCurrency/ExchangeCurrency'
 import AddExchangeRate from '../Components/ExchangeCurrency/AddExchangeRate'
 import EditExchangeRate from '../Components/ExchangeCurrency/EditExchangeRate'
+import Verification from '../Components/Authentication/Verification'
+import CopyExchangeCurrency from '../Components/ExchangeCurrency/CopyExchangeCurrency'
 
 
 class Routes extends Component {
@@ -21,11 +23,13 @@ class Routes extends Component {
         <Route path="/signin" component={SignIn} />
         <Route path="/signup" component={SignUp} />
         <Route path="/landingpage" component={Landingpage} />
-        <Route path="/bankaccount" component={BankAccount} />
+         <Route path="/bankaccount" component={BankAccount} /> 
         <Route path="/exchangeCurrency" component={ExchangeCurrency} />
+        <Route path="/copyExchangeCurrency" component={CopyExchangeCurrency} />
         <Route path="/addExchangeRate" component={AddExchangeRate} />
         <Route path="/editExchangeRate" component={EditExchangeRate} />
         <Route path="/addBankAccount" component={AddBankAccount} />
+        <Route path="/verifyMail" component={Verification} />
 
 
 
