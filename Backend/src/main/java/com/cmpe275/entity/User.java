@@ -19,7 +19,7 @@ public class User implements Serializable {
 
 	private Boolean isVerified;
 	
-	@Embedded
+	@ElementCollection
 	private List<BankAccount>  bankAccounts;
 	
 	@OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
@@ -85,8 +85,6 @@ public class User implements Serializable {
 	public void setBankAccounts(List<BankAccount>  bankAccounts) {
 		this.bankAccounts=  bankAccounts;
 	}
-
-
 
 	public List<TransferRequest> getTransferRequests() {
 		return transferRequests;
