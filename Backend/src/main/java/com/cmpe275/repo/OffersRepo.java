@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.Offer;
 
 import java.util.List;
@@ -12,13 +13,15 @@ import java.util.List;
 @Repository
 public interface OffersRepo extends JpaRepository<Offer, Long> {
 	
-	@Query("SELECT id from Offer where status = 'open'")
+	
+	@Query("SELECT o from Offer o where o.status = 'open'")
      List<Offer> getActiveOffers();
 	
-	@Query("SELECT o.id FROM Offer o WHERE o.status = 'open' and o.sourceCurrency = ?1 and o.destinationCurrency = ?2 and o.amount *(case when o.usePrevailingRate = false then o.exchangeRate "
-			+ "when o.usePrevailingRate = true then 75  end ) = ?3 ")
-	List<Offer> getActiveOffersByDestinationAmount(String sourceCurrency,String destinationCurrency,int destinationAmount);
 	
-	@Query("SELECT o.id FROM Offer o WHERE o.status = 'open' and o.sourceCurrency = ?1 and o.destinationCurrency = ?2 and o.amount = ?3 ")
-	List<Offer> getActiveOffersBySourceAmount(String sourceCurrency,String destinationCurrency,int sourceAmount);
+	@Query("SELECT o FROM Offer o WHERE o.status = 'open' and o.sourceCurrency = ?1 and o.destinationCurrency = ?2 and o.amount *(case when o.usePrevailingRate = false then o.exchangeRate "
+			+ "when o.usePrevailingRate = true then 75  end ) != ?3 ")
+	List<Offer> getActiveOffersByDestinationAmount(Enum.Currency sourceCurrency,Enum.Currency destinationCurrency,double destinationAmount);
+	
+	@Query("SELECT o FROM Offer o WHERE o.status = 'open' and (o.sourceCurrency = ?1) and (o.destinationCurrency = ?2) and (o.amount between 0.9*?3 and 1.1*?3)")
+	List<Offer> getActiveOffersBySourceAmount(Enum.Currency sourceCurrency,Enum.Currency destinationCurrency,double sourceAmount);
 }
