@@ -34,3 +34,10 @@
     transform: rotate(360deg);
   }
 }
+.greenclass{
+  color: #13973f;
+}
+.redclass{
+  color:red;
+}
+
