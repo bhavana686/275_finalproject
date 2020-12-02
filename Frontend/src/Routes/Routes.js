@@ -11,6 +11,7 @@ import ExchangeCurrency from '../Components/ExchangeCurrency/ExchangeCurrency'
 import AddExchangeRate from '../Components/ExchangeCurrency/AddExchangeRate'
 import EditExchangeRate from '../Components/ExchangeCurrency/EditExchangeRate'
 import Offers from '../Components/Offers/Offers';
+import Offer from '../Components/Offers/Offer';
 import EditOffer from '../Components/Offers/EditOffer';
 import CreateOffer from '../Components/Offers/createoffer';
 import Verification from '../Components/Authentication/Verification'
@@ -34,6 +35,7 @@ class Routes extends Component {
         <Route path="/editoffer/:id" component={EditOffer}/>
         <Route path="/createoffer" component={CreateOffer}/>
         <Route path="/verifyMail" component={Verification} />
+        <Route path="/offer" component={Offer}/>
 
       </div>
     );
