@@ -46,7 +46,22 @@ public class ExchangeRateService {
 			 
 			
 			offer = buildofferfromdata(body);
+			long userid = Long.parseLong(body.get("userid").asText());
+			User user = userrepo.getById(userid).get();
+			offer.setPostedBy(user);
+			List<BankAccount> accounts = user.getBankAccounts();
+			Set<Enum.Countries> countries = new HashSet<>();
+			for(BankAccount acc : accounts)
+			{
+				countries.add(acc.getCountry());
+			}
+	
+			System.out.println(countries.size());
+			if(countries.size() < 2)
+			{
+				return new ResponseEntity<String>("accounts", HttpStatus.OK);
 
+			}
 			exchangerepo.save(offer);
 			System.out.println("success");
 			return new ResponseEntity<>("created", HttpStatus.OK);
@@ -63,14 +78,7 @@ public class ExchangeRateService {
 			long userid = Long.parseLong(body.get("userid").asText());
 			User user = userrepo.getById(userid).get();
 			offer.setPostedBy(user);
-			List<BankAccount> accounts = user.getBankAccounts();
-			Set<Enum.Countries> countries = new HashSet<>();
-			for(BankAccount acc : accounts)
-			{
-				countries.add(acc.getCountry());
-			}
-	
-			System.out.println(countries.size());
+			
 			
 			String expiry = body.get("expiry").asText();
 			if (expiry != null) {
