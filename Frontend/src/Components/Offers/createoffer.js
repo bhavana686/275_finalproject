@@ -30,7 +30,8 @@ class CreateOffer extends Component {
       transactedAmount: "",
       usePrevailingRate: "",
       showmsg:"",
-      userid: sessionStorage.getItem("id")
+      userid: sessionStorage.getItem("id"),
+      showerrormsg : ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
@@ -77,10 +78,10 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
       .post(url, data)
       .then((response) => {
         console.log(response);
-        if (response.data === "error") {
+        if (response.data === "accounts") {
           console.log("error");
           this.setState({
-            showRegistrationError: true,
+            showerrormsg: "User Should have atleast two bank accounts",
           });
         } else if (response.data === "created") {
           this.setState({
@@ -103,6 +104,10 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
     if(this.state.showmsg)
     {
       msgshow = <h1 style={{color:"red"}}>Succesfully Created Offer</h1>
+    }
+    if(this.state.showerrormsg)
+    {
+      msgshow = <h1 style={{color:"red",fontSize:"bold"}}>User Should have atleast two bank accounts</h1>
     }
 
     return (
