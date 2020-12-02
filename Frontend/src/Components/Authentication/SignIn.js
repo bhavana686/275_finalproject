@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import HouseIcon from '@material-ui/icons/House';
 import landingpage from '../Landingpage';
+import FacebookLogin from 'react-facebook-login';
+import GoogleLogin from 'react-google-login';
 
 class SignIn extends Component {
   constructor(props) {
@@ -13,7 +15,8 @@ class SignIn extends Component {
       invalidCredentials: false,
       email: "",
       password: "",
-      invalidEmail: false
+      invalidEmail: false,
+      verification:false
     }
     this.authenticateUser = this.authenticateUser.bind(this);
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
@@ -25,13 +28,13 @@ class SignIn extends Component {
   authenticateUser = (event) => {
     event.preventDefault();
     console.log(this.state.email);
-    let url = process.env.REACT_APP_BACKEND_URL +'/user?username='+ this.state.email;
+    let url = process.env.REACT_APP_BACKEND_URL +'/user?username='+this.state.email+'&signupType='+"general";
     console.log(url)
     axios.defaults.withCredentials = true;
     axios.get(url)
       .then(response => {
         console.log(response);
-        if (response.data.username!=null && response.data.signupType=="general") {
+        if (response.data.username!=null && response.data.signupType=="general" && response.data.isVerified) {
           if (bcrypt.compareSync(this.state.password, response.data.password)) {
             sessionStorage.setItem("username", this.state.email);
             sessionStorage.setItem("id", response.data.id);
@@ -39,17 +42,32 @@ class SignIn extends Component {
             this.setState({
               invalidCredentials: false
             })
-          } else {
+          }
+          else if(!response.data.isVerified)
+          {
+             this.setState({
+              msg:"account not verified",
+             })
+          }
+           else {
             this.setState({
               invalidCredentials: true,
               msg:"password mismatch",
             })
           }
-        } else {
+        } 
+        else if(response.data.username!=null) {
           this.setState({
             invalidCredentials: true,
-            msg:response.data,
+            msg:"account not verified ",
           })
+        }
+        else{
+          this.setState({
+            invalidCredentials: true,
+            msg:response.data
+          })
+
         }
       })
       .catch((error) => {
@@ -59,6 +77,79 @@ class SignIn extends Component {
         })
       });;
   }
+
+  responseGoogle = (response) => {
+    console.log(this.state.email);
+    let url = process.env.REACT_APP_BACKEND_URL +'/user?username='+response.profileObj.email+'&signupType='+"google";
+    axios.defaults.withCredentials = true;
+    axios.get(url)
+      .then(response => {
+        console.log(response);
+        if (response.data.username!=null && response.data.isVerified) {
+            sessionStorage.setItem("username", response.data.username);
+            sessionStorage.setItem("id", response.data.id);
+            sessionStorage.setItem("nickname", response.data.nickname);
+            this.setState({
+               invalidCredentials: false
+            })
+          }
+          else if(response.data.username!=null && !response.data.isVerified)
+          {
+             this.setState({
+               invalidCredentials: true,
+               msg:"account not verified",
+             })
+          }
+         else{
+          this.setState({
+            invalidCredentials: true,
+             msg:response.data
+           })
+           }
+      })
+      .catch((error) => {
+        console.log(error)
+        this.setState({
+          invalidCredentials: true
+        })
+      });;
+  }
+  responseFacebook = (response) => {
+		console.log(response);
+    let url = process.env.REACT_APP_BACKEND_URL +'/user?username='+response.email+'&signupType='+"facebook";
+    axios.defaults.withCredentials = true;
+    axios.get(url)
+      .then(response => {
+        console.log(response);
+        if (response.data.username!=null && response.data.isVerified) {
+            sessionStorage.setItem("username", response.data.username);
+            sessionStorage.setItem("id", response.data.id);
+            sessionStorage.setItem("nickname", response.data.nickname);
+            this.setState({
+               invalidCredentials: false
+            })
+          }
+          else if(response.data.username!=null && !response.data.isVerified)
+          {
+             this.setState({
+              invalidCredentials: true,
+              msg:"account not verified",
+             })
+          }
+         else{
+          this.setState({
+            invalidCredentials: true,
+             msg:response.data
+           })
+           }
+      })
+      .catch((error) => {
+        console.log(error)
+        this.setState({
+          invalidCredentials: true
+        })
+      });;
+    }
 
   emailChangeHandler = (event) => {
     if (/.+@.+\.[A-Za-z]+$/.test(event.target.value)) {
@@ -92,16 +183,41 @@ class SignIn extends Component {
       homev = <Redirect to="/landingpage" />
     }
     return (
+      
       <div>
         {homev}
                     
-        <div class="container mx-auto" style={{marginTop:"100px", marginLeft:"300px"}}>
+        <div class="container mx-auto" style={{marginTop:"100px" }}>
           <div class="flex justify-center px-6 my-12">
             <div class="w-full xl:w-3/4 lg:w-11/12 flex">
              
-              <div class="w-full lg:w-1/2 bg-white p-5 rounded-lg lg:rounded-l-none">
+              <div class="w-full lg:w-1/8 bg-white p-5 ">
                 <div className="mb-8">
                   <h3 class="pt-4 text-4xl text-center font-bold">Direct Exchange</h3>
+                  <div class="row">
+                  <div class="col-lg-6">
+                  <div style={{marginTop:"100px"}}>
+                                 <GoogleLogin
+                                     clientId="520298412555-el7dpaev21s62g674raiccjqm8otrgmo.apps.googleusercontent.com"
+                                      size="medium"
+                                      onSuccess={this.responseGoogle}
+                                      onFailure={this.responseGoogle}
+                                       cookiePolicy={'single_host_origin'}
+                                       buttonText="Sign in with Google"
+                                     />
+                                <div style={{marginTop:"30px"}}>
+                                    <FacebookLogin
+                                     appId="371065937316993"
+                                     autoLoad={true}
+                                     fields="name,email"
+                                     onClick={this.componentClicked}
+                                     callback={this.responseFacebook}
+                                     textButton="Sign in with FaceBook"
+                                     />
+                                </div>
+                                </div>
+                  </div>
+                  <div class="col-lg-6">
                   <div class="text-center mt-10">
                     <h2 class="text-2xl tracking-tight font-bold">
                       Sign In
@@ -136,7 +252,7 @@ class SignIn extends Component {
                           >
                             Sign in
                           </button>
-                          {this.state.invalidCredentials && <p class="text-md text-bold italic text-red-500">Invalid Credentials. Please try again {this.state.msg}</p>}
+                         
                         </div>
                         <div class="mt-4 w-full border-t border-gray-400" style={{ textAlign: "center" }}>
                           <div class="text-md mt-6">
@@ -151,8 +267,13 @@ class SignIn extends Component {
                 </div>
               </div>
             </div>
+            {this.state.invalidCredentials && <p class="text-md text-bold italic text-red-500"> Please try again {this.state.msg}</p>}
+
           </div>
         </div>
+        
+      </div>
+      </div>
         
       </div>
     )

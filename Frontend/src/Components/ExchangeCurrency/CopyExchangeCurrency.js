@@ -12,7 +12,7 @@ import EditIcon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import {Edit} from '@material-ui/icons';
 
-class ExchangeCurrency extends Component {
+class CopyExchangeCurrency extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,8 +22,18 @@ class ExchangeCurrency extends Component {
         useracc:[],
         edit: false,
     }
+    this.handleedit = this.handleedit.bind(this);
     this.ChangeHandler = this.ChangeHandler.bind(this);
     
+}
+handleedit = () => {
+    this.setState({
+        edit: !this.state.edit
+
+    })
+}
+submitEdit = (e) => {
+
 }
     
 componentDidMount() {
@@ -61,23 +71,16 @@ ChangeHandler = (event) => {
             this.state.useracc.map(item => {
                 return (
                     <div>
-                    <div class="form-group row" >
+                    <div class="form-group row" paddingleft>
                                 <div class="col-lg-3">        </div>
                                 <div class="col-lg-4">
-                         <Card style={{ height: "100px",width:"500px" ,textAlign:"left" }}>
+                         <Card style={{ height: "150px",width:"500px" ,marginBottom: "25px" }}>
                           <CardContent> 
-                          <div class="row">
-                            <div class="col-lg-6"> Source Currency</div>
-                            <div class="col-lg-6">  {item.sourceCurrency}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">  Target Currency</div>
-                            <div class="col-lg-6">  {item.targetCurrency}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Exchange Rate</div>
-                            <div class="col-lg-6">  {item.exchangeRate}</div>
-                            </div>
+            
+                                <h5>Source Currency: {item.sourceCurrency}</h5><br></br>
+                                <h5>Target Currency: {item.targetCurrency}</h5><br></br>
+                                <h5>Exchange Rate:{item.exchangeRate}</h5><br></br>
+                              
     
                            </CardContent>
                          </Card>
@@ -91,6 +94,11 @@ ChangeHandler = (event) => {
 
     return (
         <div style={{marginTop:"50px"}}>
+         <div style={{marginLeft:"700px"}}>
+         <Link to="/editExchangeRate"><button type="submit" class="btn btn-primary">Edit Exchange Rate</button></Link> &nbsp;
+         
+         <Link to="/addExchangeRate"><button type="submit" class="btn btn-primary">Add Exchange Rate</button></Link>
+         </div>
             {displayform}
         </div>
         );
@@ -101,4 +109,4 @@ ChangeHandler = (event) => {
 
 
 
-export default ExchangeCurrency;
+export default CopyExchangeCurrency;

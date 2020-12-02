@@ -69,17 +69,18 @@ public class OfferService {
 		
 		 try {
 			 
-			if(req.getParameter("sourceAmount")=="")
+			if(req.getParameter("destinationAmount") != null || (req.getParameter("destinationAmount") != null && req.getParameter("sourceAmount") != null) )
 			{
-			List<Offer> offer = offersRepo.getActiveOffersByDestinationAmount(sourceCurrency,destinationCurrency,Double.parseDouble(req.getParameter("destinationAmount")));
-			return new ResponseEntity<>(offer, HttpStatus.OK);
+				List<Offer> offer = offersRepo.getActiveOffersByDestinationAmount(sourceCurrency.toString(),destinationCurrency.toString(),Double.parseDouble(req.getParameter("destinationAmount")));
+				return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);	
 			}
-			else
+			else 
 				
-			{	
-			List<Offer> offer = offersRepo.getActiveOffersBySourceAmount(sourceCurrency,destinationCurrency,Double.parseDouble(req.getParameter("sourceAmount")));
-			return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);	
+			{		
+				List<Offer> offer = offersRepo.getActiveOffersBySourceAmount(sourceCurrency.toString(),destinationCurrency.toString(),Double.parseDouble(req.getParameter("sourceAmount")));
+				return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);
 			}	
+			
 		 } catch (Exception e) {
 			 System.out.println(e);
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);

@@ -32,6 +32,7 @@ class SignUp extends Component {
             passwordMatchError: false,
             signupFailedError: false,
             verified:false,
+            mailSent:false
         }
         this.emailChangeHandler = this.emailChangeHandler.bind(this);
         this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
@@ -44,28 +45,40 @@ class SignUp extends Component {
     
     }
      sendVerificationMail=async(email)=>{
-        console.log("happen");
         let targetMail=email;
-        var token = jwt.sign({ mail: targetMail},"happy");
-        let testAccount = await nodemailer.createTestAccount();
-        let transporter = nodemailer.createTransport({
-                 host: "smtp.ethereal.email",
-                 port: 587,
-                 secure: false, // true for 465, false for other ports
-               auth: {
-                 user: testAccount.user, // generated ethereal user
-                 pass: testAccount.pass, // generated ethereal password
-            },
-        });
-        let info = await transporter.sendMail({
-                from: '"Direct Exchange 👻" <foo@example.com>', // sender address
-                to: targetMail, // list of receivers
-                subject: "Email Verification", // Subject line
-                text: 'Click the link to verify your email - '+
-                process.env.REACT_APP_BACKEND_URL+'/user/verifyemail?token='+token,
-         });
-
-       }
+        var token = jwt.sign({ mail: targetMail},"happy"); 
+        let url = process.env.REACT_APP_BACKEND_URL+'/offers/email';
+        let temp=process.env.REACT_APP_FRONTEND_URL+'/verifyMail?username='+targetMail;
+        var data = {
+            "sendto":targetMail,
+            "subject":"direct exchnage email verification",
+            "message": "Click the link to verify your email -"+temp
+        }
+        axios.post(url, data)
+        .then(response => {
+            if (response.status==200) {
+                this.setState({
+                    mailSent: true,
+                    
+                })
+            }
+            else
+            {
+                this.setState({
+                    mailSent: false,
+                })
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            this.setState({
+                mailSent: false,
+                
+            })
+        });;
+    }
+            
+        
 
     registerUser = (event) => {
         event.preventDefault();
@@ -178,7 +191,7 @@ class SignUp extends Component {
     }
     handleDialogClose = () => {
         this.setState({
-            redirectToSignIn: true
+            redirectToSign :true
         })
     }
     render() {
@@ -196,12 +209,12 @@ class SignUp extends Component {
                     <DialogTitle id="alert-dialog-title">{"Registered Successfully .!"}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Hey {this.state.name}, You've been signup succesfully. Please go ahead and login
+                            Hey {this.state.name}, You've been signup succesfully. Please go ahead and verify your email
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.handleDialogClose} color="primary" autoFocus>
-                            Login
+                            ok
                         </Button>
                     </DialogActions>
                 </Dialog>
