@@ -41,9 +41,9 @@ public class ExchangeRateService {
 			// System.out.println(sourceCountry);
 			offer = buildofferfromdata(body);
 
-			Offer offer1 = exchangerepo.save(offer);
+			exchangerepo.save(offer);
 			System.out.println("success");
-			return new ResponseEntity<>("Succesfully Created Offer", HttpStatus.OK);
+			return new ResponseEntity<>("created", HttpStatus.OK);
 		}
 
 		catch (Exception e) {
@@ -115,55 +115,74 @@ public class ExchangeRateService {
 		}
 	}
 
-	public Offer checkIfOfferExisting(Offer offer, long id) throws CustomException {
-		Offer exchangeOffer = new Offer();
+	public Offer checkIfOfferExisting(JsonNode body, long id) throws CustomException {
+		Offer offer = new Offer();
 		try {
 			if (!exchangerepo.getById(id).isPresent()) {
 				throw new CustomException("Offer does not exist with given Id", HttpStatus.NOT_FOUND);
 			}
 
-			exchangeOffer = exchangerepo.getById(id).get();
-			double amount = offer.getAmount();
+			offer = exchangerepo.getById(id).get();
+			double amount = Double.parseDouble(body.get("amount").asText());
 			if (amount > 0) {
-				exchangeOffer.setAmount(amount);
+				offer.setAmount(amount);
 			}
-			Countries destinationCountry = offer.getDestinationCountry();
-			if (destinationCountry != null) {
-				exchangeOffer.setDestinationCountry(destinationCountry);
-			}
-			Countries sourceCountry = offer.getSourceCountry();
-			if (sourceCountry != null) {
-				exchangeOffer.setSourceCountry(sourceCountry);
-			}
-			Currency destinationcurrency = offer.getDestinationCurrency();
-			if (destinationcurrency != null) {
-				exchangeOffer.setDestinationCurrency(destinationcurrency);
-			}
-			Currency sourceCurrency = offer.getSourceCurrency();
-			if (sourceCurrency != null) {
-				exchangeOffer.setSourceCurrency(sourceCurrency);
-			}
-			if (!offer.isUsePrevailingRate()) {
-				exchangeOffer.setUsePrevailingRate(false);
-				if (offer.getExchangeRate() > 0) {
-					exchangeOffer.setExchangeRate(offer.getExchangeRate());
+			
+			for (Countries c : Enum.Countries.values()) {
+				if (c.toString().equals(body.get("sourceCountry").asText())) {
+					offer.setSourceCountry(c);
+					break;
 				}
 			}
-			if (!exchangeOffer.isUsePrevailingRate()) {
-				if (offer.getExchangeRate() > 0) {
-					exchangeOffer.setExchangeRate(offer.getExchangeRate());
+			
+			
+			for (Currency c : Enum.Currency.values()) {
+				if (c.toString().equals(body.get("sourceCurrency").asText())) {
+					offer.setSourceCurrency(c);
+					break;
 				}
 			}
-			if (!offer.isAllowCounterOffers()) {
+			
+			for (Countries c : Enum.Countries.values()) {
+				if (c.toString().equals(body.get("destinationCountry").asText())) {
+					offer.setDestinationCountry(c);
+					break;
+				}
+			}
+			
+			for (Currency c : Enum.Currency.values()) {
+				if (c.toString().equals(body.get("destinationCurrency").asText())) {
+					offer.setDestinationCurrency(c);
+					break;
+				}
+			}
+			
+			
+			if ( body.get("usePrevailingRate").asText() == "false") {
+				offer.setUsePrevailingRate(false);
+				if (offer.getExchangeRate() > 0) {
+					offer.setExchangeRate(offer.getExchangeRate());
+				}
+			}
+		
+			if ( body.get("allowCounterOffers").asText() == "false") {
 
-				exchangeOffer.setAllowCounterOffers(false);
+				offer.setAllowCounterOffers(false);
 			}
-			if (!offer.isAllowSplitExchanges()) {
-				exchangeOffer.setAllowSplitExchanges(false);
+			if (body.get("allowSplitExchanges").asText() == "false") {
+				offer.setAllowSplitExchanges(false);
 			}
 			Timestamp expiry = offer.getExpiry();
+			
 			if (expiry != null) {
-				exchangeOffer.setExpiry(expiry);
+			
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				Date date = sdf.parse(expiry.toString());
+				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+				String fdate = sdf1.format(date);
+				Timestamp ldt = Timestamp.valueOf(fdate);
+				offer.setExpiry(ldt);
 			}
 
 		} catch (CustomException e) {
@@ -172,15 +191,16 @@ public class ExchangeRateService {
 			e.printStackTrace();
 			throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
-		return exchangeOffer;
+		return offer;
 	}
 
-	public ResponseEntity<String> updateOffer(Offer offer, long id) {
+	public ResponseEntity<String> updateOffer(JsonNode body, long id) {
 
+		Offer offer = new Offer();
 		try {
-			offer = checkIfOfferExisting(offer, id);
+			offer = checkIfOfferExisting(body, id);
 			exchangerepo.save(offer);
-			return new ResponseEntity<>("Successfully updated the offer", HttpStatus.OK);
+			return new ResponseEntity<>("updated", HttpStatus.OK);
 		} catch (CustomException e) {
 			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
 
