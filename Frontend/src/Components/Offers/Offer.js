@@ -74,7 +74,22 @@ componentDidMount() {
 }
 filterOffer = (event) => {
     event.preventDefault();
-  let url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?destinationAmount='+this.state.destinationAmount+'&sourceAmount='+this.state.sourceAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;
+    let url;
+    if(this.state.destinationAmount!="" && this.state.sourceAmount!="")
+    {
+         url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?destinationAmount='+this.state.destinationAmount+'&sourceAmount='+this.state.sourceAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;
+
+    }
+    else if(this.state.destinationAmount!="")
+    {
+         url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?destinationAmount='+this.state.destinationAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;
+
+    }
+    else{
+
+         url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?sourceAmount='+this.state.sourceAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;
+
+    }
     axios.defaults.withCredentials = true;
     console.log(url);
     axios.get(url)
@@ -120,7 +135,7 @@ ChangeHandler = (event) => {
 
 }
 validateDetails = (event) => {
-    if (this.state.sourceCurrency !== "" && this.state.destinationCurrency  !== "" && this.state.sourceAmount !== "" && this.state.destinationAmount !== "" ) return false
+    if (this.state.sourceCurrency !== "" && this.state.destinationCurrency  !== ""  && (this.state.sourceAmount !== "" || this.state.destinationAmount !== "") ) return false
     else return true
 }
 
