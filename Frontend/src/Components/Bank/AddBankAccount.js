@@ -168,7 +168,7 @@ registerUser = (event) => {
                                      id="accountType"
                                      value={this.state.accountType}
                                      onChange={this.HandleChange}>
-        >
+        
                                         <MenuItem value={names[0]} >sending</MenuItem>
                                          <MenuItem value={names[1]}>receiving</MenuItem>
                                          <MenuItem value={names[2]}>both</MenuItem>

@@ -5,6 +5,8 @@ import { Button } from "react-bootstrap";
 import Icon from "@material-ui/core/Icon";
 import '../Offers/editoffer.css';
 import Moment from 'moment';
+import TextField from '@material-ui/core/TextField';
+
 
 
 class CreateOffer extends Component {
@@ -63,10 +65,10 @@ class CreateOffer extends Component {
         usePrevailingRate: this.state.usePrevailingRate,
    
     };
-  let userid = this.state.userid
+  let userid = data.userid
   console.log(data.sourceCountry)
-    let url = process.env.REACT_APP_BACKEND_URL+'/offer/?sourceCountry='+data.sourceCountry+'&sourceCurrency='+data.sourceCurrency+'&destinationCountry='+this.state.destinationCountry+'&destinationCurrency='+this.state.destinationCurrency;
-
+    // let url = process.env.REACT_APP_BACKEND_URL+'/offer?sourceCountry='+data.sourceCountry+'&sourceCurrency='+data.sourceCurrency+'&destinationCountry='+this.state.destinationCountry+'&destinationCurrency='+this.state.destinationCurrency;
+let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
     //set the with credentials to true
     axios.defaults.withCredentials = true;
     //make a post request with the user data
@@ -208,20 +210,19 @@ class CreateOffer extends Component {
                 />
               </div>
 
-              
               <div className="form-group">
             <label className="col-form-label w-100 text-left">
-            Expiry
+            Expiry Date &nbsp;
             </label>
-                <input
-                  type="text"
-                  name="expiry"
-                  className="form-control"
-                  placeholder="YYYY-MM-DD "
-                  onChange={this.handleChange}
-                  defaultValue={Moment(this.state.expiry).format('YYYY-MM-DD')}
-                />
-              </div>
+              <TextField
+    id="datetime-local"
+    type="datetime-local"
+    name="expiry"
+    
+    onChange={this.handleChange}
+  
+  />
+  </div>
 
               <div className="form-group">
             <label className="col-form-label w-100 text-left">
@@ -272,7 +273,21 @@ class CreateOffer extends Component {
             </select>
           </div>
               
-     
+          <div className="form-group">
+            <label className="col-form-label w-100 text-left">
+             Set Exchange Rate
+            </label>
+                <input
+                  type="text"
+                  name="exchangeRate"
+                  className="form-control"
+                  placeholder="exchangeRate "
+                  onChange={this.handleChange}
+                  defaultValue={this.state.exchangeRate}
+                />
+              </div>
+
+
               <div className="form-group">
                 <Button  style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
                   Update Listing!

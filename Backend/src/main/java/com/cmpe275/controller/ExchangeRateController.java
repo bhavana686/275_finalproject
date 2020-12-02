@@ -27,52 +27,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
-@CrossOrigin(origins="http://localhost:3000", allowedHeaders = "*",allowCredentials="true")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", allowCredentials = "true")
 @RequestMapping(value = "/offer")
 public class ExchangeRateController {
 
 	@Autowired
 	private ExchangeRateService exchangeRateService;
 
-//	@PostMapping
-//	public ResponseEntity<Object> createExchangeOffer(HttpServletRequest request) {
-//		return exchangeRateService.createExchangeOffer(request);
-//	}
-//	
+	@PostMapping("/postoffer")
+	public ResponseEntity<String> createOffer(HttpServletRequest request, @RequestBody JsonNode body) {
 
-   @ResponseStatus(value = HttpStatus.OK)
-    @PostMapping()
-    public ResponseEntity<String> createOffer(HttpServletRequest request,
-    	
-    		@RequestParam("sourceCountry") Enum.Countries sourceCountry,
-			@RequestParam("sourceCurrency") Enum.Currency sourceCurrency,
-			@RequestParam("destinationCountry") Enum.Countries destinationCountry,
-			@RequestParam("destinationCurrency") Enum.Currency destinationCurrency,
-			@RequestBody JsonNode body) {
+		System.out.println("in create offer");
+		return exchangeRateService.createOffer(request, body);
+	}
 
-//      System.out.println("User: {}"+ offer.getAmount());
-//      System.out.println("User: {}"+ offer.getExchangeRate());
-      return exchangeRateService.createOffer(request,sourceCountry, sourceCurrency, destinationCountry, destinationCurrency, body);
-    }
-	   
 	@PutMapping("/{id}")
 	public ResponseEntity<String> updateOffer(@RequestBody Offer offer, @PathVariable("id") long id) {
-		
-		return exchangeRateService.updateOffer(offer,id);
+
+		return exchangeRateService.updateOffer(offer, id);
 	}
-	
-	@GetMapping("/{id}")	
+
+	@GetMapping("/{id}")
 	public ResponseEntity<Object> displayrecords(@PathVariable("id") long id) {
-		
+
 		return exchangeRateService.getOffersByUserId(id);
 	}
-	
 
-	@GetMapping("currentoffer/{id}")	
+	@GetMapping("currentoffer/{id}")
 	public ResponseEntity<Object> displayoffer(@PathVariable("id") long id) {
-		
+
 		return exchangeRateService.getofferbyofferid(id);
 	}
 
- 
 }
