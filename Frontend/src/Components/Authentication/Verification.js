@@ -47,7 +47,7 @@ class Verification extends Component {
         if (this.state.verified){
             displayform=(<div>
             <div>
-            <h1>VERFICATION SUCCESSFUL</h1>
+            <h1>VERFICATION SUCCESSFUL<br></br><br></br></h1>
             </div>
             <div>
             <Link to="/signin"><button type="submit" class="btn btn-primary">Sign In </button></Link> 
@@ -59,7 +59,7 @@ class Verification extends Component {
 
             displayform=(<div>
                 <div>
-                <h1>VERFICATION FAILED TRY TO SIGNUP AGAIN</h1>
+                <h1>VERFICATION FAILED TRY TO SIGNUP AGAIN<br></br><br></br></h1>
                 <div>
             <Link to="/home"><button type="submit" class="btn btn-primary">Sign Up </button></Link> 
             </div>
