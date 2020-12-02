@@ -30,6 +30,8 @@ public class AutoMatchedOffer {
 	private CounterOffer counter;
 	
 	private Enum.AutoMatchTypes type;
+	
+	private Enum.AutoMatchOffersState status = Enum.AutoMatchOffersState.open;
 
 	public long getId() {
 		return id;
@@ -77,6 +79,14 @@ public class AutoMatchedOffer {
 
 	public void setType(Enum.AutoMatchTypes type) {
 		this.type = type;
+	}
+
+	public Enum.AutoMatchOffersState getStatus() {
+		return status;
+	}
+
+	public void setStatus(Enum.AutoMatchOffersState status) {
+		this.status = status;
 	}
 
 }
