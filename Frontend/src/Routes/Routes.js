@@ -10,6 +10,13 @@ import AddBankAccount from '../Components/Bank/AddBankAccount';
 import ExchangeCurrency from '../Components/ExchangeCurrency/ExchangeCurrency'
 import AddExchangeRate from '../Components/ExchangeCurrency/AddExchangeRate'
 import EditExchangeRate from '../Components/ExchangeCurrency/EditExchangeRate'
+<<<<<<< Updated upstream
+=======
+import Offers from '../Components/Offers/Offers';
+import Offer from '../Components/Offers/Offer';
+import EditOffer from '../Components/Offers/EditOffer';
+import CreateOffer from '../Components/Offers/createoffer';
+>>>>>>> Stashed changes
 import Verification from '../Components/Authentication/Verification'
 import CopyExchangeCurrency from '../Components/ExchangeCurrency/CopyExchangeCurrency'
 
@@ -30,6 +37,7 @@ class Routes extends Component {
         <Route path="/editExchangeRate" component={EditExchangeRate} />
         <Route path="/addBankAccount" component={AddBankAccount} />
         <Route path="/verifyMail" component={Verification} />
+        <Route path="/offer" component={Offer}/>
 
 
 
