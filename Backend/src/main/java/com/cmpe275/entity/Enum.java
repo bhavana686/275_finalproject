@@ -10,7 +10,7 @@ public class Enum {
 	}
 
 	public static enum OfferStatuses {
-		open, fulfilled, expired, pending, intransaction
+		open, fulfilled, expired, pending, intransaction, counterMade
 	}
 	
 	public static enum CounterOfferStatuses {
@@ -23,5 +23,9 @@ public class Enum {
 	
 	public static enum AutoMatchedOffers{
 		aplha, beta, gamma
+	}
+	
+	public static enum AutoMatchOffersState{
+		open, expired, declined, accepted
 	}
 }

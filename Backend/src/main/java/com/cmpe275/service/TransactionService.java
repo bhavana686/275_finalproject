@@ -24,6 +24,8 @@ import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.AutoMatchedOffer;
 import com.cmpe275.entity.CounterOffer;
 import com.cmpe275.entity.Enum;
+import com.cmpe275.entity.Enum.CounterOfferStatuses;
+import com.cmpe275.entity.Enum.OfferStatuses;
 import com.cmpe275.entity.ExchangeCurrency;
 import com.cmpe275.entity.Offer;
 import com.cmpe275.entity.Transaction;
@@ -39,6 +41,8 @@ import com.cmpe275.repo.TransactionRepo;
 import com.cmpe275.repo.TransferRequestRepo;
 import com.cmpe275.repo.UserRepo;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import net.bytebuddy.description.modifier.EnumerationState;
 
 @Service
 public class TransactionService {
@@ -172,9 +176,9 @@ public class TransactionService {
 						: new ArrayList<TransferRequest>();
 				transReqs.add(transferReq);
 				offer.setTransferRequests(transReqs);
-				offer.setStatus(Enum.OfferStatuses.pending);
+				offer.setStatus(Enum.OfferStatuses.intransaction);
 				offer.setEditable(false);
-				offer.setDisplay(false);
+//				offer.setDisplay(false);
 				offerRepo.save(offer);
 
 				// add to list
@@ -227,6 +231,10 @@ public class TransactionService {
 	public CounterOffer createCounterForAOffer(Offer sourceOffer, double counterAmount, long counterUserId)
 			throws CustomException {
 		try {
+			if (((sourceOffer.getAmount() * 1.1) < counterAmount)
+					|| ((sourceOffer.getAmount() * 0.9) > counterAmount)) {
+				throw new CustomException("Counter Amount Invalid", HttpStatus.BAD_REQUEST);
+			}
 			CounterOffer counter = new CounterOffer();
 			counter.setCounterAmount(counterAmount);
 			counter.setCounteredAgainst(sourceOffer);
@@ -234,7 +242,7 @@ public class TransactionService {
 			counter.setCounteredBy(counteredBy.get());
 			counter.setOriginalAmount(sourceOffer.getAmount());
 			long timestamp = System.currentTimeMillis();
-			counter.setExpiry(new Timestamp(timestamp + (10 * 60000)));
+			counter.setExpiry(new Timestamp(timestamp + (5 * 60000)));
 			counter.setCreatedAt(new Timestamp(timestamp));
 			CounterOffer counterOffer = counterOfferRepo.save(counter);
 
@@ -255,11 +263,14 @@ public class TransactionService {
 			sourceOffer.setCounterOffers(existingCounterOffersOfOffer);
 
 			// Setting offer to display none
-			sourceOffer.setStatus(Enum.OfferStatuses.pending);
+//			sourceOffer.setStatus(Enum.OfferStatuses.pending);
 			sourceOffer.setEditable(false);
-			sourceOffer.setDisplay(false);
+//			sourceOffer.setDisplay(false);
 			offerRepo.save(sourceOffer);
 			return counterOffer;
+		} catch (CustomException e) {
+			e.printStackTrace();
+			throw new CustomException(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -305,7 +316,7 @@ public class TransactionService {
 			List<Offer> offers = new ArrayList<Offer>();
 			if (node.isArray()) {
 				for (final JsonNode off : node) {
-					long offerId = (long) off.get("offerId").asLong();
+					long offerId = (long) off.get("id").asLong();
 					System.out.println(offerId);
 					Optional<Offer> offer = offerRepo.findById(offerId);
 					if (offer.isEmpty())
@@ -325,8 +336,10 @@ public class TransactionService {
 
 			return offers;
 		} catch (CustomException e) {
+			e.printStackTrace();
 			throw new CustomException(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -401,7 +414,7 @@ public class TransactionService {
 					: new ArrayList<TransferRequest>();
 			transReqs.add(transferReq);
 			offer.setTransferRequests(transReqs);
-			offer.setStatus(Enum.OfferStatuses.pending);
+			offer.setStatus(Enum.OfferStatuses.intransaction);
 			offer.setEditable(false);
 			offer.setDisplay(false);
 			offerRepo.save(offer);
@@ -428,8 +441,8 @@ public class TransactionService {
 			double adjustmentAmount = (double) body.get("adjustmentAmount").asDouble();
 			JsonNode offersNode = (JsonNode) body.get("offers");
 			Optional<Offer> originalOffer = offerRepo.findById(offerId);
-			originalOffer.get().setDisplay(false);
-			offerRepo.save(originalOffer.get());
+//			originalOffer.get().setDisplay(false);
+//			offerRepo.save(originalOffer.get());
 
 			List<Offer> offers = getOffersFromBody(offersNode);
 
@@ -450,49 +463,41 @@ public class TransactionService {
 	private void adjustOffersBasedOnAmount(Offer offer, double offerAmount, double sumOfMatchedOffers,
 			double adjustmentAmount, List<Offer> offers, long counteredUserId) throws CustomException {
 
-		CounterOffer counterOffer = createCounterForAOffer(offer, adjustmentAmount, counteredUserId);
-
-		AutoMatchedOffer autoOffer = new AutoMatchedOffer();
-		autoOffer.setCounter(counterOffer);
-		autoOffer.setCounteredOffer(offers.get(offers.size() - 1));
-		autoOffer.setOriginalOffer(offer);
-
-		if (offers.size() == 1) {
-			autoOffer.setType(Enum.AutoMatchTypes.single_counter);
-		} else if (offers.size() == 2) {
-			autoOffer.setFullyFulfilledOffer(offers.get(0));
-			autoOffer.setType(Enum.AutoMatchTypes.dual_counter);
-		}
-
-		autoMatchedOfferRepo.save(autoOffer);
-
-		for (Offer subOffer : offers) {
-			subOffer.setEditable(false);
-			subOffer.setDisplay(false);
-			subOffer.setStatus(Enum.OfferStatuses.pending);
-			offerRepo.save(subOffer);
-		}
-
-	}
-
-	/*
-	 * Approve a Counter Offer
-	 */
-
-	public ResponseEntity<Object> acceptCounterOffer(HttpServletRequest request, JsonNode body, long counterId) {
 		try {
-			Optional<CounterOffer> cOffer = counterOfferRepo.findById(counterId);
-			if (cOffer.isEmpty())
-				throw new CustomException("Counter Id not found", HttpStatus.NOT_FOUND);
-			CounterOffer counterOffer = cOffer.get();
-			Optional<AutoMatchedOffer> autoMatchedOffer = autoMatchedOfferRepo.getByCounter(counterOffer);
-			return null;
+			CounterOffer counterOffer = createCounterForAOffer(offers.get(offers.size() - 1), adjustmentAmount,
+					counteredUserId);
+
+			AutoMatchedOffer autoOffer = new AutoMatchedOffer();
+			autoOffer.setCounter(counterOffer);
+			autoOffer.setCounteredOffer(offers.get(offers.size() - 1));
+			autoOffer.setOriginalOffer(offer);
+
+			if (offers.size() == 1) {
+				autoOffer.setType(Enum.AutoMatchTypes.single_counter);
+			} else if (offers.size() == 2) {
+				autoOffer.setFullyFulfilledOffer(offers.get(0));
+				autoOffer.setType(Enum.AutoMatchTypes.dual_counter);
+			}
+
+			autoMatchedOfferRepo.save(autoOffer);
+
+			offer.setEditable(false);
+			offer.setDisplay(false);
+			offer.setStatus(Enum.OfferStatuses.counterMade);
+			offerRepo.save(offer);
+
+			for (Offer subOffer : offers) {
+				subOffer.setEditable(false);
+//			subOffer.setDisplay(false);
+//			subOffer.setStatus(Enum.OfferStatuses.pending);
+				offerRepo.save(subOffer);
+			}
 		} catch (CustomException e) {
 			e.printStackTrace();
-			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
+			throw new CustomException(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -552,7 +557,7 @@ public class TransactionService {
 
 			List<AutoMatchEntity> splitMatch1 = getSplitMatchOffersCase1(offerId, amount, offer);
 			System.out.println("Dual Matched Case 1: " + splitMatch1.size());
-			
+
 			Collections.sort(splitMatch1, new Comparator<AutoMatchEntity>() {
 				@Override
 				public int compare(AutoMatchEntity u1, AutoMatchEntity u2) {
@@ -584,7 +589,8 @@ public class TransactionService {
 		}
 	}
 
-	public List<AutoMatchEntity> getSplitMatchOffersCase1(long offerId, double amount, Offer originalOffer) throws CustomException {
+	public List<AutoMatchEntity> getSplitMatchOffersCase1(long offerId, double amount, Offer originalOffer)
+			throws CustomException {
 		try {
 			List<AutoMatchEntity> offers = new ArrayList<>();
 			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount,
@@ -628,7 +634,8 @@ public class TransactionService {
 		}
 	}
 
-	public List<AutoMatchEntity> getSplitMatchOffersCase2(long offerId, double amount, Offer originalOffer) throws CustomException {
+	public List<AutoMatchEntity> getSplitMatchOffersCase2(long offerId, double amount, Offer originalOffer)
+			throws CustomException {
 		try {
 			List<AutoMatchEntity> offers = new ArrayList<>();
 			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount,
@@ -690,5 +697,305 @@ public class TransactionService {
 			o.setExchangeRate(offer.getExchangeRate());
 		}
 		return o;
+	}
+
+	/*
+	 * Approve a Counter Offer
+	 */
+
+	public ResponseEntity<Object> acceptCounterOffer(HttpServletRequest request, JsonNode body, long counterId) {
+		try {
+			Optional<CounterOffer> cOffer = counterOfferRepo.findById(counterId);
+			if (cOffer.isEmpty())
+				throw new CustomException("Counter Id not found", HttpStatus.NOT_FOUND);
+			CounterOffer counterOffer = cOffer.get();
+
+			if (counterOffer.getStatus() != Enum.CounterOfferStatuses.open)
+				throw new CustomException("Counter Not Open", HttpStatus.BAD_REQUEST);
+
+			long timestamp = System.currentTimeMillis();
+			if (counterOffer.getExpiry().getTime() < timestamp) {
+				counterOffer.setStatus(Enum.CounterOfferStatuses.expired);
+				counterOfferRepo.save(counterOffer);
+				throw new CustomException("Counter Expired", HttpStatus.BAD_REQUEST);
+			}
+
+			if (counterOffer.getCounteredAgainst().getStatus() != Enum.OfferStatuses.fulfilled
+					|| counterOffer.getCounteredAgainst().getStatus() != Enum.OfferStatuses.expired
+					|| counterOffer.getCounteredAgainst().getStatus() != Enum.OfferStatuses.intransaction)
+				throw new CustomException("Offer Not Open", HttpStatus.BAD_REQUEST);
+
+			Optional<AutoMatchedOffer> autoMatchedOffer = autoMatchedOfferRepo.getByCounter(counterOffer);
+			if (autoMatchedOffer.isEmpty())
+				throw new CustomException("Auto Match Not found", HttpStatus.NOT_FOUND);
+
+			List<Offer> offers = new ArrayList<>();
+
+			validateOfferIsValid(autoMatchedOffer.get().getOriginalOffer());
+			offers.add(autoMatchedOffer.get().getOriginalOffer());
+			offers.add(autoMatchedOffer.get().getCounteredOffer());
+			if (autoMatchedOffer.get().getType() == Enum.AutoMatchTypes.direct_counter) {
+				validateOfferIsValid(autoMatchedOffer.get().getCounteredOffer());
+			} else if (autoMatchedOffer.get().getType() == Enum.AutoMatchTypes.single_counter) {
+				validateOfferIsValid(autoMatchedOffer.get().getCounteredOffer());
+			} else {
+				validateOfferIsValid(autoMatchedOffer.get().getCounteredOffer());
+				validateOfferIsValid(autoMatchedOffer.get().getFullyFulfilledOffer());
+				offers.add(autoMatchedOffer.get().getFullyFulfilledOffer());
+			}
+
+			counterOffer.setStatus(Enum.CounterOfferStatuses.accepted);
+			counterOfferRepo.save(counterOffer);
+
+			Transaction tran = new Transaction();
+			tran.setExpiry(new Timestamp(timestamp + (10 * 60000)));
+			Transaction transaction = transactionRepo.save(tran);
+
+			List<TransferRequest> requests = createTransferRequests(offers, transaction);
+			transaction.setRequests(requests);
+			transactionRepo.save(transaction);
+
+			return new ResponseEntity<>("Success", HttpStatus.OK);
+		} catch (CustomException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	public void validateOfferIsValid(Offer offer) throws CustomException {
+		try {
+			if (offer.getStatus() == Enum.OfferStatuses.fulfilled || offer.getStatus() == Enum.OfferStatuses.expired)
+				throw new CustomException(offer.getId() + " Offer Not Valid Anymore", HttpStatus.BAD_REQUEST);
+
+			// Check if offer is expired
+			long timestamp = System.currentTimeMillis();
+			if (offer.getExpiry().getTime() < timestamp) {
+				offer.setStatus(Enum.OfferStatuses.expired);
+				offerRepo.save(offer);
+				throw new CustomException(offer.getId() + " Offer Expired", HttpStatus.BAD_REQUEST);
+			}
+
+		} catch (CustomException e) {
+			e.printStackTrace();
+			throw new CustomException(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException("Invalid Offer State", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	/*
+	 * Reject a Counter Offer
+	 */
+
+	public ResponseEntity<Object> declineCounterOffer(HttpServletRequest request, JsonNode body, long counterId) {
+		try {
+			Optional<CounterOffer> cOffer = counterOfferRepo.findById(counterId);
+			if (cOffer.isEmpty())
+				throw new CustomException("Counter Id not found", HttpStatus.NOT_FOUND);
+			CounterOffer counterOffer = cOffer.get();
+
+			if (counterOffer.getStatus() != Enum.CounterOfferStatuses.open)
+				throw new CustomException("Counter Not Open", HttpStatus.BAD_REQUEST);
+
+			Optional<AutoMatchedOffer> autoMatchedOffer = autoMatchedOfferRepo.getByCounter(counterOffer);
+			if (autoMatchedOffer.isEmpty())
+				throw new CustomException("Auto Match Not found", HttpStatus.NOT_FOUND);
+
+			AutoMatchedOffer autoMatchOffer = autoMatchedOffer.get();
+			autoMatchOffer.setStatus(Enum.AutoMatchOffersState.declined);
+			autoMatchedOfferRepo.save(autoMatchOffer);
+
+			// Check if original Offer got expired
+
+			long timestamp = System.currentTimeMillis();
+			if (autoMatchOffer.getOriginalOffer().getExpiry().getTime() < timestamp) {
+				Offer orgOffer = autoMatchOffer.getOriginalOffer();
+				orgOffer.setStatus(Enum.OfferStatuses.expired);
+				offerRepo.save(orgOffer);
+
+			} else {
+				Offer orgOffer = autoMatchOffer.getOriginalOffer();
+				orgOffer.setStatus(Enum.OfferStatuses.open);
+				offerRepo.save(orgOffer);
+			}
+
+			return new ResponseEntity<>("Success", HttpStatus.OK);
+		} catch (CustomException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	/*
+	 * Accept a Transfer Request
+	 */
+
+	public ResponseEntity<Object> acceptTransferRequest(HttpServletRequest request, JsonNode body, long offerId,
+			long requestId) {
+		try {
+			Optional<TransferRequest> transRequest = transferRequestRepo.findById(requestId);
+			if (transRequest.isEmpty())
+				throw new CustomException("Request Id invalid", HttpStatus.NOT_FOUND);
+			TransferRequest transferRequest = transRequest.get();
+
+			long timestamp = System.currentTimeMillis();
+			Transaction transaction = transferRequest.getTransaction();
+
+			List<TransferRequest> requests = transaction.getRequests();
+			validateTransferRequestOfferIsValid(requests);
+
+			if (transferRequest.getStatus() == Enum.CounterOfferStatuses.expired
+					|| transferRequest.getExpiry().getTime() < timestamp) {
+				transferRequest.setStatus(Enum.CounterOfferStatuses.expired);
+				transferRequestRepo.save(transferRequest);
+				transaction.setStatus(Enum.CounterOfferStatuses.expired);
+				// Function to move all offers to open when expired
+				// Close all other transfer Requests
+				moveOffersToOpen(requests, Enum.OfferStatuses.open);
+				throw new CustomException("Request Expired", HttpStatus.BAD_REQUEST);
+			}
+
+			if (isAllRequestsAccepted(requests)) {
+				moveOffersToFulfilled(requests, Enum.OfferStatuses.fulfilled, transaction);
+			} else {
+				transferRequest.setStatus(Enum.CounterOfferStatuses.accepted);
+				transferRequestRepo.save(transferRequest);
+			}
+			return new ResponseEntity<>("Success", HttpStatus.OK);
+		} catch (CustomException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	public boolean isAllRequestsAccepted(List<TransferRequest> requests) throws CustomException {
+		try {
+			boolean accepted = true;
+			for (TransferRequest request : requests) {
+				if (request.getStatus() != Enum.CounterOfferStatuses.accepted) {
+					accepted = false;
+					break;
+				}
+			}
+			return accepted;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException("Invalid Offer State", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	public void validateTransferRequestOfferIsValid(List<TransferRequest> requests) throws CustomException {
+		try {
+			for (TransferRequest request : requests) {
+				Offer offer = request.getOffer();
+				if (offer.getStatus() == Enum.OfferStatuses.fulfilled
+						|| offer.getStatus() == Enum.OfferStatuses.expired)
+					throw new CustomException(offer.getId() + " Offer Not Valid Anymore", HttpStatus.BAD_REQUEST);
+
+				// Check if offer is expired
+				long timestamp = System.currentTimeMillis();
+				if (offer.getExpiry().getTime() < timestamp) {
+					offer.setStatus(Enum.OfferStatuses.expired);
+					offerRepo.save(offer);
+					throw new CustomException(offer.getId() + " Offer Expired", HttpStatus.BAD_REQUEST);
+				}
+			}
+		} catch (CustomException e) {
+			e.printStackTrace();
+			throw new CustomException(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException("Invalid Offer State", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	public void moveOffersToFulfilled(List<TransferRequest> requests, Enum.OfferStatuses status,
+			Transaction transaction) throws CustomException {
+		try {
+			for (TransferRequest request : requests) {
+				Offer offer = request.getOffer();
+				if (offer.getStatus() != Enum.OfferStatuses.intransaction)
+					throw new CustomException("Offer Status Invalid", HttpStatus.BAD_REQUEST);
+				offer.setStatus(Enum.OfferStatuses.fulfilled);
+				offer.setFulfilledBy(transaction);
+				offer.setTransactedAmount(request.getAmountAdjusted());
+				offer.setFullyFulfilled(request.getAmountRequired() == request.getAmountAdjusted());
+				offer.setDisplay(true);
+				offer.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+				offerRepo.save(offer);
+
+				request.setStatus(Enum.CounterOfferStatuses.accepted);
+				transferRequestRepo.save(request);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException("Invalid Offer State", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	/*
+	 * Decline a Transfer Request
+	 */
+
+	public ResponseEntity<Object> declineTransferRequest(HttpServletRequest request, JsonNode body, long offerId,
+			long requestId) {
+		try {
+			Optional<TransferRequest> transRequest = transferRequestRepo.findById(requestId);
+			if (transRequest.isEmpty())
+				throw new CustomException("Request Id invalid", HttpStatus.NOT_FOUND);
+
+			TransferRequest transferRequest = transRequest.get();
+
+			long timestamp = System.currentTimeMillis();
+			Transaction transaction = transferRequest.getTransaction();
+
+			List<TransferRequest> requests = transaction.getRequests();
+			validateTransferRequestOfferIsValid(requests);
+
+			if (transferRequest.getStatus() == Enum.CounterOfferStatuses.expired
+					|| transferRequest.getExpiry().getTime() < timestamp) {
+				transferRequest.setStatus(Enum.CounterOfferStatuses.expired);
+				transferRequestRepo.save(transferRequest);
+				transaction.setStatus(Enum.CounterOfferStatuses.expired);
+				throw new CustomException("Request Expired", HttpStatus.BAD_REQUEST);
+			}
+
+			moveOffersToOpen(requests, Enum.OfferStatuses.open);
+
+			return new ResponseEntity<>("Success", HttpStatus.OK);
+		} catch (CustomException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	private void moveOffersToOpen(List<TransferRequest> requests, OfferStatuses open) throws CustomException {
+		try {
+			for (TransferRequest request : requests) {
+				Offer offer = request.getOffer();
+				offer.setStatus(open);
+				offer.setDisplay(true);
+				offerRepo.save(offer);
+
+				request.setStatus(Enum.CounterOfferStatuses.expired);
+				transferRequestRepo.save(request);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException("Invalid Offer State", HttpStatus.BAD_REQUEST);
+		}
 	}
 }
