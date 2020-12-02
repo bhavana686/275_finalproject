@@ -42,5 +42,10 @@ public class UserController {
 		return userService.verifyMail(request, username);
 	}
 	
+	
 
+	@PutMapping
+	public ResponseEntity<Object> updateuserprofile(HttpServletRequest request, @RequestBody JsonNode body) {
+		return userService.updateProfile(request, body);
+	}
 }
