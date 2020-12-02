@@ -12,22 +12,19 @@ import EditIcon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import {Edit} from '@material-ui/icons';
 
-class ExchangeCurrency extends Component {
+class BankAccount extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        sourceCurrency:"",
-        targetCurrency:"",
-        exchangeRate:"",
         useracc:[],
-        edit: false,
+      
     }
     this.ChangeHandler = this.ChangeHandler.bind(this);
-    
 }
-    
+
 componentDidMount() {
-    let url = process.env.REACT_APP_BACKEND_URL+'/exchangeRate/getAll';
+    let id=sessionStorage.getItem("id");
+    let url = process.env.REACT_APP_BACKEND_URL+'/bank/'+id;
     console.log(url);
     axios.defaults.withCredentials = true;
     axios.get(url)
@@ -53,8 +50,6 @@ ChangeHandler = (event) => {
     })
 }
     render() {
-        let editform = null;
-        let details=null;
         var displayform=null;
         displayform = (
 
@@ -64,21 +59,37 @@ ChangeHandler = (event) => {
                     <div class="form-group row" >
                                 <div class="col-lg-3">        </div>
                                 <div class="col-lg-4">
-                         <Card style={{ height: "100px",width:"500px" ,textAlign:"left" }}>
+                         <Card style={{ height: "180px",width:"500px" ,textAlign:"left" }}>
                           <CardContent> 
                           <div class="row">
-                            <div class="col-lg-6"> Source Currency</div>
-                            <div class="col-lg-6">  {item.sourceCurrency}</div>
+                            <div class="col-lg-6">  Bank Name</div>
+                            <div class="col-lg-6">  {item.bankName}</div>
                             </div>
                             <div class="row">
-                            <div class="col-lg-6">  Target Currency</div>
-                            <div class="col-lg-6">  {item.targetCurrency}</div>
+                            <div class="col-lg-6"> Account Number</div>
+                            <div class="col-lg-6">  {item.accountNumber}</div>
                             </div>
                             <div class="row">
-                            <div class="col-lg-6"> Exchange Rate</div>
-                            <div class="col-lg-6">  {item.exchangeRate}</div>
+                            <div class="col-lg-6"> Owner Name</div>
+                            <div class="col-lg-6">  {item.ownerName}</div>
                             </div>
-    
+                            <div class="row">
+                            <div class="col-lg-6"> Owner Address</div>
+                            <div class="col-lg-6">  {item.ownerAddress}</div>
+                            </div>
+
+                            <div class="row">
+                            <div class="col-lg-6"> Account Type:</div>
+                            <div class="col-lg-6">  {item.accountType}</div>
+                            </div>
+                            <div class="row">
+                            <div class="col-lg-6"> Country</div>
+                            <div class="col-lg-6">  {item.country}</div>
+                            </div>
+                            <div class="row">
+                            <div class="col-lg-6"> Primary Currency:</div>
+                            <div class="col-lg-6">  {item.primaryCurrency}</div>
+                            </div>
                            </CardContent>
                          </Card>
 
@@ -101,4 +112,4 @@ ChangeHandler = (event) => {
 
 
 
-export default ExchangeCurrency;
+export default BankAccount;
