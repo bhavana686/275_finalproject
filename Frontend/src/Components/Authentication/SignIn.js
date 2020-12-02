@@ -16,14 +16,21 @@ class SignIn extends Component {
       email: "",
       password: "",
       invalidEmail: false,
-      verification:false
+      verification:false,
+      fbflag:false,
     }
     this.authenticateUser = this.authenticateUser.bind(this);
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
     this.validateCredentials = this.validateCredentials.bind(this);
+    this.componentClicked = this.componentClicked.bind(this);
   }
+  componentClicked=()=>{
+    this.setState({
+        fbflag: true
+    })
 
+}
 
   authenticateUser = (event) => {
     event.preventDefault();
@@ -208,7 +215,7 @@ class SignIn extends Component {
                                 <div style={{marginTop:"30px"}}>
                                     <FacebookLogin
                                      appId="371065937316993"
-                                     autoLoad={true}
+                                     autoLoad={this.state.fbflag}
                                      fields="name,email"
                                      onClick={this.componentClicked}
                                      callback={this.responseFacebook}
