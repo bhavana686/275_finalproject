@@ -4,6 +4,9 @@ public class UserShallowForm {
 	private long id;
 	private String username;
 	private String nickname;
+	private String signupType;
+	private String password;
+	private Boolean isVerified;
 
 	public UserShallowForm() {
 
@@ -31,6 +34,28 @@ public class UserShallowForm {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+	public String getSignupType() {
+		return signupType;
+	}
+
+	public void setSignupType(String type) {
+		this.signupType = type;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String type) {
+		this.password = type;
+	}
+	public Boolean getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(Boolean type) {
+		this.isVerified =type ;
 	}
 	
 }

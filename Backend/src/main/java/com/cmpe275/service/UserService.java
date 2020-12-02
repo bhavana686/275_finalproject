@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.User;
+import com.cmpe275.models.UserShallowForm;
 import com.cmpe275.repo.UserRepo;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -33,7 +34,7 @@ public class UserService {
 			}
 			user = buildUserFromData(body);
 			User u = userRepo.save(user);
-			return new ResponseEntity<>(u,HttpStatus.OK);
+			return new ResponseEntity<>(ConvertUserForm(u),HttpStatus.OK);
 		} catch (CustomException e) {
 			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
@@ -74,7 +75,7 @@ public class UserService {
 			  if(u.isPresent() && u.get().getSignupType().equals(type))
 			  {
 				  Optional<User> us = userRepo.findByUsername(name);
-				  return new ResponseEntity<>(us, HttpStatus.OK);
+				  return new ResponseEntity<>(us.get(), HttpStatus.OK);
 				  
 			  }
 			else
@@ -94,7 +95,7 @@ public class UserService {
 				Optional<User> u = userRepo.findByUsername(username);
 				us.get().setIsVerified(true);
 				User m=userRepo.save(us.get());
-				return new ResponseEntity<>(m, HttpStatus.OK);
+				return new ResponseEntity<>(ConvertUserForm(m), HttpStatus.OK);
 			}
 			else
 			{
@@ -105,5 +106,15 @@ public class UserService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
+	public  UserShallowForm ConvertUserForm(User user) {
+			   UserShallowForm  us= new  UserShallowForm ();
+			   us.setId(user.getId());
+			   us.setNickname(user.getNickname());
+			   us.setUsername(user.getUsername());
+			   us.setSignupType(us.getSignupType());
+			   us.setIsVerified(us.getIsVerified());
+			   us.setPassword(us.getPassword());
+			   return us;
+			  }
 	
 }

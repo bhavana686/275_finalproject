@@ -33,12 +33,14 @@ class Home extends Component {
 			verified: false,
 			msg: "",
 			mailSent: false,
-			redirectToSign: false
+            redirectToSign: false,
+            fbflag:false
 		}
 		this.responseGoogle = this.responseGoogle.bind(this);
 		this.sendVerificationMail = this.sendVerificationMail.bind(this);
 		this.responseFacebook = this.responseFacebook.bind(this);
-		this.handleDialogClose = this.handleDialogClose.bind(this);
+        this.handleDialogClose = this.handleDialogClose.bind(this);
+        this.componentClicked = this.componentClicked.bind(this);
 	}
 	sendVerificationMail = async(email) => {
 		let targetMail = email;
@@ -150,7 +152,13 @@ class Home extends Component {
 			this.setState({
 				redirectToSign: true
 			})
-	}
+    }
+    componentClicked=()=>{
+        this.setState({
+            fbflag: true
+        })
+
+    }
 	render() {
 			let redirectToSign = null;
             if (this.state.redirectToSignIn) redirectToSign = <Redirect to="/signin" />
@@ -192,7 +200,7 @@ class Home extends Component {
                                 <div style={{marginTop:"30px"}}>
                                     <FacebookLogin
                                      appId="371065937316993"
-                                     autoLoad={true}
+                                     autoLoad={this.state.fbflag}
                                      fields="name,email"
                                      onClick={this.componentClicked}
                                      callback={this.responseFacebook}
