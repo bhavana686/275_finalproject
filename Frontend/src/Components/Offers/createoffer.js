@@ -29,6 +29,7 @@ class CreateOffer extends Component {
       status: "",
       transactedAmount: "",
       usePrevailingRate: "",
+      showmsg:"",
       userid: sessionStorage.getItem("id")
     };
     this.handleChange = this.handleChange.bind(this);
@@ -63,7 +64,6 @@ class CreateOffer extends Component {
         transactedAmount: this.state.transactedAmount,
         userid : this.state.userid,
         usePrevailingRate: this.state.usePrevailingRate,
-   
     };
   let userid = data.userid
   console.log(data.sourceCountry)
@@ -82,9 +82,9 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
           this.setState({
             showRegistrationError: true,
           });
-        } else if (response.data === "Successfully updated the offer") {
+        } else if (response.data === "created") {
           this.setState({
-            redirect: `/offers/`,
+           showmsg:"Succesfully Created Offer"
           });
         }
       })
@@ -96,14 +96,19 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
   };
 
   render() {
-    let redirectVar = null;
+    let redirectVar = null,msgshow = null;
     if (this.state.redirect) {
       redirectVar = <Redirect push to={this.state.redirect} />;
+    }
+    if(this.state.showmsg)
+    {
+      msgshow = <h1 style={{color:"red"}}>Succesfully Created Offer</h1>
     }
 
     return (
       <div className="container contact-form">
         {redirectVar}
+      
         <div className="contact-image">
           <img
             src="https://image.ibb.co/kUagtU/rocket_contact.png"
@@ -112,7 +117,7 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
         </div>
         <form method="post">
           <h3>Update Offer here!</h3>
-          {/* {msgshow} */}
+          {msgshow}
           <div className="row">
             <div className="col-md-6">
               
@@ -290,7 +295,7 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
 
               <div className="form-group">
                 <Button  style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
-                  Update Listing!
+                 Create Offer
                 </Button>
               </div>
             </div>

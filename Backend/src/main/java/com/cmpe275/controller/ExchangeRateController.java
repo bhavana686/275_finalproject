@@ -42,9 +42,9 @@ public class ExchangeRateController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<String> updateOffer(@RequestBody Offer offer, @PathVariable("id") long id) {
+	public ResponseEntity<String> updateOffer(@RequestBody JsonNode body, @PathVariable("id") long id) {
 
-		return exchangeRateService.updateOffer(offer, id);
+		return exchangeRateService.updateOffer(body, id);
 	}
 
 	@GetMapping("/{id}")

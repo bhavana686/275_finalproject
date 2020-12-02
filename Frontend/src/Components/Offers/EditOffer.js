@@ -5,6 +5,7 @@ import { Button } from "react-bootstrap";
 import Icon from "@material-ui/core/Icon";
 import '../Offers/editoffer.css';
 import Moment from 'moment';
+import TextField from '@material-ui/core/TextField';
 
 
 class EditOffer extends Component {
@@ -27,7 +28,8 @@ class EditOffer extends Component {
       status: "",
       transactedAmount: "",
       usePrevailingRate: "",
-      offerid: this.props.match.params.id
+      offerid: this.props.match.params.id,
+      success:""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
@@ -109,9 +111,9 @@ class EditOffer extends Component {
           this.setState({
             showRegistrationError: true,
           });
-        } else if (response.data === "Successfully updated the offer") {
+        } else if (response.data === "updated") {
           this.setState({
-            redirect: `/offers/`,
+            success : "Successfully Updated the Offer"
           });
         }
       })
@@ -123,9 +125,12 @@ class EditOffer extends Component {
   };
 
   render() {
-    let redirectVar = null;
+    let redirectVar = null, msgshow=null;
     if (this.state.redirect) {
       redirectVar = <Redirect push to={this.state.redirect} />;
+    }
+    if(this.state.success){
+      msgshow = <h2 style={{color:"red"}}>Succesfully Updated the Offer</h2>
     }
 
     return (
@@ -139,7 +144,7 @@ class EditOffer extends Component {
         </div>
         <form method="post">
           <h3>Update Offer here!</h3>
-          {/* {msgshow} */}
+          {msgshow}
           <div className="row">
             <div className="col-md-6">
               
@@ -238,19 +243,20 @@ class EditOffer extends Component {
               </div>
 
               
+           
+
               <div className="form-group">
             <label className="col-form-label w-100 text-left">
-            Expiry
+            Expiry Date &nbsp;
             </label>
-                <input
-                  type="text"
-                  name="expiry"
-                  className="form-control"
-                  placeholder="YYYY-MM-DD "
-                  onChange={this.handleChange}
-                  defaultValue={Moment(this.state.expiry).format('YYYY-MM-DD')}
-                />
-              </div>
+              <TextField
+    id="datetime-local"
+    type="datetime-local"
+    name="expiry"
+    value={this.state.expiry}
+    onChange={this.handleChange}/>
+  </div>
+
 
               <div className="form-group">
             <label className="col-form-label w-100 text-left">
@@ -304,7 +310,7 @@ class EditOffer extends Component {
      
               <div className="form-group">
                 <Button  style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
-                  Update Listing!
+                  Update Offer!
                 </Button>
               </div>
             </div>
