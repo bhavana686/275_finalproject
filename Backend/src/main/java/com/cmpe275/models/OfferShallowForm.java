@@ -1,12 +1,10 @@
 package com.cmpe275.models;
 
 import java.sql.Timestamp;
-import java.util.List;
-
 import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.Enum.OfferStatuses;
 
-public class OfferDeepForm {
+public class OfferShallowForm {
 
 	private long id;
 	private Enum.Countries sourceCountry;
@@ -17,7 +15,6 @@ public class OfferDeepForm {
 	private double amount;
 	private double exchangeRate;
 	private Timestamp expiry;
-	private UserShallowForm postedBy;
 	private boolean usePrevailingRate;
 	private boolean allowCounterOffers;
 	private boolean allowSplitExchanges;
@@ -25,9 +22,7 @@ public class OfferDeepForm {
 	private double transactedAmount;
 	private boolean fullyFulfilled;
 	private boolean isEditable;
-	private List<CounterOfferShallowForm> counterOffers;
 	private Timestamp lastUpdated;
-	private List<TransferRequestShallowForm> transferRequests;
 
 	public long getId() {
 		return id;
@@ -77,6 +72,14 @@ public class OfferDeepForm {
 		this.status = status;
 	}
 
+	public double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
 	public double getExchangeRate() {
 		return exchangeRate;
 	}
@@ -91,14 +94,6 @@ public class OfferDeepForm {
 
 	public void setExpiry(Timestamp expiry) {
 		this.expiry = expiry;
-	}
-
-	public UserShallowForm getPostedBy() {
-		return postedBy;
-	}
-
-	public void setPostedBy(UserShallowForm postedBy) {
-		this.postedBy = postedBy;
 	}
 
 	public boolean isUsePrevailingRate() {
@@ -149,14 +144,6 @@ public class OfferDeepForm {
 		this.fullyFulfilled = fullyFulfilled;
 	}
 
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
 	public boolean isEditable() {
 		return isEditable;
 	}
@@ -165,28 +152,12 @@ public class OfferDeepForm {
 		this.isEditable = isEditable;
 	}
 
-	public List<CounterOfferShallowForm> getCounterOffers() {
-		return counterOffers;
-	}
-
-	public void setCounterOffers(List<CounterOfferShallowForm> counterOffers) {
-		this.counterOffers = counterOffers;
-	}
-
 	public Timestamp getLastUpdated() {
 		return lastUpdated;
 	}
 
 	public void setLastUpdated(Timestamp lastUpdated) {
 		this.lastUpdated = lastUpdated;
-	}
-
-	public List<TransferRequestShallowForm> getTransferRequests() {
-		return transferRequests;
-	}
-
-	public void setTransferRequests(List<TransferRequestShallowForm> transferRequests) {
-		this.transferRequests = transferRequests;
 	}
 
 }

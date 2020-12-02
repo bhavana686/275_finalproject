@@ -32,7 +32,7 @@ handleUpdate(id){
 
     
 componentDidMount() {
-    let url = process.env.REACT_APP_BACKEND_URL+"/offer/"+this.state.id;
+    let url = process.env.REACT_APP_BACKEND_URL+"/offer/user/"+this.state.id;
     console.log(url);
     axios.defaults.withCredentials = true;
     axios.get(url)
@@ -72,6 +72,7 @@ ChangeHandler = (event) => {
                 return (
                     <div>
                 &nbsp;
+                <Link to={"/offer/"+msg.id}>
                     <Card style={{width:"50%",marginLeft:"100px",height:"80%",backgroundColor:"white"}}>
                 
                     <Card.Body>
@@ -87,6 +88,7 @@ ChangeHandler = (event) => {
                       </Card.Text>
                     </Card.Body>
                   </Card>
+                  </Link>
 </div>
                 )})
 

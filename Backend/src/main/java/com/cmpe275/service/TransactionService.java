@@ -119,6 +119,7 @@ public class TransactionService {
 
 	public Offer createNewCounterOffer(Offer originalOffer, long counterUserId) throws CustomException {
 		try {
+			System.out.println("Entering in ");
 			Offer offer = new Offer();
 			offer.setDestinationCountry(originalOffer.getSourceCountry());
 			offer.setDestinationCurrency(originalOffer.getSourceCurrency());
@@ -127,11 +128,22 @@ public class TransactionService {
 			offer.setStatus(Enum.OfferStatuses.pending);
 			offer.setEditable(false);
 			offer.setDisplay(false);
+			//----------------------------------------------------------------------------------------------------------------------------
 			// Update this to handle dynamic rates
-			offer.setExchangeRate(1 / originalOffer.getExchangeRate());
-			offer.setUsePrevailingRate(originalOffer.isUsePrevailingRate());
-			offer.setAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
-			offer.setTransactedAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
+			Optional<ExchangeCurrency> rate = exchangeCurrencyRepo.findBySourceCurrencyAndTargetCurrency(originalOffer.getSourceCurrency(),
+					originalOffer.getDestinationCurrency());
+			double exchangeRate = rate.get().getExchangeRate();
+			if(originalOffer.isUsePrevailingRate()) {
+				offer.setUsePrevailingRate(true);
+				offer.setAmount(exchangeRate * originalOffer.getAmount());
+			} else {
+				offer.setUsePrevailingRate(false);
+				offer.setExchangeRate(1 / originalOffer.getExchangeRate());
+				offer.setAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
+			}
+//			offer.setUsePrevailingRate(originalOffer.isUsePrevailingRate());
+//			offer.setAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
+//			offer.setTransactedAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
 			offer.setCounter(true);
 //			offer.setFullyFulfilled(true);
 			Optional<User> user = userRepo.getById(counterUserId);
@@ -213,8 +225,8 @@ public class TransactionService {
 			Offer newOffer = createNewCounterOffer(sourceOffer.get(), counterUserId);
 			AutoMatchedOffer autoOffer = new AutoMatchedOffer();
 			autoOffer.setCounter(counter);
-			autoOffer.setCounteredOffer(newOffer);
-			autoOffer.setOriginalOffer(sourceOffer.get());
+			autoOffer.setCounteredOffer(sourceOffer.get());
+			autoOffer.setOriginalOffer(newOffer);
 			autoOffer.setType(Enum.AutoMatchTypes.direct_counter);
 			autoMatchedOfferRepo.save(autoOffer);
 

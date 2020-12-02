@@ -73,8 +73,11 @@ public class ExchangeRateService {
 			if (allowSplitExchanges == "false")
 				offer.setAllowSplitExchanges(false);
 			String usePrevailingRate = body.get("usePrevailingRate").asText();
-			if (usePrevailingRate == "false")
+			if (usePrevailingRate == "false") {
 				offer.setUsePrevailingRate(false);
+			} else {
+				offer.setUsePrevailingRate(true);
+			}
 			String amount = body.get("amount").asText();
 			if (amount != null)
 				offer.setAmount(Double.parseDouble(amount));
@@ -104,7 +107,7 @@ public class ExchangeRateService {
 			}
 
 			if (!offer.isUsePrevailingRate()) {
-				offer.setExchangedRate(Double.parseDouble(body.get("exchangeRate").asText()));
+				offer.setExchangeRate(Double.parseDouble(body.get("exchangeRate").asText()));
 			}
 			long userid = Long.parseLong(body.get("userid").asText());
 			User user = userrepo.getById(userid).get();
