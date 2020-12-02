@@ -61,7 +61,7 @@ class CreateOffer extends Component {
         sourceCurrency: this.state.sourceCurrency,
         status: this.state.status,
         transactedAmount: this.state.transactedAmount,
-        userid : 1,
+        userid : this.state.userid,
         usePrevailingRate: this.state.usePrevailingRate,
    
     };
