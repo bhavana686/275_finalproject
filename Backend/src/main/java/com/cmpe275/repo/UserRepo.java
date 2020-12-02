@@ -25,6 +25,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
 	public User findByUsernameAndSignupType(String name, String type);
 
+	
     
 	
 }

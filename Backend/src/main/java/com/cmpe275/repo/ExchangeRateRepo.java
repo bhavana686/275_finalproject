@@ -1,9 +1,11 @@
 package com.cmpe275.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,5 +18,5 @@ import com.cmpe275.entity.Enum;
 public interface ExchangeRateRepo extends JpaRepository<Offer, Long> {
 	
     public Optional<Offer> getById(long id);
-    
+	
 }

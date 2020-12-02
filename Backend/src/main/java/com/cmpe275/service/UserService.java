@@ -117,4 +117,21 @@ public class UserService {
 			   return us;
 			  }
 	
+	
+	public ResponseEntity<Object> updateProfile(HttpServletRequest request, JsonNode username) {
+		System.out.println("in update profile");
+		String nickname = username.get("nickname").asText();
+		String userid = username.get("userid").asText();
+		User user = userRepo.getByUsername(userid).get();
+		if(nickname != null)
+		{
+			user.setNickname(nickname);
+		}
+		userRepo.save(user);
+		return new ResponseEntity<Object>("Success", HttpStatus.OK);
+
+	}
+	
+	
+	
 }

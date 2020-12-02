@@ -5,7 +5,7 @@ import SignIn from "../Components/Authentication/SignIn";
 import SignUp from "../Components/Authentication/SignUp";
 import Landingpage from  "../Components/Landingpage";
 import NavBar from '../Components/NavBar';
-// import BankAccount from '../Components/Bank/BankAccount';
+import BankAccount from '../Components/Bank/BankAccount';
 import AddBankAccount from '../Components/Bank/AddBankAccount';
 import ExchangeCurrency from '../Components/ExchangeCurrency/ExchangeCurrency'
 import AddExchangeRate from '../Components/ExchangeCurrency/AddExchangeRate'
@@ -15,7 +15,8 @@ import Offer from '../Components/Offers/Offer';
 import EditOffer from '../Components/Offers/EditOffer';
 import CreateOffer from '../Components/Offers/createoffer';
 import Verification from '../Components/Authentication/Verification'
-import CopyExchangeCurrency from '../Components/ExchangeCurrency/CopyExchangeCurrency'
+import CopyExchangeCurrency from '../Components/ExchangeCurrency/CopyExchangeCurrency';
+import Profile from '../Components/Profile/Profile';
 
 class Routes extends Component {
   render() {
@@ -31,11 +32,13 @@ class Routes extends Component {
         <Route path="/addExchangeRate" component={AddExchangeRate} />
         <Route path="/editExchangeRate" component={EditExchangeRate} />
         <Route path="/addBankAccount" component={AddBankAccount} />
+        <Route path="/bankAccount" component={BankAccount} />
         <Route path="/offers" component={Offers}/>
         <Route path="/editoffer/:id" component={EditOffer}/>
         <Route path="/createoffer" component={CreateOffer}/>
         <Route path="/verifyMail" component={Verification} />
         <Route path="/offer" component={Offer}/>
+        <Route path="/profile" component={Profile}/>
 
       </div>
     );

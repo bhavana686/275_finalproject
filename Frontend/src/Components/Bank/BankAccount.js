@@ -11,15 +11,19 @@ import CardContent from '@material-ui/core/CardContent';
 import EditIcon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import {Edit} from '@material-ui/icons';
+import { Button } from "react-bootstrap";
+
 
 class BankAccount extends Component {
   constructor(props) {
     super(props);
     this.state = {
         useracc:[],
+        redirect:""
       
     }
     this.ChangeHandler = this.ChangeHandler.bind(this);
+    this.handleaddnew = this.handleaddnew.bind(this);
 }
 
 componentDidMount() {
@@ -43,6 +47,13 @@ componentDidMount() {
         });;
 }
 
+handleaddnew()
+{
+    console.log("in here")
+    this.setState({
+        redirect:'/addBankAccount/'
+    })
+}
 
 ChangeHandler = (event) => {
     this.setState({
@@ -50,7 +61,14 @@ ChangeHandler = (event) => {
     })
 }
     render() {
-        var displayform=null;
+        var displayform=null,redirectvar=null;
+        if(this.state.redirect)
+        {
+
+            
+                redirectvar = <Redirect push to={this.state.redirect} />;
+              
+        }
         displayform = (
 
             this.state.useracc.map(item => {
@@ -59,6 +77,14 @@ ChangeHandler = (event) => {
                     <div class="form-group row" >
                                 <div class="col-lg-3">        </div>
                                 <div class="col-lg-4">
+                                <div class="col-sm-10">
+            {/* <div><button style={{backgroundColor:"blue",margin:"10px"}} onClick={this.handleaddnew}>Add New Bank Account</button></div> */}
+            <Button  style={{backgroundColor:"blue",margin:"20px"}} onClick={this.handleaddnew}>
+            Add New Bank Account
+                </Button>
+</div>
+                                
+
                          <Card style={{ height: "180px",width:"500px" ,textAlign:"left" }}>
                           <CardContent> 
                           <div class="row">
@@ -102,6 +128,8 @@ ChangeHandler = (event) => {
 
     return (
         <div style={{marginTop:"50px"}}>
+                     {redirectvar}
+
             {displayform}
         </div>
         );

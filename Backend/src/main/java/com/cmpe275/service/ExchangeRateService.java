@@ -4,7 +4,10 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.Enum.Countries;
 import com.cmpe275.entity.Enum.Currency;
+import com.cmpe275.entity.BankAccount;
 import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.Offer;
 import com.cmpe275.entity.User;
@@ -33,12 +37,14 @@ public class ExchangeRateService {
 
 	@Autowired
 	private UserRepo userrepo;
-
+	
+	
 	public ResponseEntity<String> createOffer(HttpServletRequest request, JsonNode body) {
 		System.out.println("create offer");
 		Offer offer;
 		try {
-			// System.out.println(sourceCountry);
+			 
+			
 			offer = buildofferfromdata(body);
 
 			exchangerepo.save(offer);
@@ -54,6 +60,18 @@ public class ExchangeRateService {
 	private Offer buildofferfromdata(JsonNode body) throws CustomException {
 		Offer offer = new Offer();
 		try {
+			long userid = Long.parseLong(body.get("userid").asText());
+			User user = userrepo.getById(userid).get();
+			offer.setPostedBy(user);
+			List<BankAccount> accounts = user.getBankAccounts();
+			Set<Enum.Countries> countries = new HashSet<>();
+			for(BankAccount acc : accounts)
+			{
+				countries.add(acc.getCountry());
+			}
+	
+			System.out.println(countries.size());
+			
 			String expiry = body.get("expiry").asText();
 			if (expiry != null) {
 				expiry = body.get("expiry").asText();
@@ -106,9 +124,7 @@ public class ExchangeRateService {
 			if (!offer.isUsePrevailingRate()) {
 				offer.setExchangedRate(Double.parseDouble(body.get("exchangeRate").asText()));
 			}
-			long userid = Long.parseLong(body.get("userid").asText());
-			User user = userrepo.getById(userid).get();
-			offer.setPostedBy(user);
+			
 			return offer;
 		} catch (Exception e) {
 			throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
