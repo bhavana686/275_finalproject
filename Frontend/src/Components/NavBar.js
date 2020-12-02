@@ -20,8 +20,52 @@ class NavBar extends Component {
     let navBar = null;
    if (sessionStorage.getItem("username") !== null) {
       navBar = (
-        <ul class="nav navbar-nav navbar-right">
+        
+        
+        <ul>
           <li>
+         <div class="navbar-header" style={{ display: "inline" }}>
+              <b
+                class="navbar-brand"
+                style={{
+                  color: "black",
+                  display: "inline",
+                  paddingLeft: "200px",
+                }}
+              >
+                 <li class="nav navbar-nav navbar-right">
+            <Link
+              to="/offers"
+              style={{ color: "black" }}
+            >
+              <span></span> My Offers
+            </Link>
+          </li>
+              </b>
+            </div>
+
+            <div class="navbar-header" style={{ display: "inline" }}>
+              <b
+                class="navbar-brand"
+                style={{
+                  color: "black",
+                  display: "inline",
+                  paddingLeft: "200px",
+                }}
+              >
+                 <li class="nav navbar-nav navbar-right">
+            <Link
+              to="/offer"
+              style={{ color: "black" }}
+            >
+              <span></span>Offers
+            </Link>
+          </li>
+              </b>
+            </div>
+            </li>
+            
+          <li class="nav navbar-nav navbar-right">
             <Link
               to="/signin"
               onClick={this.handleLogout}
