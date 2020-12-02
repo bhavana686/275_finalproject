@@ -75,7 +75,7 @@ public class UserService {
 			  if(u.isPresent() && u.get().getSignupType().equals(type))
 			  {
 				  Optional<User> us = userRepo.findByUsername(name);
-				  return new ResponseEntity<>(us.get(), HttpStatus.OK);
+				  return new ResponseEntity<>(ConvertUserForm(us.get()), HttpStatus.OK);
 				  
 			  }
 			else
@@ -111,9 +111,9 @@ public class UserService {
 			   us.setId(user.getId());
 			   us.setNickname(user.getNickname());
 			   us.setUsername(user.getUsername());
-			   us.setSignupType(us.getSignupType());
-			   us.setIsVerified(us.getIsVerified());
-			   us.setPassword(us.getPassword());
+			   us.setSignupType(user.getSignupType());
+			   us.setIsVerified(user.getIsVerified());
+			   us.setPassword(user.getPassword());
 			   return us;
 			  }
 	

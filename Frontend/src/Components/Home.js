@@ -150,7 +150,7 @@ class Home extends Component {
 	
 	handleDialogClose = () => {
 			this.setState({
-				redirectToSign: true
+				redirectToSignIn: true
 			})
     }
     componentClicked=()=>{
