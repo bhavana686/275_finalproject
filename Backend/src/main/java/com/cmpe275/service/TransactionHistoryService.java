@@ -22,6 +22,7 @@ public class TransactionHistoryService {
 		try {
 			long userid = (long) Long.parseLong(req.getParameter("userid"));
 			int month = (int) Integer.parseInt(req.getParameter("month"));
+			System.out.println(userid+":"+month);
 			List<List<String>> transactionHistory = transactionHistoryRepo.getTransactionHistoryByMonth(userid,month);
 			return new ResponseEntity<>(transactionHistory, HttpStatus.OK);
 		} catch (Exception e) {

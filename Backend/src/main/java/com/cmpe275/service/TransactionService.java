@@ -121,7 +121,8 @@ public class TransactionService {
 		}
 	}
 
-	public Offer createNewCounterOffer(Offer originalOffer, long counterUserId, boolean adjust, double amount) throws CustomException {
+	public Offer createNewCounterOffer(Offer originalOffer, long counterUserId, boolean adjust, double amount)
+			throws CustomException {
 		try {
 			System.out.println("Entering in ");
 			Offer offer = new Offer();
@@ -140,7 +141,7 @@ public class TransactionService {
 			System.out.println(originalOffer.getSourceCurrency() + " " + originalOffer.getDestinationCurrency());
 			System.out.println(rate.isEmpty());
 			double exchangeRate = rate.get().getExchangeRate();
-			if(adjust) {
+			if (adjust) {
 				if (originalOffer.isUsePrevailingRate()) {
 					offer.setUsePrevailingRate(true);
 					offer.setAmount(exchangeRate * amount);
@@ -386,7 +387,7 @@ public class TransactionService {
 
 			double amountAdjusted = requestingAmount == offerAmount ? requestingAmount : sumOfMatchedOffers;
 			List<TransferRequest> requests = createTransferRequests(offers, transaction);
-			requests.add(createTransferRequestsForASingleOffer(originalOffer, transaction, amountAdjusted));
+			requests.add(createTransferRequestsForASingleOffer(originalOffer, transaction, requestingAmount));
 			transaction.setRequests(requests);
 			transactionRepo.save(transaction);
 
@@ -538,6 +539,7 @@ public class TransactionService {
 
 	public ResponseEntity<Object> autoMatchOffers(HttpServletRequest request, long offerId) {
 		try {
+//			boolean showDual = request.getAttribute("dual").equals("true") ? true : false;
 			Optional<Offer> autoOffer = offerRepo.findById(offerId);
 			if (autoOffer.isEmpty())
 				throw new CustomException("Offer Id Invalid", HttpStatus.NOT_FOUND);
@@ -561,7 +563,7 @@ public class TransactionService {
 			List<AutoMatchEntity> singleMatches = new ArrayList<AutoMatchEntity>();
 
 			if (offers.isEmpty()) {
-				return new ResponseEntity<>("No Matching Offers Found", HttpStatus.NOT_FOUND);
+//				return new ResponseEntity<>("No Matching Offers Found", HttpStatus.NOT_FOUND);
 			} else {
 				List<Offer> matchingOffers = offers.get();
 				System.out.println("Single Matches Found " + matchingOffers.size());
@@ -718,6 +720,8 @@ public class TransactionService {
 		o.setDestinationCurrency(offer.getDestinationCurrency());
 		o.setSupportCounter(offer.isAllowCounterOffers());
 		o.setExpiry(offer.getExpiry());
+		o.setStatus(offer.getStatus());
+		o.setUserId(offer.getPostedBy().getId());
 		if (offer.isUsePrevailingRate()) {
 			Optional<ExchangeCurrency> rate = exchangeCurrencyRepo
 					.findBySourceCurrencyAndTargetCurrency(offer.getSourceCurrency(), offer.getDestinationCurrency());
@@ -783,7 +787,8 @@ public class TransactionService {
 			Transaction transaction = transactionRepo.save(tran);
 
 			List<TransferRequest> requests = createTransferRequests(offers, transaction);
-			requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getCounteredOffer(), transaction, counterOffer.getCounterAmount()));
+			requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getCounteredOffer(), transaction,
+					counterOffer.getCounterAmount()));
 			transaction.setRequests(requests);
 			transactionRepo.save(transaction);
 
@@ -845,7 +850,7 @@ public class TransactionService {
 			AutoMatchedOffer autoMatchOffer = autoMatchedOffer.get();
 			autoMatchOffer.setStatus(Enum.AutoMatchOffersState.declined);
 			autoMatchedOfferRepo.save(autoMatchOffer);
-			
+
 			counterOffer.setStatus(Enum.CounterOfferStatuses.declined);
 			counterOfferRepo.save(counterOffer);
 
@@ -859,7 +864,7 @@ public class TransactionService {
 
 			} else {
 				Offer orgOffer = autoMatchOffer.getOriginalOffer();
-				if(!orgOffer.isCounter()) {
+				if (!orgOffer.isCounter()) {
 					orgOffer.setStatus(Enum.OfferStatuses.open);
 					offerRepo.save(orgOffer);
 				}
@@ -903,10 +908,10 @@ public class TransactionService {
 				moveOffersToOpen(requests, Enum.OfferStatuses.open);
 				throw new CustomException("Request Expired", HttpStatus.BAD_REQUEST);
 			}
-			
+
 			transferRequest.setStatus(Enum.CounterOfferStatuses.accepted);
 			transferRequestRepo.save(transferRequest);
-			
+
 			if (isAllRequestsAccepted(requests)) {
 				System.out.println("All requests accepted. Fulfilling Transaction");
 				moveOffersToFulfilled(requests, Enum.OfferStatuses.fulfilled, transaction);
@@ -918,7 +923,7 @@ public class TransactionService {
 				transaction.setAmount(totalAmount);
 				transaction.setStatus(Enum.CounterOfferStatuses.accepted);
 				transactionRepo.save(transaction);
-			} 
+			}
 //			else {
 //				transferRequest.setStatus(Enum.CounterOfferStatuses.accepted);
 //				transferRequestRepo.save(transferRequest);
@@ -942,7 +947,7 @@ public class TransactionService {
 					break;
 				}
 			}
-			System.out.println("All Accepted the Offer: "+ accepted);
+			System.out.println("All Accepted the Offer: " + accepted);
 			return accepted;
 		} catch (Exception e) {
 			e.printStackTrace();

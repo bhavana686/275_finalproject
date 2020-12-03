@@ -131,6 +131,26 @@ public class UserService {
 		return new ResponseEntity<Object>("Success", HttpStatus.OK);
 
 	}
+	public ResponseEntity<Object> fetchUserData(HttpServletRequest request, long id) {
+		try {
+			  System.out.println(id);
+			  Optional<User> u=userRepo.findById(id);
+			  if(u.isPresent())
+			  {
+				  User us = u.get();
+				  return new ResponseEntity<>(ConvertUserForm(us), HttpStatus.OK);
+				  
+			  }
+			else
+			{
+				return new ResponseEntity<>("no such username exists", HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+
+	}
+	
 	
 	
 	
