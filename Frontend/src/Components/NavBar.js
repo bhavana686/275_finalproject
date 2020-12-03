@@ -23,8 +23,8 @@ class NavBar extends Component {
     ) {
       navBar = (
         <div class="flex ">
-          <a href="/offer"
-            class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> Home</a>
+          <a href="/exchangeCurrency"
+            class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> Exchange Rates</a>
           <a href="/offers"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Offers</a>
           <a href="/requests"
@@ -33,8 +33,10 @@ class NavBar extends Component {
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Counter Offers</a>
           <a href="/transactionHistory"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> Transaction History</a>
-                  <a href="/bankAccount"
+          <a href="/bankAccount"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Bank Accounts</a>
+          <a href="/profile"
+            class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Profile</a>
           <a href="/signin" onClick={this.handleLogout}
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-red-400 lg:mt-0">Logout</a>
         </div>

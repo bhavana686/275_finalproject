@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Descriptions, Badge, Collapse, Button, message } from 'antd';
+import { Descriptions, Badge, Collapse, Button, message, Rate } from 'antd';
 import moment from 'moment';
 const { Panel } = Collapse;
 
@@ -99,7 +99,13 @@ class CounterRequests extends Component {
                                         <Descriptions.Item label="Counter Amount">{counter.counterAmount}</Descriptions.Item>
                                         <Descriptions.Item label="Request Created">{moment(counter.createdAt).format("LLLL")}</Descriptions.Item>
                                         <Descriptions.Item label="Nick Name">{counter.counteredBy.nickname}</Descriptions.Item>
-                                        <Descriptions.Item label="User Rating">N/A</Descriptions.Item>
+                                        <Descriptions.Item label="User Rating">
+                                            <Link to={"/user/" + counter.counteredBy.id} style={{ cursor: "pointer" }}>
+                                                <span>
+                                                    <Rate defaultValue={counter.counteredBy.rating} disabled />&nbsp;{counter.counteredBy.rating === 0 ? "N/A" : counter.counteredBy.rating}
+                                                </span>
+                                            </Link>
+                                        </Descriptions.Item>
                                     </Descriptions>
                                 </Panel>
                             </Collapse>

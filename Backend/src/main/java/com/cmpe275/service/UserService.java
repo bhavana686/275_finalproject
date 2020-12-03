@@ -133,7 +133,7 @@ public class UserService {
 	}
 	public ResponseEntity<Object> fetchUserData(HttpServletRequest request, long id) {
 		try {
-			  System.out.println(id);
+//			  System.out.println(id);
 			  Optional<User> u=userRepo.findById(id);
 			  if(u.isPresent())
 			  {

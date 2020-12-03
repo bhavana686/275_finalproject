@@ -708,11 +708,12 @@ public class TransactionService {
 		}
 	}
 
-	public AutoMatchRecommendationOffer convertOfferToAutoMatchRecommendationOffer(Offer offer) {
+	public AutoMatchRecommendationOffer convertOfferToAutoMatchRecommendationOffer(Offer offer) throws Exception {
 		AutoMatchRecommendationOffer o = new AutoMatchRecommendationOffer();
 		o.setId(offer.getId());
 		o.setUsername(offer.getPostedBy().getUsername());
 		o.setNickname(offer.getPostedBy().getNickname());
+		o.setRating(responseBuilder.calculateRating(offer.getPostedBy()));
 		o.setSourceCountry(offer.getSourceCountry());
 		o.setSourceCurrency(offer.getSourceCurrency());
 		o.setSourceAmount(offer.getAmount());

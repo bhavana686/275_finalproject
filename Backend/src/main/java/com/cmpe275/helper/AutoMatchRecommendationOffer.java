@@ -36,6 +36,8 @@ public class AutoMatchRecommendationOffer {
 	private Enum.OfferStatuses status;
 	
 	private long userId;
+	
+	private int rating;
 
 	public Enum.OfferStatuses getStatus() {
 		return status;
@@ -148,6 +150,14 @@ public class AutoMatchRecommendationOffer {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
 	}
 
 }

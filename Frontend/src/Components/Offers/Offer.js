@@ -23,7 +23,7 @@ import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import brown from '@material-ui/core/colors/brown';
 import FlagIcon from '@material-ui/icons/Flag';
 import purple from '@material-ui/core/colors/purple';
-import { Badge, Space, Button, Row, message, Modal, Input } from 'antd';
+import { Badge, Space, Button, Row, message, Modal, Input, Rate } from 'antd';
 
 const currency = [
     'EUR', 'GBP', 'INR', 'RMB', 'USD'
@@ -249,7 +249,13 @@ class Offer extends Component {
                                             <PermIdentityIcon style={{ color: brown[400], fontSize: 60 }} />
                                         </div>
                                         <div class="col-lg-3">
-                                            <div style={{ marginTop: "20px" }}><b>{msg.postedBy ? msg.postedBy.nickname : ""} (Rating: N/A)</b></div>
+                                            <div style={{ marginTop: "20px" }}><b>{msg.postedBy ? msg.postedBy.nickname : ""}
+                                             <Link to={"/user/" + msg.postedBy.id} style={{ cursor: "pointer" }}>&nbsp;
+                                                <span>
+                                                    <Rate defaultValue={msg.postedBy.rating} disabled />&nbsp;{msg.postedBy.rating === 0 ? "N/A" : msg.postedBy.rating}
+                                                </span>
+                                            </Link>
+                                             </b></div>
                                         </div>
                                     </div>
                                     <div class="row" style={{ marginTop: "20px" }} >
@@ -267,6 +273,7 @@ class Offer extends Component {
                                     <Row className="mt-4">
                                         <Button type="primary" onClick={() => this.acceptOffer(msg.id)}>Accept Offer</Button>
                                         <Button type="primary" onClick={() => this.openCounterModal(msg.id)} className="ml-2" danger >Counter Offer</Button>
+                                        <Link to={"/offer/" + msg.id}><Button type="primary" ghost className="ml-2">View Offer Details</Button></Link>
                                     </Row>
                                 </CardContent>
                             </Card>
