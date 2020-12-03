@@ -43,4 +43,7 @@ public interface OffersRepo extends JpaRepository<Offer, Long> {
 	
 	@Query("SELECT o from Offer o where o.status = 'open' and o.postedBy =?1")
     List<Offer> getActiveOffersbyId(@Param("userid") User postedBy);
+	
+	@Query("SELECT o from Offer o where o.status != 'open' and o.postedBy =?1")
+    List<Offer> getActiveOffersbyIdnotOpen(@Param("userid") User postedBy);
 }

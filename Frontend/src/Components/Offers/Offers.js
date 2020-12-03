@@ -2,9 +2,30 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import {Card,Button,ButtonGroup} from 'react-bootstrap';
-
+import {Button,ButtonGroup} from 'react-bootstrap';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Grid from '@material-ui/core/Grid';
 import Moment from 'moment';
+import { CenterFocusStrong, SystemUpdate } from '@material-ui/icons';
+import landingpage from "../Landingpage";
+import FormControl from '@material-ui/core/FormControl';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import { blue, green, grey, red } from '@material-ui/core/colors';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn'
+import MoneyIcon from '@material-ui/icons/Money';
+import '../../App.css';
+import PermIdentityIcon from '@material-ui/icons/PermIdentity';
+import brown from '@material-ui/core/colors/brown';
+import FlagIcon from '@material-ui/icons/Flag';
+import purple from '@material-ui/core/colors/purple';
+
+
 
 
 class Offers extends Component {
@@ -64,33 +85,75 @@ ChangeHandler = (event) => {
           }
         let editform = null;
         let details=null;
-        var displayform=null;
-
+        var displayform=null,displayform2=null;
+        displayform2 = this.state.offers?this.state.offers.map((msg) => {
+           }):"";
 
         
         displayform = this.state.offers.map((msg) => {
-                return (
-                    <div>
-                &nbsp;
-                    <Card style={{width:"50%",marginLeft:"100px",height:"80%",backgroundColor:"white"}}>
-                
-                    <Card.Body>
-                      <Card.Text>
-                
-                      <p style={{color:"black"}}>Source Currency: {msg.sourceCurrency}</p> 
-                      <p style={{color:"black"}}>Destination Currency : {msg.destinationCurrency}</p>
-                      <p style={{color:"black"}}>Exchange Rate : {msg.exchangeRate}</p>
-                      <p style={{color:"black"}}>Amount : {msg.amount}</p>
-                      <p style={{color:"black"}}>Status : {msg.status}</p>
+               return (
+                <div>
+                <div class="form-group row" style={{marginLeft:"20px"}}>
+                          
+                            <div class="col-lg-4">
+                     <Card style={{ height: "180px",width:"1000px" ,textAlign:"left" }}>
+                      <CardContent> 
+                      <div class="row">
+                       <div class="col-lg-1"> 
+                      <LocationOnIcon style={{ color: brown[400], fontSize: 60 }} /> 
+                      </div>
+                      <div class="col-lg-3"> 
+                      <div style={{marginTop:"10px"}}>Source-<b>{msg.sourceCountry}</b><br></br>Destination-<b>{msg.destinationCountry}</b></div>
+                      </div>
+                      <div class="col-lg-1"> 
+                      <MonetizationOnIcon style={{ color: brown[400], fontSize: 60 }} /> 
+                      </div>
+                      <div class="col-lg-3"> 
+                      <div style={{marginTop:"10px"}}>Source-<b>{msg.sourceCurrency}</b><br></br>Destination-<b>{msg.destinationCurrency}</b></div>
+                      </div>
+                      <div class="col-lg-1"> 
+                      <PermIdentityIcon  style={{ color: brown[400], fontSize: 60 }} /> 
+                      </div>
+                      <div class="col-lg-3"> 
+                      <div style={{marginTop:"20px"}}><b>{msg.postedBy ? msg.postedBy.nickname:""}</b></div>
+                      </div>
+                      </div> 
+                      
+                     <div class="row" style={{marginTop:"20px"}} >
 
-                      <p style={{color:"black"}}>Expiry Date :  {Moment(msg.expiry).format('YYYY-MM-DD')}</p>
-                      <span hidden={!msg.editable}>
-                      <div><Button onClick={(e)=> this.handleUpdate(msg.id)}>Edit Offer</Button></div></span>
-                      </Card.Text>
-                    </Card.Body>
-                  </Card>
+                        <div class="class" style={{marginLeft:"20PX"}}> Counter Offer Status  {msg.allowCounterOffers?      <FlagIcon style={{ color: green[400], fontSize: 20 }} />  :      <FlagIcon style={{ color: red[400], fontSize: 60 }} /> }&nbsp;&nbsp;
+                        
+                           Split Offer Status  {msg.allowSplitExchanges?      <FlagIcon style={{ color: green[400], fontSize: 20 }} />  :      <FlagIcon style={{ color: red[400], fontSize: 60 }} /> }
+                        
+                        </div>
+                        </div> 
+                        <div class="row" >
+
+<div class="class" style={{marginLeft:"20PX"}}> <b>{msg.amount}</b> Amount availabe  for Exchange rate <b>{msg.exchangeRate}</b></div>
 </div>
-                )})
+
+                
+                      
+
+
+                        <div class="row">
+                        <div class="redclass" style={{color:green ,marginLeft:"20PX"}}> status is {msg.status}</div>
+                        </div>
+                        
+                        
+                        
+                        
+                     
+                       
+
+                       </CardContent>
+                     </Card>
+
+                
+             </div>
+             </div></div>
+               
+            )})
 
 
             
