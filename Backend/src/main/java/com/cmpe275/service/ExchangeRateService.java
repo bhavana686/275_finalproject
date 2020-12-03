@@ -26,6 +26,8 @@ import com.cmpe275.entity.User;
 import com.cmpe275.models.OfferDeepForm;
 import com.cmpe275.models.UserShallowForm;
 import com.cmpe275.repo.ExchangeRateRepo;
+import com.cmpe275.repo.OfferRepo;
+import com.cmpe275.repo.OffersRepo;
 import com.cmpe275.repo.UserRepo;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -38,6 +40,9 @@ public class ExchangeRateService {
 	@Autowired
 	private UserRepo userrepo;
 	
+	@Autowired
+	private OffersRepo offersrepo;
+	
 	
 	public ResponseEntity<String> createOffer(HttpServletRequest request, JsonNode body) {
 		System.out.println("create offer");
@@ -49,6 +54,7 @@ public class ExchangeRateService {
 			long userid = Long.parseLong(body.get("userid").asText());
 			User user = userrepo.getById(userid).get();
 			offer.setPostedBy(user);
+			
 			List<BankAccount> accounts = user.getBankAccounts();
 			Set<Enum.Countries> countries = new HashSet<>();
 			for(BankAccount acc : accounts)
@@ -272,12 +278,15 @@ public class ExchangeRateService {
 
 	public ResponseEntity<Object> getOffersByUserId(long userid) {
 		List<Offer> list;
+		User user = userrepo.getById(userid).get();
 		try {
 			if (!userrepo.getById(userid).isPresent()) {
 				throw new CustomException("user does not exist with given Id", HttpStatus.NOT_FOUND);
 			} else {
 				list = userrepo.getById(userid).get().getOffers();
 			}
+//			List<Offer> offeropen = offersrepo.getActiveOffersbyId(user);
+//			System.out.println("number of offers"+offeropen.size());
 			return new ResponseEntity<>(convertOfferObjectToDeepForm(list), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

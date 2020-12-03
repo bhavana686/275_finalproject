@@ -81,6 +81,8 @@ ChangeHandler = (event) => {
                       <p style={{color:"black"}}>Destination Currency : {msg.destinationCurrency}</p>
                       <p style={{color:"black"}}>Exchange Rate : {msg.exchangeRate}</p>
                       <p style={{color:"black"}}>Amount : {msg.amount}</p>
+                      <p style={{color:"black"}}>Status : {msg.status}</p>
+
                       <p style={{color:"black"}}>Expiry Date :  {Moment(msg.expiry).format('YYYY-MM-DD')}</p>
                       <span hidden={!msg.editable}>
                       <div><Button onClick={(e)=> this.handleUpdate(msg.id)}>Edit Offer</Button></div></span>
