@@ -39,32 +39,28 @@ public class ExchangeRateService {
 
 	@Autowired
 	private UserRepo userrepo;
-	
+
 	@Autowired
 	private OffersRepo offersrepo;
-	
-	
+
 	public ResponseEntity<String> createOffer(HttpServletRequest request, JsonNode body) {
 		System.out.println("create offer");
 		Offer offer;
 		try {
-			 
-			
+
 			offer = buildofferfromdata(body);
 			long userid = Long.parseLong(body.get("userid").asText());
 			User user = userrepo.getById(userid).get();
 			offer.setPostedBy(user);
-			
+
 			List<BankAccount> accounts = user.getBankAccounts();
 			Set<Enum.Countries> countries = new HashSet<>();
-			for(BankAccount acc : accounts)
-			{
+			for (BankAccount acc : accounts) {
 				countries.add(acc.getCountry());
 			}
-	
+
 			System.out.println(countries.size());
-			if(countries.size() < 2)
-			{
+			if (countries.size() < 2) {
 				return new ResponseEntity<String>("accounts", HttpStatus.OK);
 
 			}
@@ -84,17 +80,20 @@ public class ExchangeRateService {
 			long userid = Long.parseLong(body.get("userid").asText());
 			User user = userrepo.getById(userid).get();
 			offer.setPostedBy(user);
-			
-			
+
 			String expiry = body.get("expiry").asText();
 			if (expiry != null) {
 				expiry = body.get("expiry").asText();
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				System.out.println(expiry);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 				Date date = sdf.parse(expiry);
+				System.out.println(date);
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 				String fdate = sdf1.format(date);
+				System.out.println(fdate);
 				Timestamp ldt = Timestamp.valueOf(fdate);
+				System.out.println(ldt);
 				offer.setExpiry(ldt);
 			}
 			String allowCounterOffers = body.get("allowCounterOffers").asText();
@@ -141,7 +140,7 @@ public class ExchangeRateService {
 			if (!offer.isUsePrevailingRate()) {
 				offer.setExchangeRate(Double.parseDouble(body.get("exchangeRate").asText()));
 			}
-			
+
 			return offer;
 		} catch (Exception e) {
 			throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -160,45 +159,43 @@ public class ExchangeRateService {
 			if (amount > 0) {
 				offer.setAmount(amount);
 			}
-			
+
 			for (Countries c : Enum.Countries.values()) {
 				if (c.toString().equals(body.get("sourceCountry").asText())) {
 					offer.setSourceCountry(c);
 					break;
 				}
 			}
-			
-			
+
 			for (Currency c : Enum.Currency.values()) {
 				if (c.toString().equals(body.get("sourceCurrency").asText())) {
 					offer.setSourceCurrency(c);
 					break;
 				}
 			}
-			
+
 			for (Countries c : Enum.Countries.values()) {
 				if (c.toString().equals(body.get("destinationCountry").asText())) {
 					offer.setDestinationCountry(c);
 					break;
 				}
 			}
-			
+
 			for (Currency c : Enum.Currency.values()) {
 				if (c.toString().equals(body.get("destinationCurrency").asText())) {
 					offer.setDestinationCurrency(c);
 					break;
 				}
 			}
-			
-			
-			if ( body.get("usePrevailingRate").asText() == "false") {
+
+			if (body.get("usePrevailingRate").asText() == "false") {
 				offer.setUsePrevailingRate(false);
 				if (offer.getExchangeRate() > 0) {
 					offer.setExchangeRate(offer.getExchangeRate());
 				}
 			}
-		
-			if ( body.get("allowCounterOffers").asText() == "false") {
+
+			if (body.get("allowCounterOffers").asText() == "false") {
 
 				offer.setAllowCounterOffers(false);
 			}
@@ -206,9 +203,9 @@ public class ExchangeRateService {
 				offer.setAllowSplitExchanges(false);
 			}
 			Timestamp expiry = offer.getExpiry();
-			
+
 			if (expiry != null) {
-			
+
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				Date date = sdf.parse(expiry.toString());
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
