@@ -14,16 +14,20 @@ import com.cmpe275.entity.Offer;
 import com.cmpe275.entity.User;
 import com.cmpe275.repo.OfferRepo;
 import com.cmpe275.repo.UserRepo;
+import com.cmpe275.service.OfferResponseService;
 import com.cmpe275.service.TransactionService;
 import com.cmpe275.entity.Enum;
 
 @Controller
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", allowCredentials = "true")
 @RequestMapping(value = "/offer")
 public class TransactionController {
 
 	@Autowired
 	private TransactionService transactionService;
+	
+	@Autowired
+	private OfferResponseService offerService;
 
 	@Autowired
 	private OfferRepo offerRepo;
@@ -69,13 +73,13 @@ public class TransactionController {
 		return transactionService.declineCounterOffer(request, body, (long) counterId);
 	}
 	
-	@PostMapping("/offer/{offerId}/request/{requestId}/accept")
+	@PostMapping("/{offerId}/request/{requestId}/accept")
 	public ResponseEntity<Object> acceptTransferRequest(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("offerId") long offerId, @PathVariable("requestId") long requestId) {
 		return transactionService.acceptTransferRequest(request, body, (long) offerId, (long) requestId);
 	}
 	
-	@PostMapping("/offer/{offerId}/request/{requestId}/decline")
+	@PostMapping("/{offerId}/request/{requestId}/decline")
 	public ResponseEntity<Object> declineTransferRequest(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("offerId") long offerId, @PathVariable("requestId") long requestId) {
 		return transactionService.declineTransferRequest(request, body, (long) offerId, (long) requestId);
@@ -84,6 +88,11 @@ public class TransactionController {
 	@PostMapping("/automatch/{id}")
 	public ResponseEntity<Object> autoMatchOffers(HttpServletRequest request, @PathVariable("id") long offerId) {
 		return transactionService.autoMatchOffers(request, (long) offerId);
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<Object> fetchOfferDeepForm(HttpServletRequest request, @PathVariable("id") long offerId) {
+		return offerService.fetchOfferDeepForm(request, (long) offerId);
 	}
 
 	@GetMapping("/create")

@@ -187,7 +187,7 @@ class SignIn extends Component {
     let homev = null;
     console.log(new Date().toISOString().slice(0, 10))
     if (sessionStorage.getItem("username") !== null) {
-      homev = <Redirect to="/landingpage" />
+      homev = <Redirect to="/offer" />
     }
     return (
       

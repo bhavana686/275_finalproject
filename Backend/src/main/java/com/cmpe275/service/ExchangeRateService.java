@@ -98,15 +98,18 @@ public class ExchangeRateService {
 				offer.setExpiry(ldt);
 			}
 			String allowCounterOffers = body.get("allowCounterOffers").asText();
-			if (allowCounterOffers == "false")
+			if (allowCounterOffers.equals("false"))
 				offer.setAllowCounterOffers(false);
 			String allowSplitExchanges = body.get("allowSplitExchanges").asText();
 			System.out.print(allowSplitExchanges);
-			if (allowSplitExchanges == "false")
+			if (allowSplitExchanges.equals("false"))
 				offer.setAllowSplitExchanges(false);
 			String usePrevailingRate = body.get("usePrevailingRate").asText();
-			if (usePrevailingRate == "false")
+			if (usePrevailingRate.equals("false")) {
 				offer.setUsePrevailingRate(false);
+			} else {
+				offer.setUsePrevailingRate(true);
+			}
 			String amount = body.get("amount").asText();
 			if (amount != null)
 				offer.setAmount(Double.parseDouble(amount));
@@ -136,7 +139,7 @@ public class ExchangeRateService {
 			}
 
 			if (!offer.isUsePrevailingRate()) {
-				offer.setExchangedRate(Double.parseDouble(body.get("exchangeRate").asText()));
+				offer.setExchangeRate(Double.parseDouble(body.get("exchangeRate").asText()));
 			}
 			
 			return offer;

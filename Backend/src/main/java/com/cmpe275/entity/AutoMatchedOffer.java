@@ -1,14 +1,10 @@
 package com.cmpe275.entity;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -30,6 +26,8 @@ public class AutoMatchedOffer {
 	private CounterOffer counter;
 	
 	private Enum.AutoMatchTypes type;
+	
+	private Enum.AutoMatchSplitType splitType = Enum.AutoMatchSplitType.single;
 	
 	private Enum.AutoMatchOffersState status = Enum.AutoMatchOffersState.open;
 
@@ -87,6 +85,14 @@ public class AutoMatchedOffer {
 
 	public void setStatus(Enum.AutoMatchOffersState status) {
 		this.status = status;
+	}
+
+	public Enum.AutoMatchSplitType getSplitType() {
+		return splitType;
+	}
+
+	public void setSplitType(Enum.AutoMatchSplitType splitType) {
+		this.splitType = splitType;
 	}
 
 }
