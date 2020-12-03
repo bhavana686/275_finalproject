@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -285,9 +286,21 @@ public class ExchangeRateService {
 			} else {
 				list = userrepo.getById(userid).get().getOffers();
 			}
-//			List<Offer> offeropen = offersrepo.getActiveOffersbyId(user);
-//			System.out.println("number of offers"+offeropen.size());
-			return new ResponseEntity<>(convertOfferObjectToDeepForm(list), HttpStatus.OK);
+			LinkedList<Offer> l1 = new LinkedList<>();
+			LinkedList<Offer> l2 = new LinkedList<>();
+			for(Offer offr : list)
+			{
+				if(offr.getStatus() == Enum.OfferStatuses.open)
+				{
+					l1.add(offr);
+				}
+				else
+				{
+					l2.add(offr);
+				}
+			}
+			l1.addAll(l2);
+			return new ResponseEntity<>(convertOfferObjectToDeepForm(l1), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
