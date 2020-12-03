@@ -25,6 +25,28 @@ class NavBar extends Component {
         <ul>
           <li>
 
+
+
+          <div class="navbar-header" style={{ display: "inline" }}>
+              <b
+                class="navbar-brand"
+                style={{
+                  color: "black",
+                  display: "inline",
+                  paddingLeft: "200px",
+                }}
+              >
+                 <li class="nav navbar-nav navbar-right">
+            <Link
+              to="/profile"
+              style={{ color: "black" }}
+            >
+              <span></span> My Profile
+            </Link>
+          </li>
+              </b>
+            </div>
+
           <div class="navbar-header" style={{ display: "inline" }}>
               <b
                 class="navbar-brand"

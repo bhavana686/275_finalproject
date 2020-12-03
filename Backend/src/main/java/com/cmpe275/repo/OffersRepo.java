@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.Offer;
+import com.cmpe275.entity.User;
 
 import java.util.List;
 
@@ -39,4 +40,7 @@ public interface OffersRepo extends JpaRepository<Offer, Long> {
 	List<Offer> getActiveOffersByDestinationAmount(
 	@Param("sourceCurrency") String sourceCurrency, 
 	@Param("destinationCurrency") String destinationCurrency,@Param("destinationAmount") double destinationAmount);
+	
+	@Query("SELECT o from Offer o where o.status = 'open' and o.postedBy =?1")
+    List<Offer> getActiveOffersbyId(@Param("userid") User postedBy);
 }
