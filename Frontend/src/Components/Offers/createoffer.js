@@ -30,12 +30,30 @@ class CreateOffer extends Component {
       usePrevailingRate: "",
       showmsg: "",
       userid: sessionStorage.getItem("id"),
-      showerrormsg: ""
+      showerrormsg: "",
+      reject: ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
   }
 
+  componentDidMount()
+  {
+    let url = process.env.REACT_APP_BACKEND_URL + '/offer/getbankaccounts/'+this.state.userid
+
+    axios
+    .get(url)
+    .then((response) => {
+      console.log(response);
+      if (response.data === "lowaccounts") {
+        console.log("error");
+        this.setState({
+          showerrormsg: "User Should have atleast two bank accounts",
+          reject : "true"
+        });
+      }
+    })
+  }
 
   handleChange = (e) => {
     console.log("e", e.target.name, " ", e.target.value);
@@ -119,7 +137,7 @@ class CreateOffer extends Component {
           />
         </div>
         <form method="post">
-          <h3>Update Offer here!</h3>
+          <h3>Create Offer here!</h3>
           {msgshow}
           <div className="row">
             <div className="col-md-6">
@@ -281,23 +299,31 @@ class CreateOffer extends Component {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label className="col-form-label w-100 text-left">
-                  Set Exchange Rate
+              <div>
+              {this.state.usePrevailingRate == "false" ? (
+                <div>
+                   <label className="col-form-label w-100 text-left">
+                  Exchange Rate
             </label>
-                <input
-                  type="text"
-                  name="exchangeRate"
-                  className="form-control"
-                  placeholder="exchangeRate "
-                  onChange={this.handleChange}
-                  defaultValue={this.state.exchangeRate}
-                />
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      name="exchangeRate"
+                      className="form-control"
+                      placeholder="Exchange Rate"
+                      onChange={this.handleChange}
+                    />{" "}
+                  </div>
+                
+                </div>
+              ) : (
+                ""
+              )}
               </div>
 
 
               <div className="form-group">
-                <Button style={{ backgroundColor: "blue" }} onClick={this.handleAdd}>
+                <Button style={{ backgroundColor: "blue" }} disabled={this.state.reject === "true"} onClick={this.handleAdd}>
                   Create Offer
                 </Button>
               </div>

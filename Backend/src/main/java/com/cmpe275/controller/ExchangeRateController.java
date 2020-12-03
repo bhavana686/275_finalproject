@@ -58,5 +58,14 @@ public class ExchangeRateController {
 
 		return exchangeRateService.getofferbyofferid(id);
 	}
+	
+	
+	@GetMapping("getbankaccounts/{id}")
+	public ResponseEntity<String> getbankaccounts(@PathVariable("id") long id) {
+
+		return exchangeRateService.checkbankaccounts(id);
+	}
+
+	
 
 }

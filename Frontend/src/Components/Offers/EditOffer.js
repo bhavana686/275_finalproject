@@ -84,7 +84,7 @@ class EditOffer extends Component {
         destinationCurrency: this.state.destinationCurrency,
         editable: this.state.editable,
         exchangeRate: this.state.exchangeRate,
-        expiry: this.state.expiry,
+        expiry: this.state.expiry+":00",
         fullyFulfilled: this.state.fullyFulfilled,
         id: this.state.id,
         sourceCountry: this.state.sourceCountry,
@@ -306,6 +306,28 @@ class EditOffer extends Component {
               <option value={false}>No</option>
             </select>
           </div>
+
+          <div>
+              {this.state.usePrevailingRate == "false" ? (
+                <div>
+                   <label className="col-form-label w-100 text-left">
+                  Exchange Rate
+            </label>
+                  <div className="form-group">
+                    <input
+                      type="number"
+                      name="exchangeRate"
+                      className="form-control"
+                      placeholder="Exchange Rate"
+                      onChange={this.handleChange}
+                    />{" "}
+                  </div>
+                
+                </div>
+              ) : (
+                ""
+              )}
+              </div>
               
      
               <div className="form-group">
