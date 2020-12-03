@@ -8,6 +8,7 @@ import com.cmpe275.entity.Enum;
 public class AutoMatchEntity {
 	private double sum;
 	private double difference;
+	private double sourceSum;
 	private List<AutoMatchRecommendationOffer> offers;
 	private Enum.AutoMatchedOffers type;
 	private boolean supportCounter;
@@ -50,6 +51,14 @@ public class AutoMatchEntity {
 
 	public void setSupportCounter(boolean supportCounter) {
 		this.supportCounter = supportCounter;
+	}
+
+	public double getSourceSum() {
+		return sourceSum;
+	}
+
+	public void setSourceSum(double sourceSum) {
+		this.sourceSum = sourceSum;
 	}
 
 }

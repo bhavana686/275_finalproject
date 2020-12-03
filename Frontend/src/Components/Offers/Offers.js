@@ -78,6 +78,7 @@ class Offers extends Component {
 
 
         displayform = this.state.offers.map((msg) => {
+            if(!msg.counter){
             return (
                 <div>
                     &nbsp;
@@ -137,6 +138,7 @@ class Offers extends Component {
                         </Card>
                 </div>
             )
+                    }
         })
 
         return (
