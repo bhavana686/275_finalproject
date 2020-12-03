@@ -4,14 +4,32 @@ import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import HouseIcon from '@material-ui/icons/House';
-import { CenterFocusStrong } from '@material-ui/icons';
-import landingpage from "../Landingpage";
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import EditIcon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import {Edit} from '@material-ui/icons';
 import { Button } from "react-bootstrap";
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Grid from '@material-ui/core/Grid';
+import Moment from 'moment';
+import { CenterFocusStrong, SystemUpdate } from '@material-ui/icons';
+import landingpage from "../Landingpage";
+import FormControl from '@material-ui/core/FormControl';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import { blue, green, grey, red } from '@material-ui/core/colors';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn'
+import MoneyIcon from '@material-ui/icons/Money';
+import '../../App.css';
+import PermIdentityIcon from '@material-ui/icons/PermIdentity';
+import brown from '@material-ui/core/colors/brown';
+import FlagIcon from '@material-ui/icons/Flag';
+import purple from '@material-ui/core/colors/purple';
+import { Badge, Space, Row, message, Modal, Input } from 'antd';
 
 
 class BankAccount extends Component {
@@ -71,61 +89,53 @@ ChangeHandler = (event) => {
         }
         displayform = (
 
-            this.state.useracc.map(item => {
-                return (
-                    <div>
-                    <div class="form-group row" >
-                                <div class="col-lg-3">        </div>
-                                <div class="col-lg-4">
-                                <div class="col-sm-10">
-            {/* <div><button style={{backgroundColor:"blue",margin:"10px"}} onClick={this.handleaddnew}>Add New Bank Account</button></div> */}
-            <Button  style={{backgroundColor:"blue",margin:"20px"}} onClick={this.handleaddnew}>
-            Add New Bank Account
-                </Button>
-</div>
+            this.state.useracc.map(msg => {
+
+              
+                    return (
+                        <div>
+                            &nbsp;
+                          
+
+                               
+                                        <Row className="mt-4 items-center" align="center">
+                                <Link to={"/addBankAccount/"}><Button type="primary">Add Bank Account</Button></Link>&nbsp;
                                 
 
-                         <Card style={{ height: "180px",width:"500px" ,textAlign:"left" }}>
-                          <CardContent> 
-                          <div class="row">
-                            <div class="col-lg-6">  Bank Name</div>
-                            <div class="col-lg-6">  {item.bankName}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Account Number</div>
-                            <div class="col-lg-6">  {item.accountNumber}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Owner Name</div>
-                            <div class="col-lg-6">  {item.ownerName}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Owner Address</div>
-                            <div class="col-lg-6">  {item.ownerAddress}</div>
-                            </div>
-
-                            <div class="row">
-                            <div class="col-lg-6"> Account Type:</div>
-                            <div class="col-lg-6">  {item.accountType}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Country</div>
-                            <div class="col-lg-6">  {item.country}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Primary Currency:</div>
-                            <div class="col-lg-6">  {item.primaryCurrency}</div>
-                            </div>
-                           </CardContent>
-                         </Card>
-
-                    
-                 </div>
-                 </div></div>
-                )
-            }))
+                                
+                                </Row>
+                            
+                                <Card style={{ textAlign: "left", margin :"30px" }} >
+                                    
+                                    <CardContent>
+                                        <div class="row">
+                                            <div class="col-lg-1">
+                                                <MonetizationOnIcon style={{ color: brown[400], fontSize: 60 }} />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div style={{ marginTop: "10px" }}>Account Number-<b>{msg.accountNumber}</b><br></br>Primary Currency-<b>{msg.primaryCurrency}</b><br></br>Location-<b>{msg.country}</b></div>
+                                            </div>
+                                            <div class="col-lg-1">
+                                                <MonetizationOnIcon style={{ color: brown[400], fontSize: 60 }} />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div style={{ margin: "10px" }}>Bank Name-<b>{msg.bankName}</b><br></br>Account Type-<b>{msg.accountType}</b></div>
+                                            </div>
+                                            <div class="col-lg-1">
+                                                <PermIdentityIcon style={{ color: brown[400], fontSize: 60 }} />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div style={{ marginTop: "20px" }}><b>{msg.ownerName} </b></div>
+                                            </div>
+                                           
+                                        </div>
+                                        
+                                    
+                                    </CardContent>
+                                </Card>
+                        </div>
+                    )}))
         
-
     return (
         <div style={{marginTop:"50px"}}>
                      {redirectvar}
