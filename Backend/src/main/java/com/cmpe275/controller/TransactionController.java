@@ -73,13 +73,13 @@ public class TransactionController {
 		return transactionService.declineCounterOffer(request, body, (long) counterId);
 	}
 	
-	@PostMapping("/offer/{offerId}/request/{requestId}/accept")
+	@PostMapping("/{offerId}/request/{requestId}/accept")
 	public ResponseEntity<Object> acceptTransferRequest(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("offerId") long offerId, @PathVariable("requestId") long requestId) {
 		return transactionService.acceptTransferRequest(request, body, (long) offerId, (long) requestId);
 	}
 	
-	@PostMapping("/offer/{offerId}/request/{requestId}/decline")
+	@PostMapping("/{offerId}/request/{requestId}/decline")
 	public ResponseEntity<Object> declineTransferRequest(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("offerId") long offerId, @PathVariable("requestId") long requestId) {
 		return transactionService.declineTransferRequest(request, body, (long) offerId, (long) requestId);

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Descriptions, Badge, Collapse, Button } from 'antd';
+import { Descriptions, Badge, Collapse, Button, message } from 'antd';
 import moment from 'moment';
 const { Panel } = Collapse;
 
@@ -17,6 +17,10 @@ class CounterRequests extends Component {
     }
 
     componentDidMount() {
+        this.fetchData();
+    }
+
+    fetchData = () => {
         const { match: { params } } = this.props
         const offerId = params.id;
 
@@ -32,8 +36,46 @@ class CounterRequests extends Component {
             .catch((error) => {
                 console.log(error);
                 this.setState({
-                    courequestnter: []
+                    request: []
                 })
+            });
+    }
+
+    acceptRequest = (id, requestId) => {
+        let url = process.env.REACT_APP_BACKEND_URL + "/offer/" + id + "/request/" + requestId + "/accept";
+        let body = {
+            "userId": sessionStorage.getItem("id")
+        }
+        axios.defaults.withCredentials = true;
+        axios.post(url, body)
+            .then(response => {
+
+                console.log(response.data)
+                message.success("Accepted Request Successfully")
+                this.fetchData();
+            })
+            .catch((error) => {
+                console.log(error);
+                message.error("Error Accepting Request");
+            });
+    }
+
+    declineRequest = (id, requestId) => {
+        let url = process.env.REACT_APP_BACKEND_URL + "/offer/" + id + "/request/" + requestId + "/decline";
+        let body = {
+            "userId": sessionStorage.getItem("id")
+        }
+        axios.defaults.withCredentials = true;
+        axios.post(url, body)
+            .then(response => {
+
+                console.log(response.data)
+                message.success("Declined Request Successfully")
+                this.fetchData();
+            })
+            .catch((error) => {
+                console.log(error);
+                message.error("Error Declining Request");
             });
     }
 
@@ -48,9 +90,9 @@ class CounterRequests extends Component {
                         return (
                             <Collapse defaultActiveKey={['1']} className="my-4">
                                 <Panel header={"Request Id: " + counter.id + " Status: " + status} key="1"
-                                    extra={!expired && <div>
-                                        <Button type="primary">Accept</Button>
-                                        <Button type="primary" danger className="ml-2">Decline</Button>
+                                    extra={!expired && counter.status === "open" && <div>
+                                        <Button type="primary" onClick={() => this.acceptRequest(counter.offer.id, counter.id)}>Accept</Button>
+                                        <Button type="primary" onClick={() => this.declineRequest(counter.offer.id, counter.id)} danger className="ml-2">Decline</Button>
                                     </div>}>
                                     <Descriptions title="Offer Details" bordered style={{ backgroundColor: "AppWorkspace" }} >
                                         <Descriptions.Item label="Counter For">{counter.offer.id}</Descriptions.Item>

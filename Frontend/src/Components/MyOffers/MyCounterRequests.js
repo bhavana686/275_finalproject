@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Descriptions, Badge, Collapse, Button } from 'antd';
+import { Descriptions, Badge, Collapse, Button, message } from 'antd';
 import moment from 'moment';
 const { Panel } = Collapse;
 
@@ -17,6 +17,10 @@ class CounterRequests extends Component {
     }
 
     componentDidMount() {
+        this.fetchData();
+    }
+
+    fetchData = () => {
         const { match: { params } } = this.props
         const offerId = params.id;
 
@@ -37,6 +41,42 @@ class CounterRequests extends Component {
             });
     }
 
+    acceptCounterRequest = (id) => {
+        let url = process.env.REACT_APP_BACKEND_URL + "/offer/counter/" + id + "/accept";
+        let body = {
+            "userId": sessionStorage.getItem("id")
+        }
+        axios.defaults.withCredentials = true;
+        axios.post(url, body)
+            .then(response => {
+                console.log(response.data)
+                message.success("Accepted Counter Successfully")
+                this.fetchData();
+            })
+            .catch((error) => {
+                console.log(error);
+                message.error("Error Accepting Counter");
+            });
+    }
+
+    declineCounterRequest = (id) => {
+        let url = process.env.REACT_APP_BACKEND_URL + "/offer/counter/" + id + "/decline";
+        let body = {
+            "userId": sessionStorage.getItem("id")
+        }
+        axios.defaults.withCredentials = true;
+        axios.post(url, body)
+            .then(response => {
+                console.log(response.data)
+                message.success("Declined Counter Successfully")
+                this.fetchData();
+            })
+            .catch((error) => {
+                console.log(error);
+                message.error("Error Declining Counter");
+            });
+    }
+
     render() {
         return (
             <div style={{ marginTop: "20px" }}>
@@ -48,9 +88,9 @@ class CounterRequests extends Component {
                         return (
                             <Collapse defaultActiveKey={['1']} className="my-4">
                                 <Panel header={"Request Id: " + counter.id + " Status: " + status} key="1"
-                                    extra={!expired && <div>
-                                        <Button type="primary">Accept</Button>
-                                        <Button type="primary" danger className="ml-2">Decline</Button>
+                                    extra={!expired && counter.status === "open" && <div>
+                                        <Button type="primary" onClick={() => this.acceptCounterRequest(counter.id)}>Accept</Button>
+                                        <Button type="primary" onClick={() => this.declineCounterRequest(counter.id)} danger className="ml-2">Decline</Button>
                                     </div>}>
                                     <Descriptions title="Offer Details" bordered style={{ backgroundColor: "AppWorkspace" }} >
                                         <Descriptions.Item label="Counter For">{counter.counteredAgainst.id}</Descriptions.Item>

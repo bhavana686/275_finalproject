@@ -75,6 +75,8 @@ public class Offer {
 	
 	@OneToMany
 	private List<TransferRequest> transferRequests;
+	
+	private double transactedAmountInUSD;
 
 	public List<TransferRequest> getTransferRequests() {
 		return transferRequests;
@@ -258,6 +260,14 @@ public class Offer {
 
 	public void setExchangedRate(double exchangedRate) {
 		this.exchangedRate = exchangedRate;
+	}
+
+	public double getTransactedAmountInUSD() {
+		return transactedAmountInUSD;
+	}
+
+	public void setTransactedAmountInUSD(double transactedAmountInUSD) {
+		this.transactedAmountInUSD = transactedAmountInUSD;
 	}
 
 }
