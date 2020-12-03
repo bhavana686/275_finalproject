@@ -12,13 +12,17 @@ import org.springframework.stereotype.Service;
 import com.cmpe275.entity.Offer;
 import com.cmpe275.models.OfferDeepForm;
 import com.cmpe275.entity.Enum;
+import com.cmpe275.entity.ExchangeCurrency;
 import com.cmpe275.models.UserShallowForm;
+import com.cmpe275.repo.ExchangeCurrencyRepo;
 import com.cmpe275.repo.OffersRepo;
 
 @Service
 public class OfferService {
 	@Autowired
 	private OffersRepo offersRepo;
+	
+	@Autowired ExchangeCurrencyRepo exchangeCurrencyRepo;
 
 	public List<OfferDeepForm> convertOfferObjectToDeepForm(List<Offer> offer) {
 		List<OfferDeepForm> offerList = new ArrayList<OfferDeepForm>();
@@ -32,7 +36,13 @@ public class OfferService {
 		offerDeepForm.setDestinationCountry(p.getDestinationCountry());
 		offerDeepForm.setDestinationCurrency(p.getDestinationCurrency());
 		offerDeepForm.setStatus(p.getStatus());
-		offerDeepForm.setExchangeRate(p.getExchangeRate());
+		if (p.isUsePrevailingRate()) {
+			Optional<ExchangeCurrency> rate = exchangeCurrencyRepo.findBySourceCurrencyAndTargetCurrency(
+					p.getSourceCurrency(), p.getDestinationCurrency());
+			offerDeepForm.setExchangeRate(rate.get().getExchangeRate());
+		} else {
+			offerDeepForm.setExchangeRate(p.getExchangeRate()); 
+		}
 		offerDeepForm.setUsePrevailingRate(p.isUsePrevailingRate());
 		offerDeepForm.setExpiry(p.getExpiry());
 		offerDeepForm.setAllowCounterOffers(p.isAllowCounterOffers());
