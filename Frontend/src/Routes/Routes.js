@@ -22,6 +22,7 @@ import MyTransferRequests from "../Components/MyOffers/MyTransferRequests";
 import Profile from '../Components/Profile/Profile';
 import TransactionHistory from '../Components/Reporting/TransactionHistory';
 import UserProfile from '../Components/Profile/UserProfile';
+import SystemFinancials from '../Components/Reporting/SystemFinancials';
 
 class Routes extends Component {
   render() {
@@ -49,6 +50,7 @@ class Routes extends Component {
         <Route path="/profile" component={Profile}/>
         <Route path="/transactionHistory" component={TransactionHistory}/>
         <Route path="/user/:id" component={UserProfile}/>
+        <Route path="/systemFinancials" component={SystemFinancials}/>
       </div>
     );
   }
