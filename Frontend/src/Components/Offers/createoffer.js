@@ -29,7 +29,9 @@ class CreateOffer extends Component {
       status: "",
       transactedAmount: "",
       usePrevailingRate: "",
-      userid: sessionStorage.getItem("id")
+      showmsg:"",
+      userid: sessionStorage.getItem("id"),
+      showerrormsg : ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
@@ -63,7 +65,6 @@ class CreateOffer extends Component {
         transactedAmount: this.state.transactedAmount,
         userid : this.state.userid,
         usePrevailingRate: this.state.usePrevailingRate,
-   
     };
   let userid = data.userid
   console.log(data.sourceCountry)
@@ -77,14 +78,14 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
       .post(url, data)
       .then((response) => {
         console.log(response);
-        if (response.data === "error") {
+        if (response.data === "accounts") {
           console.log("error");
           this.setState({
-            showRegistrationError: true,
+            showerrormsg: "User Should have atleast two bank accounts",
           });
-        } else if (response.data === "Successfully updated the offer") {
+        } else if (response.data === "created") {
           this.setState({
-            redirect: `/offers/`,
+           showmsg:"Succesfully Created Offer"
           });
         }
       })
@@ -96,14 +97,23 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
   };
 
   render() {
-    let redirectVar = null;
+    let redirectVar = null,msgshow = null;
     if (this.state.redirect) {
       redirectVar = <Redirect push to={this.state.redirect} />;
+    }
+    if(this.state.showmsg)
+    {
+      msgshow = <h1 style={{color:"red"}}>Succesfully Created Offer</h1>
+    }
+    if(this.state.showerrormsg)
+    {
+      msgshow = <h1 style={{color:"red",fontSize:"bold"}}>User Should have atleast two bank accounts</h1>
     }
 
     return (
       <div className="container contact-form">
         {redirectVar}
+      
         <div className="contact-image">
           <img
             src="https://image.ibb.co/kUagtU/rocket_contact.png"
@@ -112,7 +122,7 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
         </div>
         <form method="post">
           <h3>Update Offer here!</h3>
-          {/* {msgshow} */}
+          {msgshow}
           <div className="row">
             <div className="col-md-6">
               
@@ -290,7 +300,7 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
 
               <div className="form-group">
                 <Button  style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
-                  Update Listing!
+                 Create Offer
                 </Button>
               </div>
             </div>

@@ -13,6 +13,18 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { blue, green, grey, red } from '@material-ui/core/colors';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn'
+import MoneyIcon from '@material-ui/icons/Money';
+import '../../App.css';
+import PermIdentityIcon from '@material-ui/icons/PermIdentity';
+import brown from '@material-ui/core/colors/brown';
+import FlagIcon from '@material-ui/icons/Flag';
+import purple from '@material-ui/core/colors/purple';
+
+
 
 const currency = [
     'EUR', 'GBP', 'INR', 'RMB', 'USD'
@@ -62,7 +74,22 @@ componentDidMount() {
 }
 filterOffer = (event) => {
     event.preventDefault();
-  let url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?destinationAmount='+this.state.destinationAmount+'&sourceAmount='+this.state.sourceAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;
+    let url;	 
+    if(this.state.destinationAmount!="" && this.state.sourceAmount!="")	
+    {	
+         url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?destinationAmount='+this.state.destinationAmount+'&sourceAmount='+this.state.sourceAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;	
+
+    }	
+    else if(this.state.destinationAmount!="")	
+    {	
+         url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?destinationAmount='+this.state.destinationAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;	
+
+    }	
+    else{	
+
+         url = process.env.REACT_APP_BACKEND_URL +'/offers/filter?sourceAmount='+this.state.sourceAmount+'&sourceCurrency='+this.state.sourceCurrency+'&destinationCurrency='+this.state.destinationCurrency;	
+
+    }
     axios.defaults.withCredentials = true;
     console.log(url);
     axios.get(url)
@@ -108,63 +135,77 @@ ChangeHandler = (event) => {
 
 }
 validateDetails = (event) => {
-    if (this.state.sourceCurrency !== "" && this.state.destinationCurrency  !== "" && this.state.sourceAmount !== "" && this.state.destinationAmount !== "" ) return false
+    if (this.state.sourceCurrency !== "" && this.state.destinationCurrency  !== "" && (this.state.sourceAmount !== "" || this.state.destinationAmount !== "") ) return false
     else return true
 }
 
 
 
-
 render() {
+    
+        function HomeIcon(props) {
+            return (
+              <SvgIcon {...props}>
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+              </SvgIcon>
+            );
+          }
         var displayform=null;
         displayform = this.state.offers?this.state.offers.map((msg) => {
                 return (
                     <div>
                     <div class="form-group row" >
-                                <div class="col-lg-3">        </div>
+                              
                                 <div class="col-lg-4">
-                         <Card style={{ height: "250px",width:"500px" ,textAlign:"left" }}>
+                         <Card style={{ height: "180px",width:"1000px" ,textAlign:"left" }}>
                           <CardContent> 
                           <div class="row">
-                            <div class="col-lg-6"> Source Country</div>
-                            <div class="col-lg-6"> {msg.sourceCountry}</div>
+                           <div class="col-lg-1"> 
+                          <LocationOnIcon style={{ color: brown[400], fontSize: 60 }} /> 
+                          </div>
+                          <div class="col-lg-3"> 
+                          <div style={{marginTop:"10px"}}>Source-<b>{msg.sourceCountry}</b><br></br>Destination-<b>{msg.destinationCountry}</b></div>
+                          </div>
+                          <div class="col-lg-1"> 
+                          <MonetizationOnIcon style={{ color: brown[400], fontSize: 60 }} /> 
+                          </div>
+                          <div class="col-lg-3"> 
+                          <div style={{marginTop:"10px"}}>Source-<b>{msg.sourceCurrency}</b><br></br>Destination-<b>{msg.destinationCurrency}</b></div>
+                          </div>
+                          <div class="col-lg-1"> 
+                          <PermIdentityIcon  style={{ color: brown[400], fontSize: 60 }} /> 
+                          </div>
+                          <div class="col-lg-3"> 
+                          <div style={{marginTop:"20px"}}><b>{msg.postedBy ? msg.postedBy.nickname:""}</b></div>
+                          </div>
+                          </div> 
+                          
+                         <div class="row" style={{marginTop:"20px"}} >
+    
+                            <div class="class" style={{marginLeft:"20PX"}}> Counter Offer Status  {msg.allowCounterOffers?      <FlagIcon style={{ color: green[400], fontSize: 20 }} />  :      <FlagIcon style={{ color: red[400], fontSize: 60 }} /> }&nbsp;&nbsp;
+                            
+                               Split Offer Status  {msg.allowSplitExchanges?      <FlagIcon style={{ color: green[400], fontSize: 20 }} />  :      <FlagIcon style={{ color: red[400], fontSize: 60 }} /> }
+                            
                             </div>
+                            </div> 
+                            <div class="row" >
+    
+    <div class="class" style={{marginLeft:"20PX"}}> <b>{msg.amount}</b> Amount availabe  for Exchange rate <b>{msg.exchangeRate}</b></div>
+    </div>
+
+                    
+                          
+
+
                             <div class="row">
-                            <div class="col-lg-6"> Source Currency</div>
-                            <div class="col-lg-6">  {msg.sourceCurrency}</div>
+                            <div class="redclass" style={{color:green ,marginLeft:"20PX"}}> status is {msg.status}</div>
                             </div>
-                            <div class="row">
-                            <div class="col-lg-6">Destination Country</div>
-                            <div class="col-lg-6">  {msg.destinationCountry}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">Destination Currency</div>
-                            <div class="col-lg-6">  {msg.destinationCurrency}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">Status</div>
-                            <div class="col-lg-6">  {msg.status}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">Amount</div>
-                            <div class="col-lg-6">  {msg.amount}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6"> Exchange Rate</div>
-                            <div class="col-lg-6">  {msg.exchangeRate}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">Posted By </div>
-                            <div class="col-lg-6">  {msg.postedBy ? msg.postedBy.nickname:""}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">Counter Offer Status </div>
-                            <div class="col-lg-6">  {msg.allowCounterOffers? "Allowed" : "Not Allowed"}</div>
-                            </div>
-                            <div class="row">
-                            <div class="col-lg-6">Split Offer Status  </div>
-                            <div class="col-lg-6">  {msg.allowSplitExchanges?  "Allowed" : "Not Allowed"}</div>
-                            </div>
+                            
+                            
+                            
+                            
+                         
+                           
     
                            </CardContent>
                          </Card>
