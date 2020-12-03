@@ -67,7 +67,8 @@ public class OfferService {
 	
 	public  ResponseEntity<Object> getOffers(HttpServletRequest req) {
 		try {
-			List<Offer> offer = offersRepo.getActiveOffers();
+			int userId = (int) Integer.parseInt(req.getParameter("userId"));
+			List<Offer> offer = offersRepo.getActiveOffers(userId);
 			return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e);

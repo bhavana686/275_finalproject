@@ -16,8 +16,8 @@ import java.util.List;
 public interface OffersRepo extends JpaRepository<Offer, Long> {
 	
 	
-	@Query("SELECT o from Offer o where o.status = 'open'")
-     List<Offer> getActiveOffers();
+	@Query(value = "SELECT * from Offer o where o.status = 'open' and o.posted_by_id != :userid",nativeQuery=true)
+     List<Offer> getActiveOffers(@Param("userid") int userId);
 	
 	@Query(value = "Select * from (Select o.*,1 as filter from offer o left join exchange_currency e on "
 			+ " o.destination_currency = e.target_currency and o.source_currency = e.source_currency "
