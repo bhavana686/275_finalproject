@@ -98,12 +98,6 @@ ChangeHandler = (event) => {
                           
 
                                
-                                        <Row className="mt-4 items-center" align="center">
-                                <Link to={"/addBankAccount/"}><Button type="primary">Add Bank Account</Button></Link>&nbsp;
-                                
-
-                                
-                                </Row>
                             
                                 <Card style={{ textAlign: "left", margin :"30px" }} >
                                     
@@ -140,6 +134,12 @@ ChangeHandler = (event) => {
         <div style={{marginTop:"50px"}}>
                      {redirectvar}
 
+                     <Row className="mt-4 items-center" align="center">
+                                <Link to={"/addBankAccount/"}><Button type="primary">Add Bank Account</Button></Link>&nbsp;
+                                
+
+                                
+                                </Row>
             {displayform}
         </div>
         );

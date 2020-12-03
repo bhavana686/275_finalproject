@@ -74,6 +74,8 @@ public class ExchangeRateService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	
 
 	private Offer buildofferfromdata(JsonNode body) throws CustomException {
 		Offer offer = new Offer();
@@ -188,34 +190,38 @@ public class ExchangeRateService {
 					break;
 				}
 			}
-
-			if (body.get("usePrevailingRate").asText() == "false") {
-				offer.setUsePrevailingRate(false);
-				if (offer.getExchangeRate() > 0) {
-					offer.setExchangeRate(offer.getExchangeRate());
-				}
-			}
-
-			if (body.get("allowCounterOffers").asText() == "false") {
-
+			String allowCounterOffers = body.get("allowCounterOffers").asText();
+			if (allowCounterOffers.equals("false"))
 				offer.setAllowCounterOffers(false);
-			}
-			if (body.get("allowSplitExchanges").asText() == "false") {
+			String allowSplitExchanges = body.get("allowSplitExchanges").asText();
+			System.out.print(allowSplitExchanges);
+			if (allowSplitExchanges.equals("false"))
 				offer.setAllowSplitExchanges(false);
+			String usePrevailingRate = body.get("usePrevailingRate").asText();
+			if (usePrevailingRate.equals("false")) {
+				offer.setUsePrevailingRate(false);
+			} else {
+				offer.setUsePrevailingRate(true);
 			}
-			Timestamp expiry = offer.getExpiry();
-
+			
+			if (!offer.isUsePrevailingRate()) {
+				offer.setExchangeRate(Double.parseDouble(body.get("exchangeRate").asText()));
+			}
+			String expiry = body.get("expiry").asText();
 			if (expiry != null) {
-
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				Date date = sdf.parse(expiry.toString());
+				expiry = body.get("expiry").asText();
+				System.out.println(expiry);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				Date date = sdf.parse(expiry);
+				System.out.println(date);
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 				String fdate = sdf1.format(date);
+				System.out.println(fdate);
 				Timestamp ldt = Timestamp.valueOf(fdate);
+				System.out.println(ldt);
 				offer.setExpiry(ldt);
 			}
-
 		} catch (CustomException e) {
 			throw new CustomException(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
@@ -320,6 +326,30 @@ public class ExchangeRateService {
 			return new ResponseEntity<>(convertOfferObjectToDeepForm(offerlist), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+	}
+
+
+
+	public ResponseEntity<String> checkbankaccounts(long userid) {
+	
+		User user = userrepo.getById(userid).get();
+
+		List<BankAccount> accounts = user.getBankAccounts();
+		Set<Enum.Countries> countries = new HashSet<>();
+		for (BankAccount acc : accounts) {
+			countries.add(acc.getCountry());
+		}
+
+		System.out.println(countries.size());
+		if (countries.size() < 2) {
+			return new ResponseEntity<String>("lowaccounts", HttpStatus.OK);
+
+		}
+		else
+		{
+			return new ResponseEntity<String>("approved", HttpStatus.OK);
+
 		}
 	}
 
