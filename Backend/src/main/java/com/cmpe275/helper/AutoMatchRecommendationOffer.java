@@ -32,6 +32,19 @@ public class AutoMatchRecommendationOffer {
 	private Timestamp expiry;
 	
 	private boolean supportCounter;
+	
+	private Enum.OfferStatuses status;
+	
+	private long userId;
+
+	public Enum.OfferStatuses getStatus() {
+		return status;
+	}
+
+	public void setStatus(Enum.OfferStatuses status) {
+		this.status = status;
+	}
+
 
 	public long getId() {
 		return id;
@@ -127,6 +140,14 @@ public class AutoMatchRecommendationOffer {
 
 	public void setSupportCounter(boolean supportCounter) {
 		this.supportCounter = supportCounter;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
 	}
 
 }

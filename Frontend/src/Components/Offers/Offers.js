@@ -78,6 +78,7 @@ class Offers extends Component {
 
 
         displayform = this.state.offers.map((msg) => {
+            if(!msg.counter){
             return (
                 <div>
                     &nbsp;
@@ -131,12 +132,17 @@ class Offers extends Component {
                                 </div>
 
                                 <Row className="mt-4 items-center">
-                                <Link to={"/offer/" + msg.id}><Button type="primary">Go To Offer Details</Button></Link>
+                                <Link to={"/offer/" + msg.id}><Button type="primary">Go To Offer Details</Button></Link>&nbsp;
+                                
+
+                                
+                                <Link to={"/editoffer/" + msg.id}><Button type="primary" disabled={!msg.editable}>Edit Offer</Button></Link>
                                 </Row>
                             </CardContent>
                         </Card>
                 </div>
             )
+                    }
         })
 
         return (

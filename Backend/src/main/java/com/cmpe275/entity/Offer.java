@@ -52,7 +52,7 @@ public class Offer {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User postedBy;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Transaction fulfilledBy;
 
 	private boolean isCounter = false;
