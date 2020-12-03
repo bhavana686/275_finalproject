@@ -300,7 +300,7 @@ public class ExchangeRateService {
 				}
 			}
 			l1.addAll(l2);
-			return new ResponseEntity<>(convertOfferObjectToDeepForm(l2), HttpStatus.OK);
+			return new ResponseEntity<>(convertOfferObjectToDeepForm(l1), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
