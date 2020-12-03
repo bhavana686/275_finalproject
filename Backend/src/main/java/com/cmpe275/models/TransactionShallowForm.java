@@ -1,37 +1,26 @@
-package com.cmpe275.entity;
+package com.cmpe275.models;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.cmpe275.entity.Enum;
+import com.cmpe275.entity.TransferRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Entity
-public class Transaction {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+public class TransactionShallowForm {
+	
 	private long id;
-
-	@OneToMany(fetch = FetchType.LAZY)
 	private List<TransferRequest> requests;
-	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private Timestamp expiry;
-
 	private double amount;
-	
-	@Enumerated(EnumType.STRING)
-	private Enum.CounterOfferStatuses status = Enum.CounterOfferStatuses.open;
+	private Enum.CounterOfferStatuses status;
 
 	public Enum.CounterOfferStatuses getStatus() {
 		return status;
@@ -72,6 +61,6 @@ public class Transaction {
 	public void setAmount(double amount) {
 		this.amount = amount;
 	}
-
-	
 }
+
+

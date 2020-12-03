@@ -42,5 +42,23 @@ public class UserController {
 		return userService.verifyMail(request, username);
 	}
 	
+<<<<<<< Updated upstream
+=======
+	@GetMapping("/{id}/counters")
+	public ResponseEntity<Object> fetchCounterOffers(HttpServletRequest request, @PathVariable("id") long userId) {
+		return offerService.fetchCounterOffers(request, (long) userId);
+	}
+	
+	@GetMapping("/{id}/requests")
+	public ResponseEntity<Object> fetchTransferRequests(HttpServletRequest request, @PathVariable("id") long userId) {
+		return offerService.fetchTransferRequests(request, (long) userId);
+	}
+	
+	@GetMapping("/{id}/transferRequests")
+	public ResponseEntity<Object> fetchUserTransferRequests(HttpServletRequest request, @PathVariable("id") long userId) {
+		return offerService.fetchTransferRequests(request, (long) userId);
+	}
+
+>>>>>>> Stashed changes
 
 }
