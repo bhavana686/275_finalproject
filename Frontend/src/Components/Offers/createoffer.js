@@ -6,8 +6,7 @@ import Icon from "@material-ui/core/Icon";
 import '../Offers/editoffer.css';
 import Moment from 'moment';
 import TextField from '@material-ui/core/TextField';
-
-
+import { Badge, Space, Row, message, Modal, Input } from 'antd';
 
 class CreateOffer extends Component {
   constructor(props) {
@@ -29,9 +28,9 @@ class CreateOffer extends Component {
       status: "",
       transactedAmount: "",
       usePrevailingRate: "",
-      showmsg:"",
+      showmsg: "",
       userid: sessionStorage.getItem("id"),
-      showerrormsg : ""
+      showerrormsg: ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
@@ -49,27 +48,27 @@ class CreateOffer extends Component {
   handleAdd = (e) => {
     e.preventDefault();
     const data = {
-        allowCounterOffers: this.state.allowCounterOffers,
-        allowSplitExchanges: this.state.allowSplitExchanges,
-        amount: this.state.amount,
-        counter: this.state.counter,
-        destinationCountry: this.state.destinationCountry,
-        destinationCurrency: this.state.destinationCurrency,
-        editable: this.state.editable,
-        exchangeRate: this.state.exchangeRate,
-        expiry:this.state.expiry,
-        fullyFulfilled: this.state.fullyFulfilled,
-        sourceCountry: this.state.sourceCountry,
-        sourceCurrency: this.state.sourceCurrency,
-        status: this.state.status,
-        transactedAmount: this.state.transactedAmount,
-        userid : this.state.userid,
-        usePrevailingRate: this.state.usePrevailingRate,
+      allowCounterOffers: this.state.allowCounterOffers,
+      allowSplitExchanges: this.state.allowSplitExchanges,
+      amount: this.state.amount,
+      counter: this.state.counter,
+      destinationCountry: this.state.destinationCountry,
+      destinationCurrency: this.state.destinationCurrency,
+      editable: this.state.editable,
+      exchangeRate: this.state.exchangeRate,
+      expiry: this.state.expiry+":00",
+      fullyFulfilled: this.state.fullyFulfilled,
+      sourceCountry: this.state.sourceCountry,
+      sourceCurrency: this.state.sourceCurrency,
+      status: this.state.status,
+      transactedAmount: this.state.transactedAmount,
+      userid: this.state.userid,
+      usePrevailingRate: this.state.usePrevailingRate,
     };
-  let userid = data.userid
-  console.log(data.sourceCountry)
+    let userid = data.userid
+    console.log(data.sourceCountry)
     // let url = process.env.REACT_APP_BACKEND_URL+'/offer?sourceCountry='+data.sourceCountry+'&sourceCurrency='+data.sourceCurrency+'&destinationCountry='+this.state.destinationCountry+'&destinationCurrency='+this.state.destinationCurrency;
-let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
+    let url = process.env.REACT_APP_BACKEND_URL + '/offer/postoffer/'
     //set the with credentials to true
     axios.defaults.withCredentials = true;
     //make a post request with the user data
@@ -85,8 +84,9 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
           });
         } else if (response.data === "created") {
           this.setState({
-           showmsg:"Succesfully Created Offer"
+            showmsg: "Succesfully Created Offer"
           });
+          message.success("Offer Created Successfully")
         }
       })
       .catch((ex) => {
@@ -97,23 +97,21 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
   };
 
   render() {
-    let redirectVar = null,msgshow = null;
+    let redirectVar = null, msgshow = null;
     if (this.state.redirect) {
       redirectVar = <Redirect push to={this.state.redirect} />;
     }
-    if(this.state.showmsg)
-    {
-      msgshow = <h1 style={{color:"red"}}>Succesfully Created Offer</h1>
+    if (this.state.showmsg) {
+      msgshow = <h1 style={{ color: "red" }}>Succesfully Created Offer</h1>
     }
-    if(this.state.showerrormsg)
-    {
-      msgshow = <h1 style={{color:"red",fontSize:"bold"}}>User Should have atleast two bank accounts</h1>
+    if (this.state.showerrormsg) {
+      msgshow = <h1 style={{ color: "red", fontSize: "bold" }}>User Should have atleast two bank accounts</h1>
     }
 
     return (
       <div className="container contact-form">
         {redirectVar}
-      
+
         <div className="contact-image">
           <img
             src="https://image.ibb.co/kUagtU/rocket_contact.png"
@@ -125,10 +123,10 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
           {msgshow}
           <div className="row">
             <div className="col-md-6">
-              
-            <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Select Destination Country
+
+              <div className="form-group">
+                <label className="col-form-label w-100 text-left">
+                  Select Destination Country
             </label>&nbsp;&nbsp;&nbsp;
                 <select
                   name="destinationCountry"
@@ -136,8 +134,8 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
                   onChange={this.handleChange}
                   value={this.state.destinationCountry}
                 >
-                 
-                 <option value={""}>Destination Country</option>
+
+                  <option value={""}>Destination Country</option>
                   <option value={"Europe"}>Europe</option>
                   <option value={"UK"}>UK</option>
                   <option value={"India"}>India</option>
@@ -147,8 +145,8 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
               </div>
 
               <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-            Select Destination Currency
+                <label className="col-form-label w-100 text-left">
+                  Select Destination Currency
             </label>
                 <select
                   name="destinationCurrency"
@@ -156,7 +154,7 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
                   onChange={this.handleChange}
                   value={this.state.destinationCurrency}
                 >
-               
+
                   <option value={""}>Destination Currency</option>
                   <option value={"EUR"}>EUR</option>
                   <option value={"GBP"}>GBP</option>
@@ -167,8 +165,8 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
               </div>
 
               <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Seclect Source Country
+                <label className="col-form-label w-100 text-left">
+                  Seclect Source Country
             </label>
                 <select
                   name="sourceCountry"
@@ -186,8 +184,8 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
               </div>
 
               <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-            Select Source Currency
+                <label className="col-form-label w-100 text-left">
+                  Select Source Currency
             </label>
                 <select
                   name="sourceCurrency"
@@ -195,7 +193,7 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
                   onChange={this.handleChange}
                   value={this.state.sourceCurrency}
                 >
-               
+
                   <option value={""}>Source Currency</option>
                   <option value={"EUR"}>EUR</option>
                   <option value={"GBP"}>GBP</option>
@@ -207,8 +205,8 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
 
 
               <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Amount
+                <label className="col-form-label w-100 text-left">
+                  Amount
             </label>
                 <input
                   type="text"
@@ -221,71 +219,71 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
               </div>
 
               <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-            Expiry Date &nbsp;
+                <label className="col-form-label w-100 text-left">
+                  Expiry Date &nbsp;
             </label>
-              <TextField
-    id="datetime-local"
-    type="datetime-local"
-    name="expiry"
-    
-    onChange={this.handleChange}
-  
-  />
-  </div>
+                <TextField
+                  id="datetime-local"
+                  type="datetime-local"
+                  name="expiry"
+
+                  onChange={this.handleChange}
+
+                />
+              </div>
 
               <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Allow Counter Offers
+                <label className="col-form-label w-100 text-left">
+                  Allow Counter Offers
             </label>
-            <select
-              className="form-control form-control-sm"
-              name="allowCounterOffers"
-              value = {this.state.allowCounterOffers}
-              onChange={this.handleChange}
-            >
-              <option value="">Select</option>
-              <option value={true}>Yes</option>
-              <option value={false}>No</option>
-            </select>
-          </div>
-              
-          <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Allow Split Exchanges
+                <select
+                  className="form-control form-control-sm"
+                  name="allowCounterOffers"
+                  value={this.state.allowCounterOffers}
+                  onChange={this.handleChange}
+                >
+                  <option value="">Select</option>
+                  <option value={true}>Yes</option>
+                  <option value={false}>No</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="col-form-label w-100 text-left">
+                  Allow Split Exchanges
             </label>
-            <select
-              className="form-control form-control-sm"
-              name="allowSplitExchanges"
-              value = {this.state.allowSplitExchanges}
-              onChange={this.handleChange}
-            >
-              <option value="">Select</option>
-              <option value={true}>Yes</option>
-              <option value={false}>No</option>
-            </select>
-          </div>
+                <select
+                  className="form-control form-control-sm"
+                  name="allowSplitExchanges"
+                  value={this.state.allowSplitExchanges}
+                  onChange={this.handleChange}
+                >
+                  <option value="">Select</option>
+                  <option value={true}>Yes</option>
+                  <option value={false}>No</option>
+                </select>
+              </div>
 
 
-          <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Use Prevailing Rate
+              <div className="form-group">
+                <label className="col-form-label w-100 text-left">
+                  Use Prevailing Rate
             </label>
-            <select
-              className="form-control form-control-sm"
-              name="usePrevailingRate"
-              value = {this.state.usePrevailingRate}
-              onChange={this.handleChange}
-            >
-              <option value="">Select</option>
-              <option value={true}>Yes</option>
-              <option value={false}>No</option>
-            </select>
-          </div>
-              
-          <div className="form-group">
-            <label className="col-form-label w-100 text-left">
-             Set Exchange Rate
+                <select
+                  className="form-control form-control-sm"
+                  name="usePrevailingRate"
+                  value={this.state.usePrevailingRate}
+                  onChange={this.handleChange}
+                >
+                  <option value="">Select</option>
+                  <option value={true}>Yes</option>
+                  <option value={false}>No</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="col-form-label w-100 text-left">
+                  Set Exchange Rate
             </label>
                 <input
                   type="text"
@@ -299,19 +297,19 @@ let url = process.env.REACT_APP_BACKEND_URL+'/offer/postoffer/'
 
 
               <div className="form-group">
-                <Button  style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
-                 Create Offer
+                <Button style={{ backgroundColor: "blue" }} onClick={this.handleAdd}>
+                  Create Offer
                 </Button>
               </div>
             </div>
-           </div>
-           </form>
-           </div>
-            
-             
-             
-             
-              
+          </div>
+        </form>
+      </div>
+
+
+
+
+
     );
   }
 }

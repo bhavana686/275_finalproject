@@ -47,7 +47,7 @@ public class ExchangeRateController {
 		return exchangeRateService.updateOffer(body, id);
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/user/{id}")
 	public ResponseEntity<Object> displayrecords(@PathVariable("id") long id) {
 
 		return exchangeRateService.getOffersByUserId(id);

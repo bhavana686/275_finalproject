@@ -28,4 +28,8 @@ public class Enum {
 	public static enum AutoMatchOffersState{
 		open, expired, declined, accepted
 	}
+	
+	public static enum AutoMatchSplitType{
+		single, dual
+	}
 }
