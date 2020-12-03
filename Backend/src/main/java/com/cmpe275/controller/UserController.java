@@ -53,6 +53,12 @@ public class UserController {
 	public ResponseEntity<Object> fetchTransferRequests(HttpServletRequest request, @PathVariable("id") long userId) {
 		return offerService.fetchTransferRequests(request, (long) userId);
 	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<Object> fetchUserData(HttpServletRequest request, @PathVariable("id") long userId) {
+		System.out.println(userId);
+		return offerService.fetchTransferRequests(request, (long) userId);
+	}
 
 	@PutMapping
 	public ResponseEntity<Object> updateuserprofile(HttpServletRequest request, @RequestBody JsonNode body) {
