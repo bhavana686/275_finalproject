@@ -20,6 +20,7 @@ import SingleOfferOwnerView from "../Components/MyOffers/OwnerOffer";
 import MyCounterRequests from "../Components/MyOffers/MyCounterRequests";
 import MyTransferRequests from "../Components/MyOffers/MyTransferRequests";
 import Profile from '../Components/Profile/Profile';
+import TransactionHistory from '../Components/Reporting/TransactionHistory';
 
 class Routes extends Component {
   render() {
@@ -45,6 +46,7 @@ class Routes extends Component {
         <Route path="/requests" exact component={MyTransferRequests}/>
         <Route path="/bankAccount" component={BankAccount} />
         <Route path="/profile" component={Profile}/>
+        <Route path="/transactionHistory" component={TransactionHistory}/>
 
       </div>
     );
