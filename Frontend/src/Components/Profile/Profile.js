@@ -16,7 +16,7 @@ class Profile extends Component {
      nickname : sessionStorage.getItem("nickname"),
       success: "",
      error : "true",
-     invalid : false
+     invalid : "true"
     }
     // this.handleUpdate = this.handleUpdate.bind(this);
 this.handleAdd = this.handleAdd.bind(this);
@@ -27,21 +27,14 @@ this.handleChange = this.handleChange.bind(this);
 }
 
 
+async componentDidMount()
+{
+    this.setState({
+             invalid:"true",
+             success:""
+              })
+}
 
-// nicknameChangeHandler = (event) => {
-    
-//     if (/[A-Za-z0-9]+$/.test(event.target.value)) {
-//       this.setState({
-//         invalid: false,
-//         nickname: event.target.value
-//       })
-//     } else {
-//       this.setState({
-//         invalid: true,
-//         nickname: event.target.value
-//       })
-//     }
-//   }
 
   
   handleChange = (e) => {
@@ -60,13 +53,12 @@ this.handleChange = this.handleChange.bind(this);
   }
 
 
-handleAdd = (e) => {
-    e.preventDefault();
+ async handleAdd() {
 
     let url = process.env.REACT_APP_BACKEND_URL+"/user";
 
     this.setState({
-        invalid: true,
+        invalid: "true",
         success : ""
              })
 
@@ -76,31 +68,32 @@ const data =
     userid : this.state.userid
 }
 
-if (/[A-Za-z0-9]+$/.test(this.state.nickname)) {
+if (/^[A-Za-z0-9]*$/.test(this.state.nickname)) {
     console.log("valid")
     this.setState({
-      invalid: false,
-      error :  "false",
+      invalid: "false",
       nickname:this.state.nickname
     })
   } else {
       console.log("invalid")
     this.setState({
-      invalid: true,
-      error :  "true",
+      invalid: "true",
       nickname : this.state.nickname
     })
+    return 0 ;
   }
-
+console.log(this.state.invalid)
 console.log(data)
     //set the with credentials to true
     axios.defaults.withCredentials = true;
     //make a post request with the user data
 
-    if(!this.state.invalid)
+    if(this.state.invalid === "false")
     {
         console.log("form is valid")
-        console.log("into the reqyuest");
+        this.setState({
+            success:"",
+          })
     axios
       .put(url,data)
       .then((response) => {
@@ -115,6 +108,7 @@ console.log(data)
             success : "Successfully Updated the nickname"
           });
         }
+        return 0;
       })
       .catch((ex) => {
         this.setState({
@@ -122,6 +116,7 @@ console.log(data)
         });
       });
     }
+  
    
   };
 
@@ -177,7 +172,7 @@ render() {
                   onChange={this.handleChange}
                   defaultValue={this.state.nickname}
                 />
-                                          {this.state.invalid && <p class="text-sm text-bold italic text-red-500">Please enter a valid Username.</p>}
+            {this.state.invalid == "true" && <p class="text-sm text-bold italic text-red-500">Please enter a valid NickName.</p>}
 
               </div>
 
