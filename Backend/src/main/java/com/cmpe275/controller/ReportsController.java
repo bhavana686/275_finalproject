@@ -9,6 +9,7 @@ import com.cmpe275.service.TransactionHistoryService;
 
 
 @Controller
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", allowCredentials = "true")
 @RequestMapping(value = "/transactionHistory")
 public class ReportsController {
 

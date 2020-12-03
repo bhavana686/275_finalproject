@@ -31,6 +31,8 @@ class NavBar extends Component {
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Transactions</a>
           <a href="/counters"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Counter Offers</a>
+          <a href="/transactionHistory"
+            class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> Transaction History</a>
                   <a href="/bankAccount"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Bank Accounts</a>
           <a href="/signin" onClick={this.handleLogout}
