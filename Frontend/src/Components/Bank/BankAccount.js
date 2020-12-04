@@ -30,6 +30,7 @@ import brown from '@material-ui/core/colors/brown';
 import FlagIcon from '@material-ui/icons/Flag';
 import purple from '@material-ui/core/colors/purple';
 import { Badge, Space, Row, message, Modal, Input } from 'antd';
+import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 
 
 class BankAccount extends Component {
@@ -110,7 +111,7 @@ ChangeHandler = (event) => {
                                                 <div style={{ marginTop: "10px" }}>Account Number-<b>{msg.accountNumber}</b><br></br>Primary Currency-<b>{msg.primaryCurrency}</b><br></br>Location-<b>{msg.country}</b></div>
                                             </div>
                                             <div class="col-lg-1">
-                                                <MonetizationOnIcon style={{ color: brown[400], fontSize: 60 }} />
+                                                <AccountBalanceIcon style={{ color: brown[400], fontSize: 60 }} />
                                             </div>
                                             <div class="col-lg-3">
                                                 <div style={{ margin: "10px" }}>Bank Name-<b>{msg.bankName}</b><br></br>Account Type-<b>{msg.accountType}</b></div>
