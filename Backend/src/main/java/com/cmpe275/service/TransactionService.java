@@ -71,6 +71,9 @@ public class TransactionService {
 
 	@Autowired
 	private ResponseBuilder responseBuilder;
+	
+	@Autowired
+	private EmailService emailService;
 
 	/*
 	 * Process an Offer where a user directly picks and offer from list of offers
@@ -201,6 +204,7 @@ public class TransactionService {
 				userTransReqs.add(transferReq);
 				offerCreator.setTransferRequests(userTransReqs);
 				userRepo.save(offerCreator);
+				emailService.sendEmail(offerCreator.getUsername(), "New Transaction", "You have a new Transaction. Please check your Transaction Page");
 
 				// added request to offer
 				List<TransferRequest> transReqs = offer.getTransferRequests() != null ? offer.getTransferRequests()
@@ -440,6 +444,7 @@ public class TransactionService {
 			userTransReqs.add(transferReq);
 			offerCreator.setTransferRequests(userTransReqs);
 			userRepo.save(offerCreator);
+			emailService.sendEmail(offerCreator.getUsername(), "New Transaction", "You have a new Transaction. Please check your Transaction Page");
 
 			// added request to offer
 			List<TransferRequest> transReqs = offer.getTransferRequests() != null ? offer.getTransferRequests()
@@ -1004,8 +1009,9 @@ public class TransactionService {
 								* responseBuilder.getExchangeRate(offer.getSourceCurrency(), Enum.Currency.USD));
 				offer.setDisplay(true);
 				offer.setLastUpdated(new Timestamp(System.currentTimeMillis()));
-				offerRepo.save(offer);
-
+				Offer updatedOffer = offerRepo.save(offer);
+				emailService.sendEmail(updatedOffer.getPostedBy().getUsername(), "Transaction Successful", "Your Transaction for the Offer: " +updatedOffer.getId()+" has been Processed successfully for the amount "+ Math.round(updatedOffer.getTransactedAmount()*0.995)+updatedOffer.getSourceCurrency());
+				
 				request.setStatus(Enum.CounterOfferStatuses.accepted);
 				transferRequestRepo.save(request);
 			}

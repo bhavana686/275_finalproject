@@ -252,7 +252,7 @@ class Offer extends Component {
                                             <div style={{ marginTop: "20px" }}><b>{msg.postedBy ? msg.postedBy.nickname : ""}
                                              <Link to={"/user/" + msg.postedBy.id} style={{ cursor: "pointer" }}>&nbsp;
                                                 <span>
-                                                    <Rate defaultValue={msg.postedBy.rating} disabled />&nbsp;{msg.postedBy.rating === 0 ? "N/A" : msg.postedBy.rating}
+                                                    <Rate count={1} defaultValue={msg.postedBy.rating} disabled />&nbsp;{msg.postedBy.rating === 0 ? "N/A" : msg.postedBy.rating}
                                                 </span>
                                             </Link>
                                              </b></div>

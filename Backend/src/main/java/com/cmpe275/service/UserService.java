@@ -123,6 +123,9 @@ public class UserService {
 		String nickname = username.get("nickname").asText();
 		String userid = username.get("userid").asText();
 		User user = userRepo.getByUsername(userid).get();
+		if ((userRepo.findByNickname(nickname).isPresent())) {
+			return new ResponseEntity<>("nickname Already exists", HttpStatus.BAD_REQUEST);
+		}
 		if(nickname != null)
 		{
 			user.setNickname(nickname);

@@ -24,10 +24,10 @@ public interface TransactionHistoryRepo extends JpaRepository<Transaction,Long> 
     List<List<String>> getTransactionHistoryByMonth(@Param("userid") long userid,@Param("month") int month);
 	
 	@Query(value = "Select * from (Select count(*) as Count,IFNULL(sum(amount),0) as Total,1 as Filter from transaction where status = 'accepted' and "
-			+ "EXTRACT(MONTH FROM date) =:month "
+			+ "EXTRACT(MONTH FROM expiry) =:month "
 			+ "UNION "
 			+ "Select count(*) as Count,IFNULL(sum(amount),0) as Total,2 as Filter from transaction where status != 'accepted' and "
-			+ "EXTRACT(MONTH FROM date) =:month) as Stats order by Filter;",nativeQuery = true)
+			+ "EXTRACT(MONTH FROM expiry) =:month) as Stats order by Filter;",nativeQuery = true)
     List<List<String>> getTotalTransactionHistoryByMonth(@Param("month") int month);
 
 }

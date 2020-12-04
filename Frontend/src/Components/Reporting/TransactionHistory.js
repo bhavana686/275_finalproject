@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import moment from 'moment';
 
 class TransactionHistory extends Component {
     constructor(props) {
@@ -70,13 +71,13 @@ class TransactionHistory extends Component {
                 <tbody>
                     {this.state.completedTransactions.map(transaction => (
                         <tr>
-                            <th scope="row">{transaction[0]}</th>
+                            <th scope="row">{moment(transaction[0]).format('LLLL')}</th>
                             <th scope="row">{transaction[1]}</th>
-                            <th scope="row">{transaction[2]}</th>
+                            <th scope="row">{parseFloat(transaction[2]).toFixed(2)}</th>
                             <th scope="row">{transaction[4]}</th>
                             <th scope="row">{transaction[3]}</th>
-                            <th scope="row">{transaction[5]}</th>
-                            <th scope="row">{transaction[6]}</th>
+                            <th scope="row">{parseFloat(transaction[5]).toFixed(2)}</th>
+                            <th scope="row">{parseFloat(transaction[6]).toFixed(2)}</th>
                         </tr>
                     ))}
 
