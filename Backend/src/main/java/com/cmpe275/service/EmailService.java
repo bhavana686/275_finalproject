@@ -91,7 +91,7 @@ public class EmailService {
 	        msg.setSentDate(new Date());
 	    
 	        msg.setText(message);
-	        msg.setContent("<h1>"+message+"</h1>","text/html");
+	        msg.setContent("<b>"+message+"</b>","text/html");
 	        Transport.send(msg);
 	 
 	    }

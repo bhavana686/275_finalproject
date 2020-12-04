@@ -57,7 +57,7 @@ public class UserController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> fetchUserData(HttpServletRequest request, @PathVariable("id") long userId) {
 		System.out.println(userId);
-		return offerService.fetchTransferRequests(request, (long) userId);
+		return offerService.fetchUserData(request, (long) userId);
 	}
 
 	@PutMapping

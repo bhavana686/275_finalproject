@@ -7,6 +7,7 @@ public class UserShallowForm {
 	private String signupType;
 	private String password;
 	private Boolean isVerified;
+	private int rating;
 
 	public UserShallowForm() {
 
@@ -56,6 +57,14 @@ public class UserShallowForm {
 
 	public void setIsVerified(Boolean type) {
 		this.isVerified =type ;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
 	}
 	
 }

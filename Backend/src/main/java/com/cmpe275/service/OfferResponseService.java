@@ -17,7 +17,9 @@ import com.cmpe275.entity.TransferRequest;
 import com.cmpe275.entity.User;
 import com.cmpe275.helper.ResponseBuilder;
 import com.cmpe275.models.CounterOfferShallowForm;
+import com.cmpe275.models.TransferRequestForm;
 import com.cmpe275.models.TransferRequestShallowForm;
+import com.cmpe275.models.UserHistory;
 import com.cmpe275.repo.AutoMatchedOfferRepo;
 import com.cmpe275.repo.CounterOfferRepo;
 import com.cmpe275.repo.ExchangeCurrencyRepo;
@@ -106,6 +108,34 @@ public class OfferResponseService {
 				}
 			}
 			return new ResponseEntity<>(shallow, HttpStatus.OK);
+		} catch (CustomException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	public ResponseEntity<Object> fetchUserData(HttpServletRequest request, long userId) {
+		try {
+			System.out.println("FEtch");
+			Optional<User> user = userRepo.findById(userId);
+			if (user.isEmpty())
+				throw new CustomException("User id Invalid", HttpStatus.NOT_FOUND);
+			List<TransferRequestForm> shallow = new ArrayList<TransferRequestForm>();
+			if (user.get().getTransferRequests() != null) {
+				for (TransferRequest t : user.get().getTransferRequests()) {
+					shallow.add(responseBuilder.buildTransferRequestForm(t));
+				}
+			}
+			UserHistory userH = new UserHistory();
+			userH.setTransactions(shallow);
+			userH.setId(userId);
+			userH.setNickname(user.get().getNickname());
+			userH.setUsername(user.get().getUsername());
+			userH.setRating(responseBuilder.calculateRating(user.get()));
+			return new ResponseEntity<>(userH, HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(e.getMessage(), e.getErrorCode());

@@ -2,30 +2,16 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Descriptions, Badge, Row, Spin, Checkbox, message, Collapse, Button, Alert, Modal, Input } from 'antd';
+import { Descriptions, Badge, Row, Spin, Checkbox, message, Collapse, Button, Alert, Modal, Input, Rate } from 'antd';
 import moment from 'moment';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Grid from '@material-ui/core/Grid';
-import Moment from 'moment';
-import landingpage from "../Landingpage";
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import { blue, green, grey, red } from '@material-ui/core/colors';
-import SvgIcon from '@material-ui/core/SvgIcon';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import MonetizationOnIcon from '@material-ui/icons/MonetizationOn'
-import MoneyIcon from '@material-ui/icons/Money';
 import '../../App.css';
-import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import brown from '@material-ui/core/colors/brown';
 import FlagIcon from '@material-ui/icons/Flag';
-import purple from '@material-ui/core/colors/purple';
-import LocalAtmIcon from '@material-ui/icons/LocalAtm';
-import PinDropIcon from '@material-ui/icons/PinDrop';
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 const { Panel } = Collapse;
 
@@ -126,12 +112,12 @@ class Offer extends Component {
             console.log(offer.id)
             suggestTotal += offer.destinationAmount;
         }
-        console.log(((this.state.autoMatches[idx]["difference"]).toFixed(2)*(1/this.state.offer.exchangeRate)))
+        console.log(((this.state.autoMatches[idx]["difference"]).toFixed(2) * (1 / this.state.offer.exchangeRate)))
         let amountToAdjust = 0;
-        if((this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2) < this.state.autoMatches[idx]["sum"]){
-            amountToAdjust = this.state.offer.amount + ((this.state.autoMatches[idx]["difference"]).toFixed(2)*(1/this.state.offer.exchangeRate))
+        if ((this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2) < this.state.autoMatches[idx]["sum"]) {
+            amountToAdjust = this.state.offer.amount + ((this.state.autoMatches[idx]["difference"]).toFixed(2) * (1 / this.state.offer.exchangeRate))
         } else {
-            amountToAdjust = this.state.offer.amount - ((this.state.autoMatches[idx]["difference"]).toFixed(2)*(1/this.state.offer.exchangeRate))
+            amountToAdjust = this.state.offer.amount - ((this.state.autoMatches[idx]["difference"]).toFixed(2) * (1 / this.state.offer.exchangeRate))
         }
         let body = {
             "userId": sessionStorage.getItem("id"),
@@ -223,7 +209,7 @@ class Offer extends Component {
         })
     }
 
-    onChange = (e) =>{
+    onChange = (e) => {
         this.setState({
             [e.target.name]: e.target.value
         })
@@ -259,7 +245,13 @@ class Offer extends Component {
                                     <Descriptions.Item label="Created By">{this.state.offer.postedBy.nickname}</Descriptions.Item>
                                 }
                                 {!this.state.owner && this.state.offer.postedBy &&
-                                    <Descriptions.Item label="Created By">{this.state.offer.postedBy.username}</Descriptions.Item>
+                                    <Descriptions.Item label="User Rating">
+                                        <Link to={"/user/" + this.state.offer.postedBy.id} style={{ cursor: "pointer" }}>
+                                            <span>
+                                                <Rate defaultValue={this.state.offer.postedBy.rating} disabled />&nbsp;{this.state.offer.postedBy.rating === 0 ? "N/A" : this.state.offer.postedBy.rating}
+                                            </span>
+                                        </Link>
+                                    </Descriptions.Item>
                                 }
                             </Descriptions>
                             {this.state.owner && this.state.offer.status === "open" &&
@@ -292,7 +284,7 @@ class Offer extends Component {
                                                                         <div className="mt-4">
                                                                             {match.difference === 0 && <Button type="primary" onClick={() => this.acceptOffer(index, true)}>Accept</Button>}
                                                                             {match.difference !== 0 && <Button type="primary" onClick={() => this.acceptOffer(index, false)}>Adjust My Offer</Button>}
-                                                                            {match.difference !== 0 && <Button type="primary" onClick={() => this.openCounterModal(index)} danger className="ml-2">Counter</Button>}
+                                                                            {match.difference !== 0 && match.supportCounter && <Button type="primary" onClick={() => this.openCounterModal(index)} danger className="ml-2">Counter</Button>}
                                                                         </div>
                                                                     </div>} key="1"
                                                                         extra={<div>
@@ -326,7 +318,13 @@ class Offer extends Component {
                                                                                             <div class="col-lg-3">
                                                                                                 <div><Badge className="site-badge-count-109" count={msg.status} style={{ backgroundColor: 'teal', fontSize: "15px" }} /></div>
                                                                                                 <div>Allow Counter Offers  {msg.supportCounter ? <FlagIcon style={{ color: green[400], fontSize: 20 }} /> : <FlagIcon style={{ color: red[400], fontSize: 20 }} />}</div>
-                                                                                                <div style={{}}><b>{msg.nickname} (Rating: N/A)</b></div>
+                                                                                                <div style={{}}><b>{msg.nickname}
+                                                                                                    <Link to={"/user/" + msg.userId} style={{ cursor: "pointer" }}>
+                                                                                                        <span>
+                                                                                                            <Rate defaultValue={msg.rating} disabled />&nbsp;{msg.rating === 0 ? "N/A" : msg.rating}
+                                                                                                        </span>
+                                                                                                    </Link>
+                                                                                                </b></div>
                                                                                                 <div>Ref# {msg.id}</div>
                                                                                             </div>
                                                                                         </div>

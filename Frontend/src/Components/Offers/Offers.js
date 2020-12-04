@@ -116,7 +116,7 @@ class Offers extends Component {
                                         <PermIdentityIcon style={{ color: brown[400], fontSize: 60 }} />
                                     </div>
                                     <div class="col-lg-3">
-                                        <div style={{ marginTop: "20px" }}><b>{msg.postedBy ? msg.postedBy.nickname : ""} (Rating: N/A)</b></div>
+                                        <div style={{ marginTop: "20px" }}><b>{msg.postedBy ? msg.postedBy.nickname : ""} </b></div>
                                     </div>
                                 </div>
                                 <div class="row" style={{ marginTop: "20px" }} >
