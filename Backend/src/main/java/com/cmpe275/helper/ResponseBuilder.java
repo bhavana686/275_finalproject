@@ -11,11 +11,13 @@ import com.cmpe275.entity.CounterOffer;
 import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.ExchangeCurrency;
 import com.cmpe275.entity.Offer;
+import com.cmpe275.entity.Transaction;
 import com.cmpe275.entity.TransferRequest;
 import com.cmpe275.entity.User;
 import com.cmpe275.models.CounterOfferShallowForm;
 import com.cmpe275.models.OfferDeepForm;
 import com.cmpe275.models.OfferShallowForm;
+import com.cmpe275.models.TransferRequestForm;
 import com.cmpe275.models.TransferRequestShallowForm;
 import com.cmpe275.models.UserShallowForm;
 import com.cmpe275.repo.ExchangeCurrencyRepo;
@@ -77,12 +79,41 @@ public class ResponseBuilder {
 		}
 	}
 
+	public int calculateRating(User user) throws Exception {
+		try {
+//			System.out.println("Calculating rating for "+user.getId());
+			int rating = 0;
+			if (user.getTransferRequests() != null) {
+				int total = user.getTransferRequests().size();
+				int atFault = 0;
+				for (TransferRequest req : user.getTransferRequests()) {
+//					System.out.println(req.getStatus());
+					if (req.getStatus() == Enum.CounterOfferStatuses.expired
+							|| req.getStatus() == Enum.CounterOfferStatuses.declined)
+						atFault++;
+				}
+//				System.out.println(atFault);
+				if (atFault == 0) {
+					rating = 5;
+				} else {
+					
+					rating = Math.round((1 - (atFault / total)) * 4) + 1;
+//					System.out.println("Rating: "+rating);
+				}
+			}
+			return rating;
+		} catch (Exception e) {
+			throw new Exception("Error while fetching exchange Rate");
+		}
+	}
+
 	public UserShallowForm buildUserShallowForm(User user) throws Exception {
 		try {
 			UserShallowForm userShallowForm = new UserShallowForm();
 			userShallowForm.setId(user.getId());
 			userShallowForm.setUsername(user.getUsername());
 			userShallowForm.setNickname(user.getNickname());
+			userShallowForm.setRating(calculateRating(user));
 			return userShallowForm;
 		} catch (Exception e) {
 			throw new Exception("Error while fetching exchange Rate");
@@ -130,6 +161,29 @@ public class ResponseBuilder {
 			transferRequestShallowForm.setExpiry(transferRequest.getExpiry());
 			transferRequestShallowForm.setOffer(buildOfferShallowForm(transferRequest.getOffer()));
 			transferRequestShallowForm.setUser(buildUserShallowForm(transferRequest.getUser()));
+			return transferRequestShallowForm;
+		} catch (Exception e) {
+			throw new Exception("Error while fetching exchange Rate");
+		}
+	}
+
+	public TransferRequestForm buildTransferRequestForm(TransferRequest transferRequest) throws Exception {
+		try {
+			TransferRequestForm transferRequestShallowForm = new TransferRequestForm();
+			transferRequestShallowForm.setId(transferRequest.getId());
+			transferRequestShallowForm.setAmountAdjusted(transferRequest.getAmountAdjusted());
+			transferRequestShallowForm.setAmountRequired(transferRequest.getAmountRequired());
+			transferRequestShallowForm.setStatus(transferRequest.getStatus());
+			transferRequestShallowForm.setExpiry(transferRequest.getExpiry());
+			transferRequestShallowForm.setOffer(buildOfferShallowForm(transferRequest.getOffer()));
+			transferRequestShallowForm.setUser(buildUserShallowForm(transferRequest.getUser()));
+			Transaction transaction = transferRequest.getTransaction();
+			List<TransferRequestShallowForm> otherTransactions = new ArrayList<TransferRequestShallowForm>();
+			for (TransferRequest req : transaction.getRequests()) {
+				if (transferRequest.getId() != req.getId())
+					otherTransactions.add(buildTransferRequestShallowForm(req));
+			}
+			transferRequestShallowForm.setOtherTransactions(otherTransactions);
 			return transferRequestShallowForm;
 		} catch (Exception e) {
 			throw new Exception("Error while fetching exchange Rate");

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cmpe275.entity.Offer;
+import com.cmpe275.helper.ResponseBuilder;
 import com.cmpe275.models.OfferDeepForm;
 import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.ExchangeCurrency;
@@ -21,51 +22,67 @@ import com.cmpe275.repo.OffersRepo;
 public class OfferService {
 	@Autowired
 	private OffersRepo offersRepo;
-	
-	@Autowired ExchangeCurrencyRepo exchangeCurrencyRepo;
 
-	public List<OfferDeepForm> convertOfferObjectToDeepForm(List<Offer> offer) {
+	@Autowired
+	ExchangeCurrencyRepo exchangeCurrencyRepo;
+
+	@Autowired
+	ResponseBuilder responseBuilder;
+
+	public List<OfferDeepForm> convertOfferObjectToDeepForm(List<Offer> offer) throws Exception{
 		List<OfferDeepForm> offerList = new ArrayList<OfferDeepForm>();
-		
-		offer.forEach((p) -> {
-		OfferDeepForm offerDeepForm = new OfferDeepForm();
-		offerDeepForm.setId(p.getId());
-		offerDeepForm.setSourceCountry(p.getSourceCountry());
-		offerDeepForm.setSourceCurrency(p.getSourceCurrency());
-		offerDeepForm.setAmount(p.getAmount());
-		offerDeepForm.setDestinationCountry(p.getDestinationCountry());
-		offerDeepForm.setDestinationCurrency(p.getDestinationCurrency());
-		offerDeepForm.setStatus(p.getStatus());
-		if (p.isUsePrevailingRate()) {
-			Optional<ExchangeCurrency> rate = exchangeCurrencyRepo.findBySourceCurrencyAndTargetCurrency(
-					p.getSourceCurrency(), p.getDestinationCurrency());
-			offerDeepForm.setExchangeRate(rate.get().getExchangeRate());
-		} else {
-			offerDeepForm.setExchangeRate(p.getExchangeRate()); 
+		try {
+			
+
+			offer.forEach((p) -> {
+				OfferDeepForm offerDeepForm = new OfferDeepForm();
+				offerDeepForm.setId(p.getId());
+				offerDeepForm.setSourceCountry(p.getSourceCountry());
+				offerDeepForm.setSourceCurrency(p.getSourceCurrency());
+				offerDeepForm.setAmount(p.getAmount());
+				offerDeepForm.setDestinationCountry(p.getDestinationCountry());
+				offerDeepForm.setDestinationCurrency(p.getDestinationCurrency());
+				offerDeepForm.setStatus(p.getStatus());
+				if (p.isUsePrevailingRate()) {
+					Optional<ExchangeCurrency> rate = exchangeCurrencyRepo
+							.findBySourceCurrencyAndTargetCurrency(p.getSourceCurrency(), p.getDestinationCurrency());
+					offerDeepForm.setExchangeRate(rate.get().getExchangeRate());
+				} else {
+					offerDeepForm.setExchangeRate(p.getExchangeRate());
+				}
+				offerDeepForm.setUsePrevailingRate(p.isUsePrevailingRate());
+				offerDeepForm.setExpiry(p.getExpiry());
+				offerDeepForm.setAllowCounterOffers(p.isAllowCounterOffers());
+				offerDeepForm.setAllowSplitExchanges(p.isAllowSplitExchanges());
+
+				if (p.getPostedBy() != null) {
+					UserShallowForm userShallowForm = new UserShallowForm();
+					userShallowForm.setId(p.getPostedBy().getId());
+					userShallowForm.setUsername(p.getPostedBy().getUsername());
+					userShallowForm.setNickname(p.getPostedBy().getNickname());
+					try {
+						userShallowForm.setRating(responseBuilder.calculateRating(p.getPostedBy()));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					offerDeepForm.setPostedBy(userShallowForm);
+				}
+				offerDeepForm.setCounter(p.isCounter());
+				offerDeepForm.setTransactedAmount(p.getTransactedAmount());
+				offerDeepForm.setFullyFulfilled(p.isFullyFulfilled());
+				offerList.add(offerDeepForm);
+			});
+
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		offerDeepForm.setUsePrevailingRate(p.isUsePrevailingRate());
-		offerDeepForm.setExpiry(p.getExpiry());
-		offerDeepForm.setAllowCounterOffers(p.isAllowCounterOffers());
-		offerDeepForm.setAllowSplitExchanges(p.isAllowSplitExchanges());
-		
-		if (p.getPostedBy() != null) {
-			UserShallowForm userShallowForm = new UserShallowForm();
-			userShallowForm.setId(p.getPostedBy().getId());
-			userShallowForm.setUsername(p.getPostedBy().getUsername());
-			userShallowForm.setNickname(p.getPostedBy().getNickname());	
-			offerDeepForm.setPostedBy(userShallowForm);
-		}
-		offerDeepForm.setCounter(p.isCounter());
-		offerDeepForm.setTransactedAmount(p.getTransactedAmount());
-		offerDeepForm.setFullyFulfilled(p.isFullyFulfilled());
-		
-		offerList.add(offerDeepForm);
-		});
-		
 		return offerList;
 	}
-	
-	public  ResponseEntity<Object> getOffers(HttpServletRequest req) {
+
+	public ResponseEntity<Object> getOffers(HttpServletRequest req) {
 		try {
 			int userId = (int) Integer.parseInt(req.getParameter("userId"));
 			List<Offer> offer = offersRepo.getActiveOffers(userId);
@@ -75,27 +92,29 @@ public class OfferService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
-	
-	public  ResponseEntity<Object> getFilteredOffers(HttpServletRequest req,Enum.Currency sourceCurrency,Enum.Currency destinationCurrency ) {
-		
-		 try {
-			 
-			if(req.getParameter("destinationAmount") != null || (req.getParameter("destinationAmount") != null && req.getParameter("sourceAmount") != null) )
-			{
-				List<Offer> offer = offersRepo.getActiveOffersByDestinationAmount(sourceCurrency.toString(),destinationCurrency.toString(),Double.parseDouble(req.getParameter("destinationAmount")));
-				return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);	
-			}
-			else 
-				
-			{		
-				List<Offer> offer = offersRepo.getActiveOffersBySourceAmount(sourceCurrency.toString(),destinationCurrency.toString(),Double.parseDouble(req.getParameter("sourceAmount")));
+
+	public ResponseEntity<Object> getFilteredOffers(HttpServletRequest req, Enum.Currency sourceCurrency,
+			Enum.Currency destinationCurrency) {
+
+		try {
+
+			if (req.getParameter("destinationAmount") != null
+					|| (req.getParameter("destinationAmount") != null && req.getParameter("sourceAmount") != null)) {
+				List<Offer> offer = offersRepo.getActiveOffersByDestinationAmount(sourceCurrency.toString(),
+						destinationCurrency.toString(), Double.parseDouble(req.getParameter("destinationAmount")));
 				return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);
-			}	
-			
-		 } catch (Exception e) {
-			 System.out.println(e);
+			} else
+
+			{
+				List<Offer> offer = offersRepo.getActiveOffersBySourceAmount(sourceCurrency.toString(),
+						destinationCurrency.toString(), Double.parseDouble(req.getParameter("sourceAmount")));
+				return new ResponseEntity<>(convertOfferObjectToDeepForm(offer), HttpStatus.OK);
+			}
+
+		} catch (Exception e) {
+			System.out.println(e);
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
-		 }
-	
+		}
+
 	}
 }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import moment from 'moment';
 
 class SystemFinancials extends Component {
     constructor(props) {
@@ -66,7 +67,7 @@ class SystemFinancials extends Component {
                         Amount remitted in USD
                     </div>
                     <div class="row" style={{ color: "#1569E0", fontSize: "20px" }}>
-                        {this.state.stats[0][1]}
+                        {parseFloat(this.state.stats[0][1]).toFixed(2)}
                     </div>
                 </div>
                 <div class="col-md-2">
@@ -79,10 +80,10 @@ class SystemFinancials extends Component {
                 </div>
                 <div class="col-md-3">
                     <div class="row" style={{ color: "#1569E0", fontSize: "20px", marginBottom: "10px" }}>
-                        Amount to be remitted in USD
+                        Service Fee in USD
                     </div>
                     <div class="row" style={{ color: "#1569E0", fontSize: "20px" }}>
-                        {this.state.stats[1][1]}
+                        {(parseFloat(this.state.stats[0][1])*0.05).toFixed(2)}
                     </div>
                 </div>
                 <div class="col-md-1">

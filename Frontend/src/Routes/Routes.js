@@ -49,10 +49,8 @@ class Routes extends Component {
         <Route path="/bankAccount" component={BankAccount} />
         <Route path="/profile" component={Profile}/>
         <Route path="/transactionHistory" component={TransactionHistory}/>
-        <Route path="/userProfile/:id" component={UserProfile}/>
+        <Route path="/user/:id" component={UserProfile}/>
         <Route path="/systemFinancials" component={SystemFinancials}/>
-
-
       </div>
     );
   }
