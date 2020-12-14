@@ -7,6 +7,14 @@ import HouseIcon from '@material-ui/icons/House';
 import { CenterFocusStrong } from '@material-ui/icons';
 import landingpage from "../Landingpage";
 import exchangeCurrency from "./ExchangeCurrency"
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+
+const currency = [
+    'EUR', 'GBP', 'INR', 'RMB', 'USD'
+    
+  ];
 
 class AddExchangeRate extends Component {
   constructor(props) {
@@ -16,16 +24,46 @@ class AddExchangeRate extends Component {
         targetCurrency:"",
         exchangeRate:"",
         useracc:"",
-        flag:false
+        flag:false,
+        invalidrate:false
     }
     this.ChangeHandler = this.ChangeHandler.bind(this);
     this.registerExchange = this.registerExchange.bind(this);
+    this.validateDetails = this.validateDetails.bind(this);
+    this.sourcecurrencyHandleChange = this.sourcecurrencyHandleChange.bind(this);
+    this.targetcurrencyHandleChange = this.targetcurrencyHandleChange.bind(this);
 }
 
 ChangeHandler = (event) => {
+    if(!(/^[a-zA-Z]+$/.test(event.target.value))){
+        this.setState({
+            invalidrate: true,
+            [event.target.name]: event.target.value
+        })
+      }
+      else
+      {
+        this.setState({
+            invalidrate: false,
+            [event.target.name]: event.target.value
+        })
+
+      } 
+   
+}
+sourcecurrencyHandleChange = (event) => {
     this.setState({
-        [event.target.name]: event.target.value
+        sourceCurrency : event.target.value
     })
+}
+targetcurrencyHandleChange = (event) => {
+    this.setState({
+        targetCurrency : event.target.value
+    })
+}
+validateDetails = (event) => {
+    if ((this.state.sourceCurrency==this.state.targetCurrency)  && ((/^[a-zA-Z]+$/.test(this.state.exchangeRate)))) return true
+    else return false
 }
 
 registerExchange = (event) => {
@@ -78,14 +116,48 @@ registerExchange = (event) => {
                             <div class="form-label-group">
                                 <label class="control-label col-sm-2" for="sourceCurrency">Source Currency:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" name="sourceCurrency" id="sourceCurrency" onChange={this.ChangeHandler} class="form-control"  required />
-                                </div>
+                                  <div class="form-label-group">
+                                     <div class="col-sm-1">
+                                          <Select
+        
+                                       id="sourceCurrency"
+                                       value={this.state.sourceCurrency}
+                                        onChange={this.sourcecurrencyHandleChange}
+                                         >
+                                        <MenuItem value={currency [0]} >EUR</MenuItem>
+                                          <MenuItem value={currency [1]}>GBP</MenuItem>
+                                           <MenuItem value={currency [2]}>INR</MenuItem>
+                                          <MenuItem value={currency [3]}>RMB</MenuItem>
+                                          <MenuItem value={currency [4]}>USD</MenuItem>
+
+                                    </Select>
+                                  </div>
+                               </div>
+
+                            </div>
                             </div><br/><br/>
                             <div class="form-label-group">
-                                <label class="control-label col-sm-2" for="targetCurrency">Target Currency:</label>
+                            <label class="control-label col-sm-2" for="targetCurrency">Target Currency:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" name="targetCurrency" id="targetCurrency" onChange={this.ChangeHandler} class="form-control" required />
-                                </div>
+                                  <div class="form-label-group">
+                                     <div class="col-sm-1">
+                                          <Select
+        
+                                       id="targetCurrency"
+                                       value={this.state.targetCurrency}
+                                        onChange={this.targetcurrencyHandleChange}
+                                         >
+                                        <MenuItem value={currency [0]} >EUR</MenuItem>
+                                          <MenuItem value={currency [1]}>GBP</MenuItem>
+                                           <MenuItem value={currency [2]}>INR</MenuItem>
+                                          <MenuItem value={currency [3]}>RMB</MenuItem>
+                                          <MenuItem value={currency [4]}>USD</MenuItem>
+
+                                    </Select>
+                                  </div>
+                               </div>
+
+                            </div>
                             </div><br/><br/>
                             <div class="form-label-group">
                             <label class="control-label col-sm-2" for="exchangeRate">Exchange Rate:</label>
@@ -98,7 +170,7 @@ registerExchange = (event) => {
             <br /><br />
             <div class="form-group">
             <div class="col-sm-10">
-            <button onClick={this.submitEvent} class="btn btn-primary" type="submit">Add</button>&nbsp;
+            <button  disabled={this.validateDetails()} onClick={this.submitEvent} class="btn btn-primary" type="submit">Add</button>&nbsp;
 
               
                 <Link to="/exchangeCurrency"><button type="submit" class="btn btn-primary">Cancel</button></Link>

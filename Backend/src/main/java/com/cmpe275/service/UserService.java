@@ -29,7 +29,7 @@ public class UserService {
 			if ((userRepo.findByUsername(body.get("username").asText()).isPresent())) {
 				return new ResponseEntity<>("user Already exists with given Email", HttpStatus.OK);
 			}
-			if ((userRepo.findByUsername(body.get("nickname").asText()).isPresent())) {
+			if ((userRepo.findByNickname(body.get("nickname").asText()).isPresent())) {
 				return new ResponseEntity<>("nickname Already exists", HttpStatus.OK);
 			}
 			user = buildUserFromData(body);

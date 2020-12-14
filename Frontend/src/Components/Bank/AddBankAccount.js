@@ -38,26 +38,62 @@ class AddBankAccount extends Component {
      country:"",
      primaryCurrency:"",
      useracc:"",
-     flag:false
+     flag:false,
+     invalidbankname:false,
+     invalidaccno:false,
+     
     }
     this.ChangeHandler = this.ChangeHandler .bind(this);
     this.registerUser = this.registerUser.bind(this);
     this.HandleChange = this.HandleChange.bind(this);
     this.currencyHandleChange = this.currencyHandleChange.bind(this);
+    this.validateDetails = this.validateDetails.bind(this);
     this.countryHandleChange = this.countryHandleChange.bind(this);
 }
 
 
+banknameChangeHandler = (event) => {
+    if(!(/^[a-zA-Z]+$/.test(event.target.value))){
+        this.setState({
+            invalidbankname: true,
+            [event.target.name]: event.target.value
+        })
+      }
+      else{
+        this.setState({
+            invalidbankname: false,
+            [event.target.name]: event.target.value
+        })
+
+      }
+}
+accnoChangeHandler = (event) => {
+   
+  
+    if(!(/^[A-Za-z0-9]*$/.test(event.target.value))){
+        this.setState({
+            invalidaccno: true,
+            [event.target.name]: event.target.value
+        })
+      }
+      else
+      {
+        this.setState({
+            invalidaccno: false,
+            [event.target.name]: event.target.value
+        })
+
+      } 
+   
+}
+
 ChangeHandler = (event) => {
-    console.log(event.target.name);
-    console.log(event.target.value)
     this.setState({
         [event.target.name]: event.target.value
     })
 }
 
 HandleChange = (event) => {
-    console.log(event.target.value)
     this.setState({
         accountType : event.target.value
     })
@@ -72,6 +108,20 @@ countryHandleChange = (event) => {
     this.setState({
         country : event.target.value
     })
+}
+validateDetails = (event) => {
+    console.log("this.state.ownerName.length "
+        +this.state.ownerName.length)
+    if (!this.state.invalidbankname && !this.state.invalidaccno && (this.state.bankName!="") && this.state.accountNumber !=""  
+    && (this.state.ownerName!="" ) && (this.state.ownerAddress!="" ) && this.state.accountType!="" && this.state.primaryCurrency!=""  && this.state.country!=""  &&
+    ((this.state.primaryCurrency=="USD" && this.state.country=="US") || (this.state.primaryCurrency=="INR" && this.state.country=="India") 
+    || (this.state.primaryCurrency=="EUR" && this.state.country=="Europe") || (this.state.primaryCurrency=="GBP" && this.state.country=="UK") 
+    || (this.state.primaryCurrency=="RMB" && this.state.country=="China") )
+    
+    
+    
+    ) return false
+    else return true
 }
 
 registerUser = (event) => {
@@ -138,13 +188,13 @@ registerUser = (event) => {
                             <div class="form-label-group">
                                 <label class="control-label col-sm-2" for="bankName">Bank name:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" name="bankName" id="bankName" onChange={this.ChangeHandler} class="form-control"  required />
+                                    <input type="text" name="bankName" id="bankName" onChange={this.banknameChangeHandler} class="form-control" required />
                                 </div>
                             </div><br/><br/>
                             <div class="form-label-group">
                                 <label class="control-label col-sm-2" for="accountNumber">Account Number:</label>
                                 <div class="col-sm-5">
-                                    <input type="text" name="accountNumber" id="accountNumber" onChange={this.ChangeHandler} class="form-control" required />
+                                    <input type="text" name="accountNumber" id="accountNumber" onChange={this.accnoChangeHandler} class="form-control"  pattern="[a-zA-Z0-9-]" required />
                                 </div>
                             </div><br/><br/>
                             <div class="form-label-group">
@@ -215,7 +265,7 @@ registerUser = (event) => {
                     
             <div class="form-group">
             <div class="col-sm-10">
-            <button onClick={this.registerUser} class="btn btn-primary" type="submit">Add</button>&nbsp;
+            <button disabled={this.validateDetails()}  onClick={this.registerUser} class="btn btn-primary" type="submit">Add</button>&nbsp;
 
               
                 <Link to="/bankAccount"><button type="submit" class="btn btn-primary">Cancel</button></Link>
