@@ -33,6 +33,8 @@ class EditOffer extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
+    this.validateDetails = this.validateDetails.bind(this);
+
   }
 
   async componentDidMount() {
@@ -64,6 +66,22 @@ class EditOffer extends Component {
         
       });
   }
+
+  validateDetails = (event) => {
+
+    if (this.state.expiry!="" &&    !isNaN(parseFloat(this.state.amount)) &&
+    ((this.state.sourceCurrency=="USD" && this.state.sourceCountry=="US") || (this.state.sourceCurrency=="INR" && this.state.sourceCountry=="India") 
+    || (this.state.sourceCurrency=="EUR" && this.state.sourceCountry=="Europe") || (this.state.sourceCurrency=="GBP" && this.state.sourceCountry=="UK") 
+    || (this.state.sourceCurrency=="RMB" && this.state.sourceCountry=="China") ) &&
+    ((this.state.destinationCurrency=="USD" && this.state.destinationCountry=="US") || (this.state.destinationCurrency=="INR" && this.state.destinationCountry=="India") 
+    || (this.state.destinationCurrency=="EUR" && this.state.destinationCountry=="Europe") || (this.state.destinationCurrency=="GBP" && this.state.destinationCountry=="UK") 
+    || (this.state.destinationCurrency=="RMB" && this.state.destinationCountry=="China")) &&
+    (this.state.destinationCountry != this.state.sourceCountry) && (this.state.destinationCurrency != this.state.sourceCurrency)
+    ) return false
+    else return true 
+   
+    
+}
 
   handleChange = (e) => {
     console.log("e", e.target.name, " ", e.target.value);
@@ -114,6 +132,11 @@ class EditOffer extends Component {
         } else if (response.data === "updated") {
           this.setState({
             success : "Successfully Updated the Offer"
+          });
+        }
+        else if(response.data === "low accounts"){
+          this.setState({
+            showmsg: "Please Create the bank Accounts in the given Countries"
           });
         }
       })
@@ -331,7 +354,7 @@ class EditOffer extends Component {
               
      
               <div className="form-group">
-                <Button  style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
+                <Button disabled={this.validateDetails()} style={{backgroundColor:"blue"}} onClick={this.handleAdd}>
                   Update Offer!
                 </Button>
               </div>

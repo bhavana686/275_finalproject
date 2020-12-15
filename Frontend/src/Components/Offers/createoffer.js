@@ -35,6 +35,8 @@ class CreateOffer extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
+    this.validateDetails = this.validateDetails.bind(this);
+
   }
 
   componentDidMount()
@@ -62,6 +64,22 @@ class CreateOffer extends Component {
       [e.target.name]: e.target.value,
     });
   };
+
+  validateDetails = (event) => {
+
+    if (this.state.expiry!="" &&    !isNaN(parseFloat(this.state.amount)) &&
+    ((this.state.sourceCurrency=="USD" && this.state.sourceCountry=="US") || (this.state.sourceCurrency=="INR" && this.state.sourceCountry=="India") 
+    || (this.state.sourceCurrency=="EUR" && this.state.sourceCountry=="Europe") || (this.state.sourceCurrency=="GBP" && this.state.sourceCountry=="UK") 
+    || (this.state.sourceCurrency=="RMB" && this.state.sourceCountry=="China") ) &&
+    ((this.state.destinationCurrency=="USD" && this.state.destinationCountry=="US") || (this.state.destinationCurrency=="INR" && this.state.destinationCountry=="India") 
+    || (this.state.destinationCurrency=="EUR" && this.state.destinationCountry=="Europe") || (this.state.destinationCurrency=="GBP" && this.state.destinationCountry=="UK") 
+    || (this.state.destinationCurrency=="RMB" && this.state.destinationCountry=="China")) &&
+    (this.state.destinationCountry != this.state.sourceCountry) && (this.state.destinationCurrency != this.state.sourceCurrency)
+    ) return false
+    else return true 
+   
+    
+}
 
   handleAdd = (e) => {
     e.preventDefault();
@@ -328,9 +346,12 @@ class CreateOffer extends Component {
 
 
               <div className="form-group">
-                <Button style={{ backgroundColor: "blue" }} disabled={this.state.reject === "true"} onClick={this.handleAdd}>
+                <Button style={{ backgroundColor: "blue" }} disabled={this.validateDetails() || this.state.reject === "true"} onClick={this.handleAdd}>
                   Create Offer
                 </Button>
+
+      
+
               </div>
             </div>
           </div>
