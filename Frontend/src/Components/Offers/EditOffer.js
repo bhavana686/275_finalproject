@@ -109,7 +109,7 @@ class EditOffer extends Component {
         sourceCurrency: this.state.sourceCurrency,
         status: this.state.status,
         transactedAmount: this.state.transactedAmount,
-     
+     username : sessionStorage.getItem("username"),
         usePrevailingRate: this.state.usePrevailingRate,
    
     };
@@ -276,7 +276,7 @@ class EditOffer extends Component {
     id="datetime-local"
     type="datetime-local"
     name="expiry"
-    value={this.state.expiry}
+    defaultValue={this.state.expiry}
     onChange={this.handleChange}/>
   </div>
 
