@@ -268,7 +268,7 @@ class SignUp extends Component {
                             placeholder="Email"
                             onChange={this.emailChangeHandler}
                         />
-                        {this.state.invalidEmail && <p class="text-sm font-bold italic text-red-500">Please enter a valid Email.</p>}
+                        {this.state.invalidEmail && <p class="text-sm font-bold italic text-red-500" style={{color:"red"}}>Please enter a valid Email.</p>}
                     </div>
                     <div class=" md:flex md:justify-between">
                         <div class="mb-4 md:mr-2 md:mb-0 xl:w-2/4 lg:w-6/12">
