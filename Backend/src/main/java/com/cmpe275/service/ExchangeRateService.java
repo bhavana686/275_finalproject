@@ -70,7 +70,7 @@ public class ExchangeRateService {
 //
 //			}
 			
-			String str = checkbankaccountsfinal(userid,offer);
+			String str = checkbankaccountsfinal(null,userid,offer);
 			if(str.equals("accounts"))
 			{
 				return new ResponseEntity<>("low accounts", HttpStatus.OK);
@@ -236,8 +236,9 @@ public class ExchangeRateService {
 
 		Offer offer = new Offer();
 		try {
+			String userid = body.get("username").asText();
 			offer = checkIfOfferExisting(body, id);
-			String str = checkbankaccountsfinal(id,offer);
+			String str = checkbankaccountsfinal(userid,id,offer);
 			if(str.equals("accounts"))
 			{
 				return new ResponseEntity<>("low accounts", HttpStatus.OK);
@@ -367,10 +368,17 @@ public class ExchangeRateService {
 	}
 	
 	
-	public String checkbankaccountsfinal(long userid, Offer offer) {
+	public String checkbankaccountsfinal(String userid,long id, Offer offer) {
 		
-		User user = userrepo.getById(userid).get();
-
+		User user;
+		if(userid!=null)
+		{
+			 user = userrepo.getByUsername(userid).get();
+		}
+		else
+		{
+	    user = userrepo.getById(id).get();
+		}
 		List<BankAccount> accounts = user.getBankAccounts();
 		Set<Enum.Countries> countries = new HashSet<>();
 		for (BankAccount acc : accounts) {
