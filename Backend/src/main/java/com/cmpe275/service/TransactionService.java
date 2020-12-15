@@ -7,8 +7,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.AutoMatchedOffer;
+import com.cmpe275.entity.BankAccount;
 import com.cmpe275.entity.CounterOffer;
 import com.cmpe275.entity.Enum;
 import com.cmpe275.entity.Enum.CounterOfferStatuses;
@@ -71,7 +74,7 @@ public class TransactionService {
 
 	@Autowired
 	private ResponseBuilder responseBuilder;
-	
+
 	@Autowired
 	private EmailService emailService;
 
@@ -89,6 +92,11 @@ public class TransactionService {
 				throw new CustomException("Offer Id Invalid", HttpStatus.NOT_FOUND);
 			if (!originalOffer.get().getStatus().equals(Enum.OfferStatuses.open))
 				throw new CustomException("Offer already taken", HttpStatus.BAD_REQUEST);
+
+			if (!checkBankAccountExist(originalOffer.get().getDestinationCountry(),
+					originalOffer.get().getSourceCountry(), counterUserId)) {
+				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
+			}
 
 			Offer newOffer = createNewCounterOffer(originalOffer.get(), counterUserId, false, 0);
 
@@ -204,7 +212,8 @@ public class TransactionService {
 				userTransReqs.add(transferReq);
 				offerCreator.setTransferRequests(userTransReqs);
 				userRepo.save(offerCreator);
-				emailService.sendEmail(offerCreator.getUsername(), "New Transaction", "You have a new Transaction. Please check your Transaction Page");
+				emailService.sendEmail(offerCreator.getUsername(), "New Transaction",
+						"You have a new Transaction. Please check your Transaction Page");
 
 				// added request to offer
 				List<TransferRequest> transReqs = offer.getTransferRequests() != null ? offer.getTransferRequests()
@@ -241,6 +250,11 @@ public class TransactionService {
 				throw new CustomException("Offer Id Invalid", HttpStatus.NOT_FOUND);
 			if (!sourceOffer.get().getStatus().equals(Enum.OfferStatuses.open))
 				throw new CustomException("Offer already taken", HttpStatus.BAD_REQUEST);
+			
+			if (!checkBankAccountExist(sourceOffer.get().getDestinationCountry(),
+					sourceOffer.get().getSourceCountry(), counterUserId)) {
+				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
+			}
 
 			// Creating counter offer
 			CounterOffer counter = createCounterForAOffer(sourceOffer.get(), counterAmount, counterUserId);
@@ -329,6 +343,11 @@ public class TransactionService {
 			JsonNode offersNode = (JsonNode) body.get("offers");
 			Optional<Offer> originalOffer = offerRepo.findById(offerId);
 			originalOffer.get().setDisplay(false);
+			
+			if (!checkBankAccountExist(originalOffer.get().getSourceCountry(),
+					originalOffer.get().getDestinationCountry(), counteredUserId)) {
+				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
+			}
 
 			List<Offer> offers = getOffersFromBody(offersNode);
 
@@ -444,7 +463,8 @@ public class TransactionService {
 			userTransReqs.add(transferReq);
 			offerCreator.setTransferRequests(userTransReqs);
 			userRepo.save(offerCreator);
-			emailService.sendEmail(offerCreator.getUsername(), "New Transaction", "You have a new Transaction. Please check your Transaction Page");
+			emailService.sendEmail(offerCreator.getUsername(), "New Transaction",
+					"You have a new Transaction. Please check your Transaction Page");
 
 			// added request to offer
 			List<TransferRequest> transReqs = offer.getTransferRequests() != null ? offer.getTransferRequests()
@@ -480,6 +500,11 @@ public class TransactionService {
 			Optional<Offer> originalOffer = offerRepo.findById(offerId);
 //			originalOffer.get().setDisplay(false);
 //			offerRepo.save(originalOffer.get());
+			
+			if (!checkBankAccountExist(originalOffer.get().getSourceCountry(),
+					originalOffer.get().getDestinationCountry(), counteredUserId)) {
+				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
+			}
 
 			List<Offer> offers = getOffersFromBody(offersNode);
 
@@ -560,7 +585,7 @@ public class TransactionService {
 			} else {
 				amount = amount * offer.getExchangeRate();
 			}
-
+			System.out.println(amount);
 			// Single Matches
 			Optional<List<Offer>> offers = offerRepo.getByAmountBetween(Enum.OfferStatuses.open, false, true,
 					amount * 0.9, amount * 1.1, offer.getDestinationCurrency(), offer.getSourceCurrency());
@@ -603,20 +628,20 @@ public class TransactionService {
 				}
 			});
 
-//			List<AutoMatchEntity> splitMatch2 = getSplitMatchOffersCase2(offerId, amount, offer);
-//			System.out.println("Dual Matched Case 2: " + splitMatch2.size());
+			List<AutoMatchEntity> splitMatch2 = getSplitMatchOffersCase2(offerId, amount, offer);
+			System.out.println("Dual Matched Case 2: " + splitMatch2.size());
 
-//			List<AutoMatchEntity> dualMatches = Stream.of(splitMatch1, splitMatch2).flatMap(Collection::stream)
-//					.collect(Collectors.toList());
-//			Collections.sort(dualMatches, new Comparator<AutoMatchEntity>() {
-//				@Override
-//				public int compare(AutoMatchEntity u1, AutoMatchEntity u2) {
-//					return Double.compare(u1.getDifference(), u2.getDifference());
-//				}
-//			});
+			List<AutoMatchEntity> dualMatches = Stream.of(splitMatch1, splitMatch2).flatMap(Collection::stream)
+					.collect(Collectors.toList());
+			Collections.sort(dualMatches, new Comparator<AutoMatchEntity>() {
+				@Override
+				public int compare(AutoMatchEntity u1, AutoMatchEntity u2) {
+					return Double.compare(u1.getDifference(), u2.getDifference());
+				}
+			});
 
 			return new ResponseEntity<>(
-					Stream.of(singleMatches, splitMatch1).flatMap(Collection::stream).collect(Collectors.toList()),
+					Stream.of(singleMatches, dualMatches).flatMap(Collection::stream).collect(Collectors.toList()),
 					HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
@@ -633,6 +658,9 @@ public class TransactionService {
 			List<AutoMatchEntity> offers = new ArrayList<>();
 			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount,
 					true, originalOffer.getDestinationCurrency(), originalOffer.getSourceCurrency());
+			if (fetched.isEmpty()) {
+				return offers;
+			}
 			List<Offer> fetchedOffers = fetched.get();
 			Collections.sort(fetchedOffers, new Comparator<Offer>() {
 				@Override
@@ -676,36 +704,56 @@ public class TransactionService {
 			throws CustomException {
 		try {
 			List<AutoMatchEntity> offers = new ArrayList<>();
-			Optional<List<Offer>> fetched = offerRepo.getSplitMatches(Enum.OfferStatuses.open, false, true, amount,
-					true, originalOffer.getDestinationCurrency(), originalOffer.getSourceCurrency());
+			System.out.println(originalOffer.getSourceCurrency() + " - " + originalOffer.getDestinationCurrency());
+			Optional<List<Offer>> fetched = offerRepo.getSecondaryMatches(Enum.OfferStatuses.open, false, true, 0, true,
+					originalOffer.getSourceCurrency(), originalOffer.getDestinationCurrency(), originalOffer.getId());
+			System.out.println(fetched.isEmpty());
+			System.out.println(originalOffer.getId());
+			if (fetched.isEmpty())
+				return offers;
+
 			List<Offer> fetchedOffers = fetched.get();
-			Collections.sort(fetchedOffers, new Comparator<Offer>() {
-				@Override
-				public int compare(Offer u1, Offer u2) {
-					return Double.compare(u2.getAmount(), u1.getAmount());
-				}
-			});
+
 			for (int i = 0; i < fetchedOffers.size(); i++) {
 				Offer first = fetchedOffers.get(i);
-				for (int j = i + 1; j < fetchedOffers.size(); j++) {
-					Offer second = fetchedOffers.get(j);
-					if (((first.getAmount() - second.getAmount()) > (amount * 0.9))
-							&& ((first.getAmount() - second.getAmount()) < (amount * 1.1))) {
-						List<AutoMatchRecommendationOffer> combOffer = new ArrayList<>();
-						combOffer.add(convertOfferToAutoMatchRecommendationOffer(first));
-						combOffer.add(convertOfferToAutoMatchRecommendationOffer(second));
-						AutoMatchEntity autoMatch = new AutoMatchEntity();
-						autoMatch.setDifference(Math.abs((first.getAmount() - second.getAmount()) - amount));
-						autoMatch.setSum(first.getAmount() + second.getAmount());
-						autoMatch.setType(Enum.AutoMatchedOffers.gamma);
-						autoMatch.setOffers(combOffer);
-						offers.add(autoMatch);
-//						System.out.println("Dual Match Case 2 -----------------------");
-//						System.out.println("Offer Id: "+ first.getId() + " Amount: "+first.getAmount());
-//						System.out.println("Offer Id: "+ second.getId() + " Amount: "+second.getAmount());
-					}
+
+				double firstAmount = first.isUsePrevailingRate()
+						? first.getAmount() * responseBuilder.getExchangeRate(first.getSourceCurrency(),
+								first.getDestinationCurrency())
+						: first.getAmount() * first.getExchangeRate();
+
+				Optional<List<Offer>> secondMatches = offerRepo.getByAmountBetween(Enum.OfferStatuses.open, false, true,
+						(amount + firstAmount) * 0.9, (amount + firstAmount) * 1.1, first.getDestinationCurrency(),
+						first.getSourceCurrency());
+				if (secondMatches.isEmpty())
+					continue;
+
+				for (int j = 0; j < secondMatches.get().size(); j++) {
+					Offer second = secondMatches.get().get(j);
+					List<AutoMatchRecommendationOffer> combOffer = new ArrayList<>();
+					combOffer.add(convertOfferToAutoMatchRecommendationOffer(first));
+					combOffer.add(convertOfferToAutoMatchRecommendationOffer(second));
+					AutoMatchEntity autoMatch = new AutoMatchEntity();
+					autoMatch.setDifference(Math.abs((second.getAmount() - firstAmount) - amount));
+					autoMatch.setSum(firstAmount + second.getAmount());
+					autoMatch.setType(Enum.AutoMatchedOffers.gamma);
+					autoMatch.setOffers(combOffer);
+					autoMatch.setSupportCounter(first.isAllowCounterOffers() && second.isAllowCounterOffers());
+					offers.add(autoMatch);
+//					System.out.println("Dual Match Case 2 -----------------------");
+//					System.out.println("Offer Id: "+ first.getId() + " Amount: "+first.getAmount());
+//					System.out.println("Offer Id: "+ second.getId() + " Amount: "+second.getAmount());
+
 				}
 			}
+
+//			Collections.sort(fetchedOffers, new Comparator<Offer>() {
+//				@Override
+//				public int compare(Offer u1, Offer u2) {
+//					return Double.compare(u2.getAmount(), u1.getAmount());
+//				}
+//			});
+
 			return offers;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -773,7 +821,7 @@ public class TransactionService {
 			List<Offer> offers = new ArrayList<>();
 
 			validateOfferIsValid(autoMatchedOffer.get().getOriginalOffer());
-			offers.add(autoMatchedOffer.get().getOriginalOffer());
+//			offers.add(autoMatchedOffer.get().getOriginalOffer());
 //			offers.add(autoMatchedOffer.get().getCounteredOffer());
 			if (autoMatchedOffer.get().getType() == Enum.AutoMatchTypes.direct_counter) {
 				validateOfferIsValid(autoMatchedOffer.get().getCounteredOffer());
@@ -793,8 +841,53 @@ public class TransactionService {
 			Transaction transaction = transactionRepo.save(tran);
 
 			List<TransferRequest> requests = createTransferRequests(offers, transaction);
+
+			if (autoMatchedOffer.get().getCounteredOffer().getAmount() == counterOffer.getCounterAmount()) {
+				requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
+						transaction, autoMatchedOffer.get().getOriginalOffer().getAmount()));
+//				requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getCounteredOffer(),
+//						transaction, counterOffer.getCounterAmount()));
+			} else {
+				double counteredAmount = autoMatchedOffer.get().getCounteredOffer().isUsePrevailingRate()
+						? counterOffer.getCounterAmount() * responseBuilder.getExchangeRate(
+								autoMatchedOffer.get().getCounteredOffer().getSourceCurrency(),
+								autoMatchedOffer.get().getCounteredOffer().getDestinationCurrency())
+						: counterOffer.getCounterAmount()
+								* autoMatchedOffer.get().getCounteredOffer().getExchangeRate();
+				double originalAmount = autoMatchedOffer.get().getOriginalOffer().getAmount();
+				if (autoMatchedOffer.get().getFullyFulfilledOffer() != null) {
+					if (autoMatchedOffer.get().getOriginalOffer().getSourceCurrency() == autoMatchedOffer.get()
+							.getFullyFulfilledOffer().getSourceCurrency()) {
+						counteredAmount -= autoMatchedOffer.get().getFullyFulfilledOffer().getAmount();
+					} else {
+						counteredAmount += autoMatchedOffer.get().getFullyFulfilledOffer().isUsePrevailingRate()
+								? autoMatchedOffer.get().getFullyFulfilledOffer().getAmount()
+										* responseBuilder.getExchangeRate(
+												autoMatchedOffer.get().getFullyFulfilledOffer().getSourceCurrency(),
+												autoMatchedOffer.get().getFullyFulfilledOffer()
+														.getDestinationCurrency())
+								: autoMatchedOffer.get().getFullyFulfilledOffer().getAmount()
+										* autoMatchedOffer.get().getFullyFulfilledOffer().getExchangeRate();
+					}
+				}
+				if (originalAmount == counteredAmount) {
+					requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
+							transaction, autoMatchedOffer.get().getOriginalOffer().getAmount()));
+				} else {
+					requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
+							transaction, counteredAmount));
+//					if (originalAmount > counteredAmount) {
+//						requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
+//								transaction, counteredAmount));
+//					} else {
+//						requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
+//								transaction, counteredAmount));
+//					}
+				}
+			}
 			requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getCounteredOffer(), transaction,
 					counterOffer.getCounterAmount()));
+
 			transaction.setRequests(requests);
 			transactionRepo.save(transaction);
 
@@ -1010,8 +1103,12 @@ public class TransactionService {
 				offer.setDisplay(true);
 				offer.setLastUpdated(new Timestamp(System.currentTimeMillis()));
 				Offer updatedOffer = offerRepo.save(offer);
-				emailService.sendEmail(updatedOffer.getPostedBy().getUsername(), "Transaction Successful", "Your Transaction for the Offer: " +updatedOffer.getId()+" has been Processed successfully for the amount "+ Math.round(updatedOffer.getTransactedAmount()*0.995)+updatedOffer.getSourceCurrency());
-				
+				emailService.sendEmail(updatedOffer.getPostedBy().getUsername(), "Transaction Successful",
+						"Your Transaction for the Offer: " + updatedOffer.getId()
+								+ " has been Processed successfully for the amount "
+								+ Math.round(updatedOffer.getTransactedAmount() * 0.995)
+								+ updatedOffer.getSourceCurrency());
+
 				request.setStatus(Enum.CounterOfferStatuses.accepted);
 				transferRequestRepo.save(request);
 			}
@@ -1069,12 +1166,41 @@ public class TransactionService {
 				offer.setDisplay(true);
 				offerRepo.save(offer);
 
-				request.setStatus(Enum.CounterOfferStatuses.declined);
+				request.setStatus(Enum.CounterOfferStatuses.expired);
 				transferRequestRepo.save(request);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new CustomException("Invalid Offer State", HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	private boolean checkBankAccountExist(Enum.Countries source, Enum.Countries destination, long userId)
+			throws CustomException {
+		try {
+			System.out.println("country " + source);
+			System.out.println("country " + destination);
+			User user = userRepo.getById(userId).get();
+			boolean sending = false;
+			boolean recieving = false;
+			List<BankAccount> accounts = user.getBankAccounts();
+			for (BankAccount acc : accounts) {
+				System.out.println("account type" + acc.getAccountType());
+				System.out.println("country " + acc.getCountry());
+
+				if (source == acc.getCountry()
+						&& (acc.getAccountType().equals("sending") || acc.getAccountType().equals("both"))) {
+					sending = true;
+				}
+				if (destination == acc.getCountry()
+						&& (acc.getAccountType().equals("receiving") || acc.getAccountType().equals("both"))) {
+					recieving = true;
+				}
+			}
+			return recieving && sending;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
 		}
 	}
 }

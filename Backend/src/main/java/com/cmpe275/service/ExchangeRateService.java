@@ -22,10 +22,12 @@ import com.cmpe275.entity.Enum.Countries;
 import com.cmpe275.entity.Enum.Currency;
 import com.cmpe275.entity.BankAccount;
 import com.cmpe275.entity.Enum;
+import com.cmpe275.entity.ExchangeCurrency;
 import com.cmpe275.entity.Offer;
 import com.cmpe275.entity.User;
 import com.cmpe275.models.OfferDeepForm;
 import com.cmpe275.models.UserShallowForm;
+import com.cmpe275.repo.ExchangeCurrencyRepo;
 import com.cmpe275.repo.ExchangeRateRepo;
 import com.cmpe275.repo.OfferRepo;
 import com.cmpe275.repo.OffersRepo;
@@ -43,6 +45,9 @@ public class ExchangeRateService {
 
 	@Autowired
 	private OffersRepo offersrepo;
+	
+	@Autowired
+	private ExchangeCurrencyRepo exchangeCurrencyRepo;
 
 	public ResponseEntity<String> createOffer(HttpServletRequest request, JsonNode body) {
 		System.out.println("create offer");
@@ -266,12 +271,20 @@ public class ExchangeRateService {
 			offerDeepForm.setDestinationCountry(p.getDestinationCountry());
 			offerDeepForm.setDestinationCurrency(p.getDestinationCurrency());
 			offerDeepForm.setStatus(p.getStatus());
-			offerDeepForm.setExchangeRate(p.getExchangeRate());
+			
 			offerDeepForm.setUsePrevailingRate(p.isUsePrevailingRate());
 			offerDeepForm.setExpiry(p.getExpiry());
 			offerDeepForm.setAllowCounterOffers(p.isAllowCounterOffers());
 			offerDeepForm.setAllowSplitExchanges(p.isAllowSplitExchanges());
 			offerDeepForm.setEditable(p.isEditable());
+			
+			if (p.isUsePrevailingRate()) {
+				Optional<ExchangeCurrency> rate = exchangeCurrencyRepo.findBySourceCurrencyAndTargetCurrency(
+						p.getSourceCurrency(), p.getDestinationCurrency());
+				offerDeepForm.setExchangeRate(rate.get().getExchangeRate());
+			} else {
+				offerDeepForm.setExchangeRate(p.getExchangeRate());
+			}
 
 			if (p.getPostedBy() != null) {
 				UserShallowForm userShallowForm = new UserShallowForm();

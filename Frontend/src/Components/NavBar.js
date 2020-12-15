@@ -28,7 +28,7 @@ class NavBar extends Component {
           <a href="/offers"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Offers</a>
           <a href="/requests"
-            class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Transactions</a>
+            class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Transfer Requests</a>
           <a href="/counters"
             class="block text-md px-4 py-2 rounded text-blue-700 ml-2 font-bold hover:text-white mt-4 hover:bg-blue-400 lg:mt-0"> My Counter Offers</a>
           <a href="/transactionHistory"

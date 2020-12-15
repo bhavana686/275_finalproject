@@ -51,7 +51,7 @@ class EditOffer extends Component {
             destinationCurrency: response.data[0].destinationCurrency,
             editable: response.data[0].editable,
             exchangeRate: response.data[0].exchangeRate,
-            expiry: response.data[0].expiry,
+            expiry: response.data[0].expiry+":00",
             fullyFulfilled: response.data[0].fullyFulfilled,
             id: response.data[0].id,
             sourceCountry: response.data[0].sourceCountry,

@@ -27,5 +27,9 @@ public interface OfferRepo extends JpaRepository<Offer, Long> {
 	@Query("Select o from Offer o where o.status=?1 and o.isCounter =?2 and o.display=?3 and o.amount<?4 and o.allowSplitExchanges=?5 and sourceCurrency=?6 and destinationCurrency=?7")
 	public Optional<List<Offer>> getSplitMatches(Enum.OfferStatuses status, boolean isCounter, boolean display,
 			double amount, boolean allowSplitExchanges, Enum.Currency source, Enum.Currency destination);
+	
+	@Query("Select o from Offer o where o.status=?1 and o.isCounter =?2 and o.display=?3 and o.amount>?4 and o.allowSplitExchanges=?5 and sourceCurrency=?6 and destinationCurrency=?7 and o.id!=?8")
+	public Optional<List<Offer>> getSecondaryMatches(Enum.OfferStatuses status, boolean isCounter, boolean display,
+			double amount, boolean allowSplitExchanges, Enum.Currency source, Enum.Currency destination, long offerId);
 
 }

@@ -108,7 +108,7 @@ class CounterRequests extends Component {
                                                 <Descriptions.Item label="Counter For">{counter.offer.id}</Descriptions.Item>
                                                 <Descriptions.Item label="Expires ">{moment(counter.expiry).format("LLLL")}</Descriptions.Item>
                                                 <Descriptions.Item label="Original Amount">{counter.amountRequired}</Descriptions.Item>
-                                                <Descriptions.Item label="Offer Amount">{counter.amountAdjusted}</Descriptions.Item>
+                                                <Descriptions.Item label="Offer Amount">{parseInt(counter.amountAdjusted).toFixed(2)}</Descriptions.Item>
                                                 <Descriptions.Item label="Requesting User Nick Name">{counter.user.nickname}</Descriptions.Item>
                                                 <Descriptions.Item label="User Rating">
                                                     <Link to={"/user/" + counter.user.id} style={{ cursor: "pointer" }}>

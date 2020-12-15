@@ -66,6 +66,8 @@ public class Offer {
 	private boolean display = true;
 	
 	private double exchangedRate;
+	
+	private double destinationAmount;
 
 	@OneToMany
 	private List<CounterOffer> counterOffers;
@@ -268,6 +270,14 @@ public class Offer {
 
 	public void setTransactedAmountInUSD(double transactedAmountInUSD) {
 		this.transactedAmountInUSD = transactedAmountInUSD;
+	}
+
+	public double getDestinationAmount() {
+		return destinationAmount;
+	}
+
+	public void setDestinationAmount(double destinationAmount) {
+		this.destinationAmount = destinationAmount;
 	}
 
 }
