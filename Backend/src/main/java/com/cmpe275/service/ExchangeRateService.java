@@ -54,16 +54,23 @@ public class ExchangeRateService {
 			User user = userrepo.getById(userid).get();
 			offer.setPostedBy(user);
 
-			List<BankAccount> accounts = user.getBankAccounts();
-			Set<Enum.Countries> countries = new HashSet<>();
-			for (BankAccount acc : accounts) {
-				countries.add(acc.getCountry());
-			}
-
-			System.out.println(countries.size());
-			if (countries.size() < 2) {
-				return new ResponseEntity<String>("accounts", HttpStatus.OK);
-
+//			List<BankAccount> accounts = user.getBankAccounts();
+//			Set<Enum.Countries> countries = new HashSet<>();
+//			for (BankAccount acc : accounts) {
+//				countries.add(acc.getCountry());
+//			}
+//
+//			System.out.println(countries.size());
+//			if (countries.size() < 2) {
+//				return new ResponseEntity<String>("accounts", HttpStatus.OK);
+//
+//			}
+			
+			String str = checkbankaccountsfinal(userid,offer);
+			System.out.println("in final check"+str);
+			if(str.equals("accounts"))
+			{
+				return new ResponseEntity<>("low accounts", HttpStatus.OK);
 			}
 			exchangerepo.save(offer);
 			System.out.println("success");
@@ -349,6 +356,42 @@ public class ExchangeRateService {
 		else
 		{
 			return new ResponseEntity<String>("approved", HttpStatus.OK);
+
+		}
+	}
+	
+	
+	public String checkbankaccountsfinal(long userid, Offer offer) {
+		
+		User user = userrepo.getById(userid).get();
+
+		List<BankAccount> accounts = user.getBankAccounts();
+		Set<Enum.Countries> countries = new HashSet<>();
+		for (BankAccount acc : accounts) {
+			System.out.println("account type" + acc.getAccountType());
+			System.out.println("country " +acc.getCountry());
+			System.out.println("country " +offer.getDestinationCountry());
+			System.out.println("country " +		offer.getSourceCountry());
+			
+	
+			if(offer.getDestinationCountry().equals(acc.getCountry()) && (acc.getAccountType().equals("receiving") || acc.getAccountType().equals("both")))
+			   {
+				countries.add(acc.getCountry());
+				}
+			else if(offer.getSourceCountry().equals(acc.getCountry()) && (acc.getAccountType().equals("sending") || acc.getAccountType().equals("both")))
+			{
+				countries.add(acc.getCountry());
+			}
+		}
+
+		System.out.println(countries.size());
+		if (countries.size() < 2) {
+			return "accounts";
+
+		}
+		else
+		{
+			return "approved";
 
 		}
 	}
