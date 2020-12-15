@@ -35,8 +35,7 @@ public class OfferController {
 	
 	@GetMapping("/emailapi")
 	public ResponseEntity<Object> sendemail() {
-		return emailService.sendEmail("prasannareddy699@gmail.com", "Welcome", "Good Morning!!");
-	        
+		return emailService.sendEmail("prasannareddy699@gmail.com", "Welcome", "Good Morning!!");       
 	}
 
 	@PostMapping("/email")

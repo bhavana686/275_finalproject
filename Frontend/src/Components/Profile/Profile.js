@@ -16,7 +16,9 @@ class Profile extends Component {
       nickname: sessionStorage.getItem("nickname"),
       success: "",
       error: "true",
-      invalid: false
+      invalid: false,
+      user : "",
+      uid : sessionStorage.getItem("id")
     }
     // this.handleUpdate = this.handleUpdate.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
@@ -28,6 +30,25 @@ class Profile extends Component {
 
 
   async componentDidMount() {
+
+    let url = process.env.REACT_APP_BACKEND_URL + '/user/' + this.state.uid;
+    console.log(url);
+    axios.defaults.withCredentials = true;
+    axios.get(url)
+        .then(response => {
+          console.log("console from profile",response.data);
+            this.setState({
+                nickname: response.data.nickname
+            })
+            console.log(this.state.useracc)
+        })
+        .catch((error) => {
+            console.log(error);
+            this.setState({
+              nickname: ""
+            })
+        });;
+
     this.setState({
       invalid: false,
       success: ""
@@ -194,9 +215,10 @@ class Profile extends Component {
 
     return (
       <div style={{ marginTop: "50px" }}>
-        {redirectvar}
+       
 
         {displayform}
+        {redirectvar}
       </div>
     );
   }

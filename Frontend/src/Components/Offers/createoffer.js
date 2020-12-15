@@ -106,6 +106,11 @@ class CreateOffer extends Component {
           });
           message.success("Offer Created Successfully")
         }
+        else {
+          this.setState({
+            showmsg: "Please Create the bank Accounts in the given Countries"
+          });
+        }
       })
       .catch((ex) => {
         this.setState({
@@ -120,7 +125,7 @@ class CreateOffer extends Component {
       redirectVar = <Redirect push to={this.state.redirect} />;
     }
     if (this.state.showmsg) {
-      msgshow = <h1 style={{ color: "red" }}>Succesfully Created Offer</h1>
+      msgshow = <h1 style={{ color: "red" }}>{this.state.showmsg}</h1>
     }
     if (this.state.showerrormsg) {
       msgshow = <h1 style={{ color: "red", fontSize: "bold" }}>User Should have atleast two bank accounts</h1>
