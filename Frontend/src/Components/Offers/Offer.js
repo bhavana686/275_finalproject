@@ -23,7 +23,7 @@ import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import brown from '@material-ui/core/colors/brown';
 import FlagIcon from '@material-ui/icons/Flag';
 import purple from '@material-ui/core/colors/purple';
-import { Badge, Space, Button, Row, message, Modal, Input, Rate } from 'antd';
+import { Badge, Space, Button, Row, message, Modal, Input, Rate, Spin } from 'antd';
 
 const currency = [
     'EUR', 'GBP', 'INR', 'RMB', 'USD'
@@ -41,7 +41,8 @@ class Offer extends Component {
             offers: [],
             edit: false,
             currentOfferId: 0,
-            counterAmount: 0
+            counterAmount: 0,
+            loading: false
         }
 
         this.ChangeHandler = this.ChangeHandler.bind(this);
@@ -53,23 +54,31 @@ class Offer extends Component {
     }
 
     componentDidMount() {
+        this.fetchData();
+    }
+
+    fetchData = () =>{
+        this.setState({ loading: true })
         let url = process.env.REACT_APP_BACKEND_URL + '/offers?userId=' + sessionStorage.getItem("id")
         console.log(url);
         axios.defaults.withCredentials = true;
         axios.get(url)
             .then(response => {
                 this.setState({
-                    offers: response.data
+                    offers: response.data,
+                    loading: false
                 })
                 console.log(this.state.offers)
             })
             .catch((error) => {
                 console.log(error);
                 this.setState({
-                    offers: []
+                    offers: [],
+                    loading: false
                 })
             });;
     }
+
     filterOffer = (event) => {
         event.preventDefault();
         let url;
@@ -136,6 +145,7 @@ class Offer extends Component {
     }
 
     acceptOffer = (id) => {
+        this.setState({ loading: true })
         let url = process.env.REACT_APP_BACKEND_URL + "/offer/direct/" + id + "/accept";
         let body = {
             "userId": sessionStorage.getItem("id")
@@ -147,16 +157,18 @@ class Offer extends Component {
                 this.setState({
                     request: response.data
                 })
+                this.fetchData();
                 console.log(response.data)
                 message.success("Accepted Offer Successfully")
             })
             .catch((error) => {
                 console.log(error);
-                message.error(error);
+                // message.error(error);
             });
     }
 
     counterOffer = () => {
+        this.setState({ loading: true })
         let url = process.env.REACT_APP_BACKEND_URL + "/offer/direct/" + this.state.currentOfferId + "/counter";
         let body = {
             "userId": sessionStorage.getItem("id"),
@@ -169,6 +181,7 @@ class Offer extends Component {
                 this.setState({
                     request: response.data
                 })
+                this.fetchData();
                 message.success("Counter Offer Created Successfully")
                 this.closeCounterModal();
                 console.log(response.data)
@@ -357,6 +370,7 @@ class Offer extends Component {
 
         return (
             <div style={{ marginTop: "30px" }}>
+                <Spin size="large" spinning={this.state.loading}>
                 <div class='row' >
                     <div class='col-md-3' >
                         <div>{filterlist}</div>
@@ -369,7 +383,7 @@ class Offer extends Component {
                     </div>
                 </div>
 
-
+</Spin>
             </div>
         );
     }

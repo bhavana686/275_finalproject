@@ -27,7 +27,8 @@ class Offer extends Component {
             showDualMatches: false,
             loading: false,
             showSplitMatches: false,
-            counterModal: false
+            counterModal: false,
+            counterAmount: 0
         }
     }
 
@@ -112,12 +113,13 @@ class Offer extends Component {
             console.log(offer.id)
             suggestTotal += offer.destinationAmount;
         }
+        console.log(match)
         console.log(((this.state.autoMatches[idx]["difference"]).toFixed(2) * (1 / this.state.offer.exchangeRate)))
         let amountToAdjust = 0;
         if ((this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2) < this.state.autoMatches[idx]["sum"]) {
-            amountToAdjust = this.state.offer.amount + ((this.state.autoMatches[idx]["difference"]).toFixed(2) * (1 / this.state.offer.exchangeRate))
+            amountToAdjust = this.state.offer.amount + ((this.state.autoMatches[idx]["difference"]) * (1 / this.state.offer.exchangeRate))
         } else {
-            amountToAdjust = this.state.offer.amount - ((this.state.autoMatches[idx]["difference"]).toFixed(2) * (1 / this.state.offer.exchangeRate))
+            amountToAdjust = this.state.offer.amount - ((this.state.autoMatches[idx]["difference"]) * (1 / this.state.offer.exchangeRate))
         }
         let body = {
             "userId": sessionStorage.getItem("id"),
@@ -144,6 +146,12 @@ class Offer extends Component {
             });
     }
 
+    onChange = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
 
     counterOffer = () => {
         const idx = this.state.currentOfferId;
@@ -155,26 +163,69 @@ class Offer extends Component {
         for (let offer of this.state.autoMatches[idx]["offers"]) {
             suggestTotal += offer.sourceAmount;
         }
-        let requestingAmount = 0;
+        // let requestingAmount = 0;
+        // let counterOffer = this.state.autoMatches[idx]["offers"][this.state.autoMatches[idx]["offers"].length - 1];
+
+        // let counterAmount = (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2);
+        // if (counterAmount > this.state.autoMatches[idx]["sum"]) {
+        //     requestingAmount = counterOffer["sourceAmount"] + (counterAmount - this.state.autoMatches[idx]["sum"]);
+        // } else {
+        //     requestingAmount = counterOffer["sourceAmount"] - (this.state.autoMatches[idx]["sum"] - counterAmount);
+        // }
+        // if ((requestingAmount < (counterOffer["sourceAmount"] * 0.9)) || (requestingAmount > (counterOffer["sourceAmount"] * 1.1))) {
+        //     message.error("Counter Amount Must be in Range");
+        //     return;
+        // }
+
+        let requestingAmount = this.state.counterAmount;
         let counterOffer = this.state.autoMatches[idx]["offers"][this.state.autoMatches[idx]["offers"].length - 1];
 
-        let counterAmount = (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2);
-        if (counterAmount > this.state.autoMatches[idx]["sum"]) {
-            requestingAmount = counterOffer["sourceAmount"] + (counterAmount - this.state.autoMatches[idx]["sum"]);
+        // let counterAmount = (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2);
+
+        if (this.state.autoMatches[idx]["type"] === "alpha") {
+            requestingAmount = this.state.counterAmount;
+        } else if (this.state.autoMatches[idx]["type"] === "beta") {
+            if (this.state.counterAmount > this.state.autoMatches[idx]["sum"]) {
+                requestingAmount = counterOffer["sourceAmount"] + (this.state.counterAmount - this.state.autoMatches[idx]["sum"]);
+            } else {
+                requestingAmount = counterOffer["sourceAmount"] - (this.state.autoMatches[idx]["sum"] - this.state.counterAmount);
+            }
         } else {
-            requestingAmount = counterOffer["sourceAmount"] - (this.state.autoMatches[idx]["sum"] - counterAmount);
+            // const intSum = this.state.autoMatches[idx]["sum"] - this.state.autoMatches[idx]["offers"][1]["destinationAmount"];
+            // if (this.state.counterAmount > intSum) {
+            //     requestingAmount = counterOffer["sourceAmount"] + (this.state.counterAmount - intSum);
+            // } else {
+            //     requestingAmount = counterOffer["sourceAmount"] - (intSum - this.state.counterAmount);
+            // }
+            console.log("gamma")
+            console.log(typeof (this.state.counterAmount))
+            console.log(typeof (this.state.autoMatches[idx]["offers"][0]["destinationAmount"]))
+            const intSum = parseInt(this.state.counterAmount) + parseInt(this.state.autoMatches[idx]["offers"][0]["destinationAmount"]);
+            console.log("int sum" + intSum)
+            if (intSum > counterOffer["sourceAmount"]) {
+                console.log("fi")
+                requestingAmount = counterOffer["sourceAmount"] + (intSum - counterOffer["sourceAmount"]);
+            } else {
+                console.log("else")
+                requestingAmount = counterOffer["sourceAmount"] - (counterOffer["sourceAmount"] - intSum);
+            }
         }
+
         if ((requestingAmount < (counterOffer["sourceAmount"] * 0.9)) || (requestingAmount > (counterOffer["sourceAmount"] * 1.1))) {
+            console.log(requestingAmount)
             message.error("Counter Amount Must be in Range");
             return;
         }
+
         let body = {
             "userId": sessionStorage.getItem("id"),
             "offerAmount": (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2),
             "sumOfMatchedOffers": this.state.autoMatches[idx]["sum"],
-            "adjustmentAmount": requestingAmount.toFixed(2),
+            // "adjustmentAmount": requestingAmount.toFixed(2),
+            "adjustmentAmount": requestingAmount,
             "offers": this.state.autoMatches[idx]["offers"]
         }
+        console.log(requestingAmount)
         console.log(body)
         axios.defaults.withCredentials = true;
         axios.post(url, body)
@@ -224,7 +275,14 @@ class Offer extends Component {
                     onOk={this.counterOffer}
                     onCancel={this.closeCounterModal}
                 >
-                    Do you want to create a Counter of {(this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2)}
+                    {/* Do you want to create a Counter of {(this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2)} */}
+                    Enter Amount in Destination Currency. Your Requirement at Destination is {(this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2)} {this.state.offer.destinationCurrency}
+                    <Input
+                        type="number"
+                        name="counterAmount"
+                        value={this.state.counterAmount}
+                        onChange={this.onChange}
+                    />
                 </Modal>
                 <Spin size="large" spinning={this.state.loading}>
                     {this.state.offer ?
@@ -278,7 +336,7 @@ class Offer extends Component {
                                                                 <Collapse className="my-4">
                                                                     <Panel header={<div>
                                                                         <b>
-                                                                            <div>{"Sum Of Offers: " + match.sum + " " + this.state.offer.destinationCurrency}</div>
+                                                                            <div>{"Amount You Get: " + (match.type === "gamma" ? (match.sum - (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2)) : match.sum) + " " + this.state.offer.destinationCurrency}</div>
                                                                             <div>{" Difference: " + (match.difference).toFixed(2) + " " + this.state.offer.destinationCurrency}</div>
                                                                         </b>
                                                                         <div className="mt-4">
