@@ -50,7 +50,6 @@ public class ExchangeRateService {
 	private ExchangeCurrencyRepo exchangeCurrencyRepo;
 
 	public ResponseEntity<String> createOffer(HttpServletRequest request, JsonNode body) {
-		System.out.println("create offer");
 		Offer offer;
 		try {
 
@@ -72,13 +71,11 @@ public class ExchangeRateService {
 //			}
 			
 			String str = checkbankaccountsfinal(userid,offer);
-			System.out.println("in final check"+str);
 			if(str.equals("accounts"))
 			{
 				return new ResponseEntity<>("low accounts", HttpStatus.OK);
 			}
 			exchangerepo.save(offer);
-			System.out.println("success");
 			return new ResponseEntity<>("created", HttpStatus.OK);
 		}
 
@@ -99,23 +96,18 @@ public class ExchangeRateService {
 			String expiry = body.get("expiry").asText();
 			if (expiry != null) {
 				expiry = body.get("expiry").asText();
-				System.out.println(expiry);
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 				Date date = sdf.parse(expiry);
-				System.out.println(date);
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 				String fdate = sdf1.format(date);
-				System.out.println(fdate);
 				Timestamp ldt = Timestamp.valueOf(fdate);
-				System.out.println(ldt);
 				offer.setExpiry(ldt);
 			}
 			String allowCounterOffers = body.get("allowCounterOffers").asText();
 			if (allowCounterOffers.equals("false"))
 				offer.setAllowCounterOffers(false);
 			String allowSplitExchanges = body.get("allowSplitExchanges").asText();
-			System.out.print(allowSplitExchanges);
 			if (allowSplitExchanges.equals("false"))
 				offer.setAllowSplitExchanges(false);
 			String usePrevailingRate = body.get("usePrevailingRate").asText();
@@ -206,7 +198,6 @@ public class ExchangeRateService {
 			if (allowCounterOffers.equals("false"))
 				offer.setAllowCounterOffers(false);
 			String allowSplitExchanges = body.get("allowSplitExchanges").asText();
-			System.out.print(allowSplitExchanges);
 			if (allowSplitExchanges.equals("false"))
 				offer.setAllowSplitExchanges(false);
 			String usePrevailingRate = body.get("usePrevailingRate").asText();
@@ -222,18 +213,16 @@ public class ExchangeRateService {
 			String expiry = body.get("expiry").asText();
 			if (expiry != null) {
 				expiry = body.get("expiry").asText();
-				System.out.println(expiry);
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 				Date date = sdf.parse(expiry);
-				System.out.println(date);
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 				String fdate = sdf1.format(date);
-				System.out.println(fdate);
 				Timestamp ldt = Timestamp.valueOf(fdate);
-				System.out.println(ldt);
 				offer.setExpiry(ldt);
 			}
+			
+			
 		} catch (CustomException e) {
 			throw new CustomException(e.getMessage(), e.getErrorCode());
 		} catch (Exception e) {
@@ -248,6 +237,11 @@ public class ExchangeRateService {
 		Offer offer = new Offer();
 		try {
 			offer = checkIfOfferExisting(body, id);
+			String str = checkbankaccountsfinal(id,offer);
+			if(str.equals("accounts"))
+			{
+				return new ResponseEntity<>("low accounts", HttpStatus.OK);
+			}
 			exchangerepo.save(offer);
 			return new ResponseEntity<>("updated", HttpStatus.OK);
 		} catch (CustomException e) {
@@ -361,7 +355,6 @@ public class ExchangeRateService {
 			countries.add(acc.getCountry());
 		}
 
-		System.out.println(countries.size());
 		if (countries.size() < 2) {
 			return new ResponseEntity<String>("lowaccounts", HttpStatus.OK);
 
@@ -381,10 +374,6 @@ public class ExchangeRateService {
 		List<BankAccount> accounts = user.getBankAccounts();
 		Set<Enum.Countries> countries = new HashSet<>();
 		for (BankAccount acc : accounts) {
-			System.out.println("account type" + acc.getAccountType());
-			System.out.println("country " +acc.getCountry());
-			System.out.println("country " +offer.getDestinationCountry());
-			System.out.println("country " +		offer.getSourceCountry());
 			
 	
 			if(offer.getDestinationCountry().equals(acc.getCountry()) && (acc.getAccountType().equals("receiving") || acc.getAccountType().equals("both")))
@@ -397,7 +386,6 @@ public class ExchangeRateService {
 			}
 		}
 
-		System.out.println(countries.size());
 		if (countries.size() < 2) {
 			return "accounts";
 
