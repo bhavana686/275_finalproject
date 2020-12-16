@@ -110,6 +110,10 @@ class CounterRequests extends Component {
                                                 <Descriptions.Item label="Original Amount">{counter.amountRequired}</Descriptions.Item>
                                                 <Descriptions.Item label="Offer Amount">{parseInt(counter.amountAdjusted).toFixed(2)}</Descriptions.Item>
                                                 <Descriptions.Item label="Requesting User Nick Name">{counter.user.nickname}</Descriptions.Item>
+                                                <Descriptions.Item label="Source Currency">{counter.offer.sourceCurrency}</Descriptions.Item>
+                                                <Descriptions.Item label="Source Country">{counter.offer.sourceCountry}</Descriptions.Item>
+                                                <Descriptions.Item label="Destination Currency">{counter.offer.destinationCurrency}</Descriptions.Item>
+                                                <Descriptions.Item label="Destination Country">{counter.offer.destinationCountry}</Descriptions.Item>
                                                 <Descriptions.Item label="User Rating">
                                                     <Link to={"/user/" + counter.user.id} style={{ cursor: "pointer" }}>
                                                         <span>

@@ -95,44 +95,4 @@ public class TransactionController {
 		return offerService.fetchOfferDeepForm(request, (long) offerId);
 	}
 
-	@GetMapping("/create")
-	public ResponseEntity<Object> createOffer(HttpServletRequest request) {
-		Offer offer = new Offer();
-		offer.setDestinationCountry(Enum.Countries.India);
-		offer.setDestinationCurrency(Enum.Currency.INR);
-		offer.setSourceCountry(Enum.Countries.US);
-		offer.setSourceCurrency(Enum.Currency.USD);
-		offer.setAmount(101);
-		offer.setStatus(Enum.OfferStatuses.open);
-		offer.setExchangeRate(74);
-		long id = 1;
-		Optional<User> user = userRepo.getById(id);
-//		System.out.println("--------------");
-//		System.out.println(user.isEmpty());
-//		System.out.println(user.get());
-		offer.setPostedBy(user.get());
-		offerRepo.save(offer);
-		return new ResponseEntity<>("Success", HttpStatus.OK);
-	}
-	
-	@GetMapping("/created")
-	public ResponseEntity<Object> createOffers(HttpServletRequest request) {
-		Offer offer = new Offer();
-		offer.setDestinationCountry(Enum.Countries.US);
-		offer.setDestinationCurrency(Enum.Currency.USD);
-		offer.setSourceCountry(Enum.Countries.India);
-		offer.setSourceCurrency(Enum.Currency.INR);
-		offer.setAmount(3700);
-		offer.setStatus(Enum.OfferStatuses.open);
-		offer.setExchangeRate(0.014);
-		long id = 2;
-		Optional<User> user = userRepo.getById(id);
-//		System.out.println("--------------");
-//		System.out.println(user.isEmpty());
-//		System.out.println(user.get());
-		offer.setPostedBy(user.get());
-		offerRepo.save(offer);
-		return new ResponseEntity<>("Success", HttpStatus.OK);
-	}
-
 }

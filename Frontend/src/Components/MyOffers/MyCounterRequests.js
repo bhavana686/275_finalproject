@@ -88,40 +88,44 @@ class CounterRequests extends Component {
         return (
             <div style={{ marginTop: "20px" }}>
                 <Spin size="large" spinning={this.state.loading}>
-                <div style={{ fontSize: "20px", fontWeight: "600" }}>My Counter Offers</div>
-                <div className="mx-32">
-                    {this.state.counter.map((counter, index) => {
-                        let status = moment(new Date().getTime()).isAfter(parseInt(counter.expiry)) ? "Expired" : counter.status;
-                        let expired = moment(new Date().getTime()).isAfter(parseInt(counter.expiry))
-                        if(counter.status==="open" && !expired){
-                        return (
-                            <Collapse defaultActiveKey={['1']} className="my-4">
-                                <Panel header={"Request Id: " + counter.id + " Status: " + status} key="1"
-                                    extra={!expired && counter.status === "open" && <div>
-                                        <Button type="primary" onClick={() => this.acceptCounterRequest(counter.id)}>Accept</Button>
-                                        <Button type="primary" onClick={() => this.declineCounterRequest(counter.id)} danger className="ml-2">Decline</Button>
-                                    </div>}>
-                                    <Descriptions title="Offer Details" bordered style={{ backgroundColor: "AppWorkspace" }} >
-                                        <Descriptions.Item label="Counter For">{counter.counteredAgainst.id}</Descriptions.Item>
-                                        <Descriptions.Item label="Expires ">{moment(counter.expiry).format("LLLL")}</Descriptions.Item>
-                                        <Descriptions.Item label="Original Amount">{counter.originalAmount}</Descriptions.Item>
-                                        <Descriptions.Item label="Counter Amount">{counter.counterAmount}</Descriptions.Item>
-                                        <Descriptions.Item label="Request Created">{moment(counter.createdAt).format("LLLL")}</Descriptions.Item>
-                                        <Descriptions.Item label="Nick Name">{counter.counteredBy.nickname}</Descriptions.Item>
-                                        <Descriptions.Item label="User Rating">
-                                            <Link to={"/user/" + counter.counteredBy.id} style={{ cursor: "pointer" }}>
-                                                <span>
-                                                    <Rate defaultValue={counter.counteredBy.rating} disabled />&nbsp;{counter.counteredBy.rating === 0 ? "N/A" : counter.counteredBy.rating}
-                                                </span>
-                                            </Link>
-                                        </Descriptions.Item>
-                                    </Descriptions>
-                                </Panel>
-                            </Collapse>
-                        )
-                        }
-                    })}
-                </div>
+                    <div style={{ fontSize: "20px", fontWeight: "600" }}>My Counter Offers</div>
+                    <div className="mx-32">
+                        {this.state.counter.map((counter, index) => {
+                            let status = moment(new Date().getTime()).isAfter(parseInt(counter.expiry)) ? "Expired" : counter.status;
+                            let expired = moment(new Date().getTime()).isAfter(parseInt(counter.expiry))
+                            if (counter.status === "open" && !expired) {
+                                return (
+                                    <Collapse defaultActiveKey={['1']} className="my-4">
+                                        <Panel header={"Request Id: " + counter.id + " Status: " + status} key="1"
+                                            extra={!expired && counter.status === "open" && <div>
+                                                <Button type="primary" onClick={() => this.acceptCounterRequest(counter.id)}>Accept</Button>
+                                                <Button type="primary" onClick={() => this.declineCounterRequest(counter.id)} danger className="ml-2">Decline</Button>
+                                            </div>}>
+                                            <Descriptions title="Offer Details" bordered style={{ backgroundColor: "AppWorkspace" }} >
+                                                <Descriptions.Item label="Counter For">{counter.counteredAgainst.id}</Descriptions.Item>
+                                                <Descriptions.Item label="Expires ">{moment(counter.expiry).format("LLLL")}</Descriptions.Item>
+                                                <Descriptions.Item label="Original Amount">{counter.originalAmount}</Descriptions.Item>
+                                                <Descriptions.Item label="Counter Amount">{counter.counterAmount}</Descriptions.Item>
+                                                <Descriptions.Item label="Request Created">{moment(counter.createdAt).format("LLLL")}</Descriptions.Item>
+                                                <Descriptions.Item label="Nick Name">{counter.counteredBy.nickname}</Descriptions.Item>
+                                                <Descriptions.Item label="Source Currency">{counter.counteredAgainst.sourceCurrency}</Descriptions.Item>
+                                                <Descriptions.Item label="Source Country">{counter.counteredAgainst.sourceCountry}</Descriptions.Item>
+                                                <Descriptions.Item label="Destination Currency">{counter.counteredAgainst.destinationCurrency}</Descriptions.Item>
+                                                <Descriptions.Item label="Destination Country">{counter.counteredAgainst.destinationCountry}</Descriptions.Item>
+                                                <Descriptions.Item label="User Rating">
+                                                    <Link to={"/user/" + counter.counteredBy.id} style={{ cursor: "pointer" }}>
+                                                        <span>
+                                                            <Rate defaultValue={counter.counteredBy.rating} disabled />&nbsp;{counter.counteredBy.rating === 0 ? "N/A" : counter.counteredBy.rating}
+                                                        </span>
+                                                    </Link>
+                                                </Descriptions.Item>
+                                            </Descriptions>
+                                        </Panel>
+                                    </Collapse>
+                                )
+                            }
+                        })}
+                    </div>
                 </Spin>
             </div>
         );

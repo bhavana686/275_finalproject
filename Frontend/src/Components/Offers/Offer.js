@@ -23,7 +23,7 @@ import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import brown from '@material-ui/core/colors/brown';
 import FlagIcon from '@material-ui/icons/Flag';
 import purple from '@material-ui/core/colors/purple';
-import { Badge, Space, Button, Row, message, Modal, Input, Rate, Spin } from 'antd';
+import { Badge, Space, Button, Row, message, Modal, Input, Rate, Spin, Pagination } from 'antd';
 
 const currency = [
     'EUR', 'GBP', 'INR', 'RMB', 'USD'
@@ -42,7 +42,9 @@ class Offer extends Component {
             edit: false,
             currentOfferId: 0,
             counterAmount: 0,
-            loading: false
+            loading: false,
+            currentPage: 0,
+            pageSize: 10
         }
 
         this.ChangeHandler = this.ChangeHandler.bind(this);
@@ -57,7 +59,7 @@ class Offer extends Component {
         this.fetchData();
     }
 
-    fetchData = () =>{
+    fetchData = () => {
         this.setState({ loading: true })
         let url = process.env.REACT_APP_BACKEND_URL + '/offers?userId=' + sessionStorage.getItem("id")
         console.log(url);
@@ -215,6 +217,14 @@ class Offer extends Component {
         })
     }
 
+    changePage = (page, pageSize)=>{
+        console.log(page)
+        console.log(pageSize)
+        this.setState({
+            currentPage: page -1
+        })
+    }
+
     render() {
 
         function HomeIcon(props) {
@@ -225,7 +235,7 @@ class Offer extends Component {
             );
         }
         var displayform = null;
-        displayform = this.state.offers ? this.state.offers.map((msg) => {
+        displayform = this.state.offers ? this.state.offers.slice(this.state.currentPage*this.state.pageSize, (this.state.currentPage*this.state.pageSize)+this.state.pageSize).map((msg) => {
             return (
                 <div>
                     <Modal
@@ -263,12 +273,12 @@ class Offer extends Component {
                                         </div>
                                         <div class="col-lg-3">
                                             <div style={{ marginTop: "20px" }}><b>{msg.postedBy ? msg.postedBy.nickname : ""}
-                                             <Link to={"/user/" + msg.postedBy.id} style={{ cursor: "pointer" }}>&nbsp;
+                                                <Link to={"/user/" + msg.postedBy.id} style={{ cursor: "pointer" }}>&nbsp;
                                                 <span>
-                                                    <Rate count={1} defaultValue={msg.postedBy.rating} disabled />&nbsp;{msg.postedBy.rating === 0 ? "N/A" : msg.postedBy.rating}
-                                                </span>
-                                            </Link>
-                                             </b></div>
+                                                        <Rate count={1} defaultValue={msg.postedBy.rating} disabled />&nbsp;{msg.postedBy.rating === 0 ? "N/A" : msg.postedBy.rating}
+                                                    </span>
+                                                </Link>
+                                            </b></div>
                                         </div>
                                     </div>
                                     <div class="row" style={{ marginTop: "20px" }} >
@@ -364,26 +374,23 @@ class Offer extends Component {
 
         </div>)
 
-
-
-
-
         return (
             <div style={{ marginTop: "30px" }}>
                 <Spin size="large" spinning={this.state.loading}>
-                <div class='row' >
-                    <div class='col-md-3' >
-                        <div>{filterlist}</div>
-                    </div>
-                    <div class='col-md-7' style={{ marginTop: "" }}>
-                        <div class="grid-container">
-                            {displayform}
+                    <div class='row' >
+                        <div class='col-md-3' >
+                            <div>{filterlist}</div>
                         </div>
+                        <div class='col-md-7' style={{ marginTop: "" }}>
+                            <div class="grid-container">
+                                {displayform}
+                            </div>
 
+                        </div>
                     </div>
-                </div>
 
-</Spin>
+                </Spin>
+                <Pagination defaultCurrent={1} defaultPageSize={this.state.pageSize} current={this.state.currentPage+1} total={this.state.offers.length} onChange={this.changePage} />
             </div>
         );
     }
