@@ -165,7 +165,8 @@ class Offer extends Component {
             })
             .catch((error) => {
                 console.log(error);
-                // message.error(error);
+                this.fetchData();
+                message.error("Can't Accept Offer. Check your Bank Accounts or Offer is not available");
             });
     }
 
@@ -191,7 +192,8 @@ class Offer extends Component {
             .catch((error) => {
                 this.closeCounterModal();
                 console.log(error);
-                message.error("Cannot Create Counter. Please check your amount");
+                this.fetchData();
+                message.error("Can't Create Counter. Check your Bank Accounts or Offer is not available");
             });
     }
 

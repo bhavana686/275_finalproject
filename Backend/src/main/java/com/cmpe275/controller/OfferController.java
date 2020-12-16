@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.cmpe275.entity.Enum;
 
 @Controller
-@CrossOrigin(origins="http://localhost:3000", allowedHeaders = "*",allowCredentials="true")
+@CrossOrigin(origins="*", allowedHeaders = "*",allowCredentials="true")
 @RequestMapping(value = "/offers")
 public class OfferController {
 	

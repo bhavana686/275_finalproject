@@ -1,25 +1,18 @@
 package com.cmpe275.controller;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.cmpe275.entity.Offer;
-import com.cmpe275.entity.User;
 import com.cmpe275.repo.OfferRepo;
 import com.cmpe275.repo.UserRepo;
 import com.cmpe275.service.OfferResponseService;
 import com.cmpe275.service.TransactionService;
-import com.cmpe275.entity.Enum;
 
 @Controller
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
 @RequestMapping(value = "/offer")
 public class TransactionController {
 
@@ -50,14 +43,12 @@ public class TransactionController {
 	@PostMapping("/automatch/{id}/equal/process")
 	public ResponseEntity<Object> processAutoMatchOffer(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("id") long offerId) {
-		// Incoming amount in source currency
 		return transactionService.processAutoMatchOffer(request, body, (long) offerId);
 	}
 
 	@PostMapping("/automatch/{id}/unequal/process")
 	public ResponseEntity<Object> processUnEqualAutoMatchOffer(HttpServletRequest request, @RequestBody JsonNode body,
 			@PathVariable("id") long offerId) {
-		// Incoming amount in destination currency
 		return transactionService.processUnEqualAutoMatchOffer(request, body, (long) offerId);
 	}
 

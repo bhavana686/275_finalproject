@@ -13,7 +13,7 @@ import com.cmpe275.service.ExchangeCurrencyService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
-@CrossOrigin(origins="http://localhost:3000", allowedHeaders = "*",allowCredentials="true")
+@CrossOrigin(origins="*", allowedHeaders = "*",allowCredentials="true")
 @RequestMapping(value = "/exchangeRate")
 public class ExchangeCurrencyController {
 

@@ -2,16 +2,14 @@ package com.cmpe275.service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,14 +18,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cmpe275.Exception.CustomException;
 import com.cmpe275.entity.AutoMatchedOffer;
 import com.cmpe275.entity.BankAccount;
 import com.cmpe275.entity.CounterOffer;
 import com.cmpe275.entity.Enum;
-import com.cmpe275.entity.Enum.CounterOfferStatuses;
 import com.cmpe275.entity.Enum.OfferStatuses;
 import com.cmpe275.entity.ExchangeCurrency;
 import com.cmpe275.entity.Offer;
@@ -45,8 +45,6 @@ import com.cmpe275.repo.TransactionRepo;
 import com.cmpe275.repo.TransferRequestRepo;
 import com.cmpe275.repo.UserRepo;
 import com.fasterxml.jackson.databind.JsonNode;
-
-import net.bytebuddy.description.modifier.EnumerationState;
 
 @Service
 public class TransactionService {
@@ -78,11 +76,48 @@ public class TransactionService {
 	@Autowired
 	private EmailService emailService;
 
+	HashMap<Long, Timer> transactionMap;
+	HashMap<Long, Timer> counterMap;
+
+	public TransactionService() {
+		transactionMap = new HashMap<>();
+		counterMap = new HashMap<>();
+	}
+
+	class CounterRequestScheduler extends TimerTask {
+		AutoMatchedOffer counter;
+
+		public CounterRequestScheduler(AutoMatchedOffer counter) {
+			this.counter = counter;
+		}
+
+		public void run() {
+			System.out.println("Invalidating Counter: " + counter.getId());
+			invalidateCounter(counter);
+		}
+
+		
+	}
+
+	class TransactionScheduler extends TimerTask {
+		Transaction transaction;
+
+		public TransactionScheduler(Transaction transaction) {
+			this.transaction = transaction;
+		}
+
+		public void run() {
+			System.out.println("Invalidating Transaction: " + transaction.getId());
+			invalidateTransaction(this.transaction);
+		}
+	}
+
 	/*
 	 * Process an Offer where a user directly picks and offer from list of offers
 	 * and Proceeds with one of them
 	 */
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public ResponseEntity<Object> processDirectOffer(HttpServletRequest req, JsonNode body, long offerId) {
 		try {
 			long counterUserId = (long) body.get("userId").asLong();
@@ -105,23 +140,16 @@ public class TransactionService {
 			offersList.add(newOffer);
 
 			Transaction tran = new Transaction();
-//			Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-//			Date date = calendar.getTime();
-//			int day = calendar.get(Calendar.DATE);
-//			int month = calendar.get(Calendar.MONTH) + 1;
-//			int year = calendar.get(Calendar.YEAR);
-//			int hour = calendar.get(Calendar.HOUR_OF_DAY);
-//			int minute = calendar.get(Calendar.MINUTE);
-//			int second = calendar.get(Calendar.SECOND);
 			long timestamp = System.currentTimeMillis();
 			tran.setExpiry(new Timestamp(timestamp + (10 * 60000)));
 			Transaction transaction = transactionRepo.save(tran);
 			List<TransferRequest> requests = createTransferRequests(offersList, transaction);
 			transaction.setRequests(requests);
 			transactionRepo.save(transaction);
-			// Send Email to both
-			// -------------------------------------------------------------------------------
 
+			scheduleTransaction(transaction);
+
+			System.out.println("After Scheduling");
 			return new ResponseEntity<>("Success", HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
@@ -132,10 +160,78 @@ public class TransactionService {
 		}
 	}
 
+	@Async
+	private void scheduleTransaction(Transaction transaction) {
+		TransactionScheduler sch = new TransactionScheduler(transaction);
+		Timer timer = new Timer();
+		transactionMap.put(transaction.getId(), timer);
+		transactionMap.get(transaction.getId()).schedule(sch, 10 * 60 * 1000);
+
+	}
+	
+	@Async
+	private void scheduleCounter(AutoMatchedOffer counter) {
+		CounterRequestScheduler sch = new CounterRequestScheduler(counter);
+		Timer timer = new Timer();
+		counterMap.put(counter.getId(), timer);
+		counterMap.get(counter.getId()).schedule(sch, 5 * 60 * 1000);
+	}
+
+	private void invalidateTransaction(Transaction tr) {
+		try {
+			System.out.println("Invalidating Transaction:: " + tr.getId());
+			if (transactionMap.containsKey(tr.getId())) {
+				List<TransferRequest> requests = tr.getRequests();
+				for (TransferRequest request : requests) {
+					Offer offer = request.getOffer();
+					offer.setStatus(Enum.OfferStatuses.open);
+					offerRepo.save(offer);
+					request.setStatus(Enum.CounterOfferStatuses.expired);
+					transferRequestRepo.save(request);
+				}
+				tr.setStatus(Enum.CounterOfferStatuses.expired);
+				transactionRepo.save(tr);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void invalidateCounter(AutoMatchedOffer offer) {
+		try {
+			System.out.println("Invalidating Auto Match:: " + offer.getId());
+			offer.setStatus(Enum.AutoMatchOffersState.expired);
+			
+			Offer originalOffer = offer.getOriginalOffer();
+			originalOffer.setStatus(Enum.OfferStatuses.open);
+			offerRepo.save(originalOffer);
+			
+			if(offer.getCounteredOffer()!=null) {
+				Offer counteredOffer = offer.getCounteredOffer();
+				counteredOffer.setStatus(Enum.OfferStatuses.open);
+				offerRepo.save(counteredOffer);
+			}
+			
+			if(offer.getFullyFulfilledOffer()!=null) {
+				Offer fullyFulfilledOffer = offer.getCounteredOffer();
+				fullyFulfilledOffer.setStatus(Enum.OfferStatuses.open);
+				offerRepo.save(fullyFulfilledOffer);
+			}
+			
+			CounterOffer counterOffer = offer.getCounter();
+			counterOffer.setStatus(Enum.CounterOfferStatuses.expired);
+			counterOfferRepo.save(counterOffer);
+			
+			autoMatchedOfferRepo.save(offer);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public Offer createNewCounterOffer(Offer originalOffer, long counterUserId, boolean adjust, double amount)
 			throws CustomException {
 		try {
-			System.out.println("Entering in ");
 			Offer offer = new Offer();
 			offer.setDestinationCountry(originalOffer.getSourceCountry());
 			offer.setDestinationCurrency(originalOffer.getSourceCurrency());
@@ -145,12 +241,8 @@ public class TransactionService {
 			offer.setEditable(false);
 			offer.setDisplay(false);
 			offer.setExpiry(originalOffer.getExpiry());
-			// ----------------------------------------------------------------------------------------------------------------------------
-			// Update this to handle dynamic rates
 			Optional<ExchangeCurrency> rate = exchangeCurrencyRepo.findBySourceCurrencyAndTargetCurrency(
 					originalOffer.getSourceCurrency(), originalOffer.getDestinationCurrency());
-			System.out.println(originalOffer.getSourceCurrency() + " " + originalOffer.getDestinationCurrency());
-			System.out.println(rate.isEmpty());
 			double exchangeRate = rate.get().getExchangeRate();
 			if (adjust) {
 				if (originalOffer.isUsePrevailingRate()) {
@@ -171,11 +263,8 @@ public class TransactionService {
 					offer.setAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
 				}
 			}
-//			offer.setUsePrevailingRate(originalOffer.isUsePrevailingRate());
-//			offer.setAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
-//			offer.setTransactedAmount(originalOffer.getExchangeRate() * originalOffer.getAmount());
+
 			offer.setCounter(true);
-//			offer.setFullyFulfilled(true);
 			Optional<User> user = userRepo.getById(counterUserId);
 			offer.setPostedBy(user.get());
 			Offer savedNewOffer = offerRepo.save(offer);
@@ -202,9 +291,6 @@ public class TransactionService {
 				// Create transfer request
 				TransferRequest transferReq = transferRequestRepo.save(transferRequest);
 
-				// added request to user
-//				offer.getPostedBy().getTransferRequests().add(transferReq);
-//				userRepo.save(offer.getPostedBy());
 				User offerCreator = offer.getPostedBy();
 				List<TransferRequest> userTransReqs = offerCreator.getTransferRequests() != null
 						? offerCreator.getTransferRequests()
@@ -222,7 +308,6 @@ public class TransactionService {
 				offer.setTransferRequests(transReqs);
 				offer.setStatus(Enum.OfferStatuses.intransaction);
 				offer.setEditable(false);
-//				offer.setDisplay(false);
 				offerRepo.save(offer);
 
 				// add to list
@@ -239,7 +324,7 @@ public class TransactionService {
 	 * Process an Offer where a user picks and offer from list of offers and
 	 * Proceeds with one of them but decides to counter with a different amount
 	 */
-
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public ResponseEntity<Object> counterAOffer(HttpServletRequest request, JsonNode body, long offerId) {
 		try {
 			long counterUserId = (long) body.get("userId").asLong();
@@ -250,9 +335,9 @@ public class TransactionService {
 				throw new CustomException("Offer Id Invalid", HttpStatus.NOT_FOUND);
 			if (!sourceOffer.get().getStatus().equals(Enum.OfferStatuses.open))
 				throw new CustomException("Offer already taken", HttpStatus.BAD_REQUEST);
-			
-			if (!checkBankAccountExist(sourceOffer.get().getDestinationCountry(),
-					sourceOffer.get().getSourceCountry(), counterUserId)) {
+
+			if (!checkBankAccountExist(sourceOffer.get().getDestinationCountry(), sourceOffer.get().getSourceCountry(),
+					counterUserId)) {
 				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
 			}
 
@@ -267,7 +352,7 @@ public class TransactionService {
 			autoOffer.setOriginalOffer(newOffer);
 			autoOffer.setType(Enum.AutoMatchTypes.direct_counter);
 			autoMatchedOfferRepo.save(autoOffer);
-
+			scheduleCounter(autoOffer);
 			return new ResponseEntity<>("Success", HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
@@ -313,9 +398,7 @@ public class TransactionService {
 			sourceOffer.setCounterOffers(existingCounterOffersOfOffer);
 
 			// Setting offer to display none
-//			sourceOffer.setStatus(Enum.OfferStatuses.pending);
 			sourceOffer.setEditable(false);
-//			sourceOffer.setDisplay(false);
 			offerRepo.save(sourceOffer);
 			return counterOffer;
 		} catch (CustomException e) {
@@ -343,7 +426,7 @@ public class TransactionService {
 			JsonNode offersNode = (JsonNode) body.get("offers");
 			Optional<Offer> originalOffer = offerRepo.findById(offerId);
 			originalOffer.get().setDisplay(false);
-			
+
 			if (!checkBankAccountExist(originalOffer.get().getSourceCountry(),
 					originalOffer.get().getDestinationCountry(), counteredUserId)) {
 				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
@@ -399,6 +482,7 @@ public class TransactionService {
 		}
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void processEqualAutoMatchedOffers(Offer originalOffer, double fulfilledAmount, List<Offer> offers,
 			double offerAmount, double sumOfMatchedOffers, double requestingAmount) throws CustomException {
 		try {
@@ -413,27 +497,7 @@ public class TransactionService {
 			requests.add(createTransferRequestsForASingleOffer(originalOffer, transaction, requestingAmount));
 			transaction.setRequests(requests);
 			transactionRepo.save(transaction);
-
-//			List<TransferRequest> transactionOffers = new ArrayList<>();
-//			Transaction transaction = new Transaction();
-
-//
-//			for (Offer offer : offers) {
-//				offer.setFullyFulfilled(true);
-//				offer.setTransactedAmount(offer.getAmount());
-//				offer.setStatus(Enum.OfferStatuses.fulfilled);
-//				offer.setFulfilledBy(transaction);
-//				transactionOffers.add(offerRepo.save(offer));
-//			}
-
-//			originalOffer.setFullyFulfilled(fulfilledAmount == originalOffer.getAmount());
-//			originalOffer.setTransactedAmount(fulfilledAmount);
-//			originalOffer.setStatus(Enum.OfferStatuses.fulfilled);
-//			originalOffer.setFulfilledBy(transaction);
-//			transactionOffers.add(offerRepo.save(originalOffer));
-//
-//			transaction.setOffers(transactionOffers);
-//			transactionRepo.save(transaction);
+			scheduleTransaction(transaction);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -498,9 +562,7 @@ public class TransactionService {
 			double adjustmentAmount = (double) body.get("adjustmentAmount").asDouble();
 			JsonNode offersNode = (JsonNode) body.get("offers");
 			Optional<Offer> originalOffer = offerRepo.findById(offerId);
-//			originalOffer.get().setDisplay(false);
-//			offerRepo.save(originalOffer.get());
-			
+
 			if (!checkBankAccountExist(originalOffer.get().getSourceCountry(),
 					originalOffer.get().getDestinationCountry(), counteredUserId)) {
 				throw new CustomException("Bank Accounts Not Present", HttpStatus.BAD_REQUEST);
@@ -521,7 +583,8 @@ public class TransactionService {
 			return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
 		}
 	}
-
+	
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	private void adjustOffersBasedOnAmount(Offer offer, double offerAmount, double sumOfMatchedOffers,
 			double adjustmentAmount, List<Offer> offers, long counteredUserId) throws CustomException {
 
@@ -542,6 +605,8 @@ public class TransactionService {
 			}
 
 			autoMatchedOfferRepo.save(autoOffer);
+			
+			scheduleCounter(autoOffer);
 
 			offer.setEditable(false);
 			offer.setDisplay(false);
@@ -550,8 +615,6 @@ public class TransactionService {
 
 			for (Offer subOffer : offers) {
 				subOffer.setEditable(false);
-//			subOffer.setDisplay(false);
-//			subOffer.setStatus(Enum.OfferStatuses.pending);
 				offerRepo.save(subOffer);
 			}
 		} catch (CustomException e) {
@@ -740,19 +803,10 @@ public class TransactionService {
 					autoMatch.setOffers(combOffer);
 					autoMatch.setSupportCounter(first.isAllowCounterOffers() && second.isAllowCounterOffers());
 					offers.add(autoMatch);
-//					System.out.println("Dual Match Case 2 -----------------------");
-//					System.out.println("Offer Id: "+ first.getId() + " Amount: "+first.getAmount());
-//					System.out.println("Offer Id: "+ second.getId() + " Amount: "+second.getAmount());
 
 				}
 			}
 
-//			Collections.sort(fetchedOffers, new Comparator<Offer>() {
-//				@Override
-//				public int compare(Offer u1, Offer u2) {
-//					return Double.compare(u2.getAmount(), u1.getAmount());
-//				}
-//			});
 
 			return offers;
 		} catch (Exception e) {
@@ -791,7 +845,7 @@ public class TransactionService {
 	/*
 	 * Approve a Counter Offer
 	 */
-
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public ResponseEntity<Object> acceptCounterOffer(HttpServletRequest request, JsonNode body, long counterId) {
 		try {
 			Optional<CounterOffer> cOffer = counterOfferRepo.findById(counterId);
@@ -821,8 +875,6 @@ public class TransactionService {
 			List<Offer> offers = new ArrayList<>();
 
 			validateOfferIsValid(autoMatchedOffer.get().getOriginalOffer());
-//			offers.add(autoMatchedOffer.get().getOriginalOffer());
-//			offers.add(autoMatchedOffer.get().getCounteredOffer());
 			if (autoMatchedOffer.get().getType() == Enum.AutoMatchTypes.direct_counter) {
 				validateOfferIsValid(autoMatchedOffer.get().getCounteredOffer());
 			} else if (autoMatchedOffer.get().getType() == Enum.AutoMatchTypes.single_counter) {
@@ -845,8 +897,6 @@ public class TransactionService {
 			if (autoMatchedOffer.get().getCounteredOffer().getAmount() == counterOffer.getCounterAmount()) {
 				requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
 						transaction, autoMatchedOffer.get().getOriginalOffer().getAmount()));
-//				requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getCounteredOffer(),
-//						transaction, counterOffer.getCounterAmount()));
 			} else {
 				double counteredAmount = autoMatchedOffer.get().getCounteredOffer().isUsePrevailingRate()
 						? counterOffer.getCounterAmount() * responseBuilder.getExchangeRate(
@@ -876,13 +926,6 @@ public class TransactionService {
 				} else {
 					requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
 							transaction, counteredAmount));
-//					if (originalAmount > counteredAmount) {
-//						requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
-//								transaction, counteredAmount));
-//					} else {
-//						requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getOriginalOffer(),
-//								transaction, counteredAmount));
-//					}
 				}
 			}
 			requests.add(createTransferRequestsForASingleOffer(autoMatchedOffer.get().getCounteredOffer(), transaction,
@@ -890,6 +933,13 @@ public class TransactionService {
 
 			transaction.setRequests(requests);
 			transactionRepo.save(transaction);
+			
+			scheduleTransaction(transaction);
+			
+			if (counterMap.containsKey(autoMatchedOffer.get().getId())) {
+				counterMap.get(autoMatchedOffer.get().getId()).cancel();
+				counterMap.remove(autoMatchedOffer.get().getId());
+			}
 
 			return new ResponseEntity<>("Success", HttpStatus.OK);
 		} catch (CustomException e) {
@@ -968,7 +1018,10 @@ public class TransactionService {
 					offerRepo.save(orgOffer);
 				}
 			}
-
+			if (counterMap.containsKey(autoMatchOffer.getId())) {
+				counterMap.get(autoMatchOffer.getId()).cancel();
+				counterMap.remove(autoMatchOffer.getId());
+			}
 			return new ResponseEntity<>("Success", HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
@@ -1022,11 +1075,12 @@ public class TransactionService {
 				transaction.setAmount(totalAmount);
 				transaction.setStatus(Enum.CounterOfferStatuses.accepted);
 				transactionRepo.save(transaction);
+				if (transactionMap.containsKey(transaction.getId())) {
+					transactionMap.get(transaction.getId()).cancel();
+					transactionMap.remove(transaction.getId());
+				}
 			}
-//			else {
-//				transferRequest.setStatus(Enum.CounterOfferStatuses.accepted);
-//				transferRequestRepo.save(transferRequest);
-//			}
+
 			return new ResponseEntity<>("Success", HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
@@ -1147,7 +1201,10 @@ public class TransactionService {
 			}
 
 			moveOffersToOpen(requests, Enum.OfferStatuses.open);
-
+			if (transactionMap.containsKey(transaction.getId())) {
+				transactionMap.get(transaction.getId()).cancel();
+				transactionMap.remove(transaction.getId());
+			}
 			return new ResponseEntity<>("Success", HttpStatus.OK);
 		} catch (CustomException e) {
 			e.printStackTrace();
