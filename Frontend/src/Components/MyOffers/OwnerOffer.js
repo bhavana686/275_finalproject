@@ -102,6 +102,7 @@ class Offer extends Component {
     }
 
     acceptOffer = (idx, match) => {
+        this.setState({loading: true})
         const { match: { params } } = this.props
         const offerId = params.id;
         let url = process.env.REACT_APP_BACKEND_URL + "/offer/automatch/" + offerId + "/equal/process";
@@ -154,6 +155,7 @@ class Offer extends Component {
 
 
     counterOffer = () => {
+        this.setState({loading: true})
         const idx = this.state.currentOfferId;
         const { match: { params } } = this.props
         const offerId = params.id;
@@ -216,11 +218,11 @@ class Offer extends Component {
             message.error("Counter Amount Must be in Range");
             return;
         }
-
+        const match = this.state.autoMatches[idx];               
         let body = {
             "userId": sessionStorage.getItem("id"),
             "offerAmount": (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2),
-            "sumOfMatchedOffers": this.state.autoMatches[idx]["sum"],
+            "sumOfMatchedOffers": match.type === "gamma" ? (match.sum - (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2)) : match.sum,
             // "adjustmentAmount": requestingAmount.toFixed(2),
             "adjustmentAmount": requestingAmount,
             "offers": this.state.autoMatches[idx]["offers"]
@@ -236,11 +238,13 @@ class Offer extends Component {
                 message.success("Counter Offer Created Successfully")
                 this.closeCounterModal();
                 console.log(response.data)
+                this.fetchData();
             })
             .catch((error) => {
                 this.closeCounterModal();
                 console.log(error);
                 message.error("Cannot Create Counter. Please check your amount");
+                this.fetchData();
             });
     }
 
@@ -337,6 +341,7 @@ class Offer extends Component {
                                                                     <Panel header={<div>
                                                                         <b>
                                                                             <div>{"Amount You Get: " + (match.type === "gamma" ? (match.sum - (this.state.offer.amount * this.state.offer.exchangeRate).toFixed(2)) : match.sum) + " " + this.state.offer.destinationCurrency}</div>
+                                                                            {/* <div>{"Amount You Get: " +  match.sum + " " + this.state.offer.destinationCurrency}</div> */}
                                                                             <div>{" Difference: " + (match.difference).toFixed(2) + " " + this.state.offer.destinationCurrency}</div>
                                                                         </b>
                                                                         <div className="mt-4">

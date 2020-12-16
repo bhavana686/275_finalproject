@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface TransactionHistoryRepo extends JpaRepository<Transaction,Long> {
 	
-	@Query(value = "Select t.expiry,o.source_currency,o.amount,o.destination_currency,o.exchanged_rate,o.transacted_amount*0.995*o.exchanged_rate as destination_amount, "
+	@Query(value = "Select t.expiry,o.source_currency,o.transacted_amount,o.destination_currency,o.exchanged_rate,o.transacted_amount*0.995*o.exchanged_rate as destination_amount, "
 			+ "o.transacted_amount*0.005*o.exchanged_rate as service_fee,t.status "
 			+ "from transaction t right join transaction_requests tr on t.id=tr.transaction_id left join offer_transfer_requests otr on otr.transfer_requests_id=tr.requests_id "
 			+ "left join offer o on o.id = otr.offer_id where o.posted_by_id= :userid and t.status='accepted' and "
