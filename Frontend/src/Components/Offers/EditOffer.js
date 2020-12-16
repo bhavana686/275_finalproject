@@ -53,7 +53,7 @@ class EditOffer extends Component {
             destinationCurrency: response.data[0].destinationCurrency,
             editable: response.data[0].editable,
             exchangeRate: response.data[0].exchangeRate,
-            expiry: response.data[0].expiry+":00",
+            expiry: Moment(response.data[0].expiry).format("YYYY-MM-DDTHH:mm:ss"),
             fullyFulfilled: response.data[0].fullyFulfilled,
             id: response.data[0].id,
             sourceCountry: response.data[0].sourceCountry,
@@ -63,7 +63,8 @@ class EditOffer extends Component {
             usePrevailingRate: response.data[0].usePrevailingRate,
          
         });
-        
+        console.log(response.data[0].expiry)
+        console.log(typeof(Moment(response.data[0].expiry).format("YYYY-MM-DDTHH:mm")))
       });
   }
 
@@ -155,7 +156,7 @@ class EditOffer extends Component {
     if(this.state.success){
       msgshow = <h2 style={{color:"red"}}>Succesfully Updated the Offer</h2>
     }
-
+console.log(this.state.expiry)
     return (
       <div className="container contact-form">
         {redirectVar}
@@ -277,6 +278,7 @@ class EditOffer extends Component {
     type="datetime-local"
     name="expiry"
     defaultValue={this.state.expiry}
+    value={this.state.expiry}
     onChange={this.handleChange}/>
   </div>
 

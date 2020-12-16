@@ -142,7 +142,7 @@ class Offer extends Component {
             })
             .catch((error) => {
                 console.log(error);
-                message.error("Cannot Accept Offer.");
+                message.error("Cannot Accept Offer. Check your Bank Accounts or Offer is not available");
                 this.fetchData();
             });
     }
@@ -243,7 +243,7 @@ class Offer extends Component {
             .catch((error) => {
                 this.closeCounterModal();
                 console.log(error);
-                message.error("Cannot Create Counter. Please check your amount");
+                message.error("Cannot Create Counter. Please check your amount, your Bank Accounts or Offer is not available");
                 this.fetchData();
             });
     }
